@@ -1,8 +1,9 @@
-.ycm_extra_conf.py
+.ycm_extra_conf.py*
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 Makefile
 *.odt
+*-prefix
 bin
 lib
