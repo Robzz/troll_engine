@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "window.h"
+
 void error_callback(int error, const char* description) {
     std::cerr << description << std::endl;
 }
@@ -14,54 +16,43 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 
-GLFWwindow* init_libs(int argc, char** argv) {
+void init_libs(int argc, char** argv) {
+    // Initialize GLEW and GLFW
     if(!glewInit()) {
         std::cerr << "Error : cannot initialize GLEW" << std::endl;
-        return NULL;
+        exit(EXIT_FAILURE);
     }
-
-    GLFWwindow* window;
 
     glfwSetErrorCallback(error_callback);
 
     if (!glfwInit()) {
-        return NULL;
         std::cerr << "Error : cannot initialize GLFW" << std::endl;
+        exit(EXIT_FAILURE);
     }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        std::cerr << "Error : cannot create window" << std::endl;
-        glfwTerminate();
-        return NULL;
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-    glfwSetKeyCallback(window, key_callback);
     
-    return window;
+    glfwSwapInterval(1);
 }
 
 
 int main(int argc, char** argv) {
-    GLFWwindow* window = init_libs(argc, argv);
-    if(!window)
+    init_libs(argc, argv);
+
+    Window window(1280, 720);
+    if (!window) {
+        std::cerr << "Error : cannot create window" << std::endl;
+        glfwTerminate();
         return -1;
+    }
+    window.makeCurrent();
+    glfwSetKeyCallback(window.m_w, key_callback);
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window.m_w))
     {
         /* Render here */
 
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window.m_w);
 
         /* Poll for and process events */
         glfwPollEvents();
