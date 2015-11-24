@@ -22,6 +22,7 @@ set(SOURCES
     src/main.cpp
     src/window.cpp
     src/shader.cpp
+    src/program.cpp
     src/debug.cpp
 )
 

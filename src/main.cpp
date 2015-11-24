@@ -5,8 +5,8 @@
 
 #include <fstream>
 
-#include "shader.h"
 #include "window.h"
+#include "program.h"
 
 void error_callback(int error, const char* description) {
     std::cerr << description << std::endl;
@@ -42,7 +42,26 @@ int main(int argc, char** argv) {
             return -1;
         }
         std::ifstream fvs("shaders/passthrough.vs");
-        Shader vs(fvs, GL_VERTEX_SHADER);
+        std::ifstream ffs("shaders/passthrough.fs");
+        VertexShader vs(fvs);
+        if(!vs) {
+            std::cerr << "Vertex shader compile error : " << std::endl << vs.info_log() << std::endl;
+            return -1;
+        }
+        FragmentShader fs(ffs);
+        if(!fs) {
+            std::cerr << "Fragment shader compile error : " << std::endl << fs.info_log() << std::endl;
+            return -1;
+        }
+        Program p = ProgramBuilder().attach_shader(vs)
+                                    .attach_shader(fs)
+                                    .link();
+        if(!p) {
+            std::cerr << "Program link error : " << std::endl << p.info_log() << std::endl;
+            return -1;
+        }
+
+        p.use();
 
         /* Loop until the user closes the window */
     }
