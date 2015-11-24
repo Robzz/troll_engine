@@ -18,7 +18,13 @@ set_property(TARGET glew PROPERTY IMPORTED_LOCATION ${source_dir}/lib/libGLEW.a)
 add_subdirectory(./lib/glfw-3.1.2)
 
 # Define project
-set(SOURCES src/main.cpp src/window.cpp)
+set(SOURCES
+    src/main.cpp
+    src/window.cpp
+    src/shader.cpp
+    src/debug.cpp
+)
+
 add_executable(Projet ${SOURCES})
 add_dependencies(Projet glew_build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
