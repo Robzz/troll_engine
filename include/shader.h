@@ -2,13 +2,14 @@
 #define SHADER_H
 
 #include <istream>
-#include <GL/glew.h>
+#include "gl_core_3_3.h"
 
 class Shader {
     friend class ProgramBuilder;
     public:
         virtual ~Shader();
         operator bool() const;
+        bool operator !() const;
         std::string info_log() const;
 
     protected:

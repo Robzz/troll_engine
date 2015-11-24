@@ -1,21 +1,24 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <GL/glew.h>
+#include <iostream>
+#include <GLFW/glfw3.h>
+
+#define DEBUG
+//#define GL_TRACE
 
 void check_gl_errors();
 const char* parse_error(GLenum err);
 
-#ifdef DEBUG
-void wrap_gl_call();
-#define GL(gl_call) ( \
-    if((GLenum e = glGetError())) { \
-        std::cerr << "GL Error!\n\tCall : " #gl_call "\n\tCause : " << parse_error(e) << std::endl;\
-        } \
-)
-#else
-#define GL(gl_call) (gl_call)
+void wrap_gl_call(const char* call_str, const char* filename, int lineno);
 
-#endif
+template <class T>
+T wrap_gl_call(T val, const char* call_str, const char* filename, int lineno) {
+    wrap_gl_call(call_str, filename, lineno);
+    return val;
+}
+
+#define GL(c) (wrap_gl_call(c, #c, __FILE__, __LINE__))
+#define GLV(c) { c; wrap_gl_call(#c, __FILE__, __LINE__); }
 
 #endif

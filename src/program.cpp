@@ -6,31 +6,41 @@ Program::Program(GLuint id) :
 { }
 
 Program::~Program() {
-    GL(glDeleteProgram(m_id));
+    GLV(glDeleteProgram(m_id));
 }
 
 Program::operator bool() const {
-    GLint link_status;
-    GL(glGetProgramiv(m_id, GL_LINK_STATUS, &link_status));
+    GLint link_status = 1;
+    GLV(glGetProgramiv(m_id, GL_LINK_STATUS, &link_status));
     return link_status;
 }
 
+bool Program::operator !() const {
+    return !((*this).operator bool());
+}
+
+
 std::string Program::info_log() const {
     GLint log_length;
-    GL(glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length));
+    GLV(glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length));
     GLchar* buf = new GLchar[log_length];
-    GL(glGetProgramInfoLog(m_id, log_length, NULL, buf));
+    GLV(glGetProgramInfoLog(m_id, log_length, NULL, buf));
     std::string log(buf);
     delete[] buf;
     return log;
 }
 
 void Program::use() const {
-    GL(glUseProgram(m_id));
+    GLV(glUseProgram(m_id));
 }
 
 void Program::no_program() {
-    GL(glUseProgram(0));
+    GLV(glUseProgram(0));
+}
+
+GLint Program::getAttributeLocation(std::string attribName) const {
+    GLint loc = GL(glGetAttribLocation(m_id, attribName.c_str()));
+    return loc;
 }
 
 ProgramBuilder::ProgramBuilder() :
@@ -42,17 +52,17 @@ ProgramBuilder::ProgramBuilder() :
 ProgramBuilder::~ProgramBuilder() { }
 
 ProgramBuilder& ProgramBuilder::attach_shader(Shader& s) {
-    GL(glAttachShader(m_program, s.m_id));
+    GLV(glAttachShader(m_program, s.m_id));
     m_attachedShaders.push_back(&s);
 
     return *this;
 }
 
 Program ProgramBuilder::link() {
-    GL(glLinkProgram(m_program));
+    GLV(glLinkProgram(m_program));
     
     for(auto it = m_attachedShaders.begin() ; it != m_attachedShaders.end() ; ++it)
-        GL(glDetachShader(m_program, (*it)->m_id));
+        GLV(glDetachShader(m_program, (*it)->m_id));
 
     return Program(m_program);
 }

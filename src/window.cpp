@@ -1,17 +1,21 @@
 #include "window.h"
 
 #include <iostream>
+#include <sstream>
 
 bool Window::glew_init = false;
 
-Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync, std::function<void()> render, std::function<void(Window&, int, int, int, int)> input) :
-    render(render),
+Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync, std::function<void(Window&, int, int, int, int)> input) :
+    render(),
     m_inputLoop(input)
 {
-    // Use OpenGL 3.3
+    // Use OpenGL 3.3 core profile
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
+    // Create the window and make the context current
     m_w = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(!m_w)
         std::cerr << "Shit flew through the window" << std::endl;
@@ -21,15 +25,6 @@ Window::Window(unsigned int width, unsigned int height, std::string const& title
         glfwSetKeyCallback(m_w, cb.target<void(GLFWwindow*, int, int, int, int)>());
     }
     makeCurrent();
-
-    // GLEW needs a GL context to be initialized, so we do it here...
-    if(!glew_init) {
-        if(glewInit() != GLEW_OK) {
-            std::cerr << "Error : cannot initialize GLEW" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        glew_init = true;
-    }
 
     if(vsync)
         glfwSwapInterval(1);
@@ -47,16 +42,32 @@ void Window::swapBuffers() {
     glfwSwapBuffers(m_w);
 }
 
+std::string Window::context_info() const {
+    std::ostringstream ss;
+    const GLubyte* vendor   = glGetString (GL_VENDOR);
+    const GLubyte* renderer = glGetString (GL_RENDERER);
+    const GLubyte* version  = glGetString (GL_VERSION);
+    const GLubyte* glsl_ver = glGetString (GL_SHADING_LANGUAGE_VERSION);
+    
+    ss << vendor << " : " << renderer << " (" << version << "), GLSL version " << glsl_ver;
+    return ss.str();
+}
+
+void Window::setRenderLoop(std::function<void()> f) {
+    render = f;
+}
+
 void Window::mainLoop() {
     while (!glfwWindowShouldClose(m_w))
     {
         /* Render here */
+        // TODO : raise exception if no render loop
         render();
 
         /* Swap front and back buffers */
         swapBuffers();
 
-        /* Poll for and process events */
+        /* Poll and process events */
         glfwPollEvents();
     }
 }
@@ -74,8 +85,7 @@ WindowBuilder::WindowBuilder() :
     m_width(1280),
     m_title("LMG"),
     m_vsync(true),
-    m_keyCallback(),
-    m_renderCallback()
+    m_keyCallback()
 { }
 
 WindowBuilder::~WindowBuilder() {
@@ -98,16 +108,11 @@ WindowBuilder& WindowBuilder::vsync(bool v) {
     return *this;
 }
 
-WindowBuilder& WindowBuilder::renderLoop(std::function<void()> f) {
-    m_renderCallback = f;
-    return *this;
-}
-
 WindowBuilder& WindowBuilder::inputLoop(std::function<void(Window&, int, int, int, int)> f) {
     m_keyCallback = f;
     return *this;
 }
 
 Window WindowBuilder::build() const {
-    return Window(m_width, m_height, m_title, m_vsync, m_renderCallback, m_keyCallback);
+    return Window(m_width, m_height, m_title, m_vsync, m_keyCallback);
 }
