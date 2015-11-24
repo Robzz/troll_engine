@@ -7,3 +7,4 @@ Makefile
 *-prefix
 bin
 lib
+glLoadGen
