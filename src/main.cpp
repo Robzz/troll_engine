@@ -107,13 +107,19 @@ int main(int argc, char** argv) {
         sphereVao.enableVertexAttribArray(l);
         sphereVao.vertexAttribPointer(sphereVbo, l, 4);
 
+        // Setup depth test
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LEQUAL);
+        glDepthRange(0.0f, 1.0f);
+        glClearDepth(1.0f);
         window.setRenderCallback([&] () {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             p.use();
             sphereVao.bind();
             GLV(glDrawArrays(GL_TRIANGLES, 0, 3));
             VAO::unbind();
             Program::noProgram();
-            check_gl_errors();
         });
 
         /* Loop until the user closes the window */
