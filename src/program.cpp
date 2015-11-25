@@ -1,6 +1,8 @@
 #include "program.h"
 #include "debug.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 Program::Program(GLuint id) :
     m_id(id)
 { }
@@ -34,13 +36,22 @@ void Program::use() const {
     GLV(glUseProgram(m_id));
 }
 
-void Program::no_program() {
+void Program::noProgram() {
     GLV(glUseProgram(0));
 }
 
 GLint Program::getAttributeLocation(std::string attribName) const {
     GLint loc = GL(glGetAttribLocation(m_id, attribName.c_str()));
     return loc;
+}
+
+GLint Program::getUniformLocation(std::string uniformName) const {
+    GLint loc = GL(glGetUniformLocation(m_id, uniformName.c_str()));
+    return loc;
+}
+
+void Program::sendUniform(GLint location, glm::mat4 const& m) {
+    GLV(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m)));
 }
 
 ProgramBuilder::ProgramBuilder() :

@@ -6,15 +6,16 @@
 
 class Window {
     public:
-        Window(unsigned int width, unsigned int height, std::string const& title, bool vsync,
-               std::function<void(Window&, int, int, int, int)> input,
-               std::function<void(int, int)> resize);
+        Window(unsigned int width, unsigned int height, std::string const& title, bool vsync);
         ~Window();
         void makeCurrent();
         void swapBuffers();
         std::string context_info() const;
 
-        void setRenderLoop(std::function<void()> f);
+        void setRenderCallback(std::function<void()> f);
+        void setInputCallback(std::function<void(Window&, int, int, int, int)> f);
+        void setResizeCallback(std::function<void(int, int)> f);
+
         void mainLoop();
 
         void close();
@@ -23,8 +24,8 @@ class Window {
 
     private:
         GLFWwindow* m_w;
-        std::function<void()> render;
-        std::function<void(Window&, int, int, int, int)> m_inputLoop;
+        std::function<void()> m_render;
+        std::function<void(Window&, int, int, int, int)> m_input;
         std::function<void(int, int)> m_resize;
 
         static std::map<GLFWwindow*, Window*> window_map;
@@ -39,8 +40,6 @@ class WindowBuilder {
         WindowBuilder& size(unsigned int width, unsigned int height);
         WindowBuilder& title(std::string const& title);
         WindowBuilder& vsync(bool v);
-        WindowBuilder& inputCallback(std::function<void(Window&, int, int, int, int)> f);
-        WindowBuilder& resizeCallback(std::function<void(int, int)> f);
 
         Window build() const;
 
@@ -49,6 +48,4 @@ class WindowBuilder {
         unsigned int m_width;
         std::string m_title;
         bool m_vsync;
-        std::function<void(Window&, int, int, int, int)> m_keyCallback;
-        std::function<void(int, int)> m_resizeCallback;
 };

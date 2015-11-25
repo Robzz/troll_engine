@@ -5,6 +5,7 @@
 #include "gl_core_3_3.h"
 
 #include <vector>
+#include <glm/glm.hpp>
 
 class Program {
     friend class ProgramBuilder;
@@ -14,9 +15,12 @@ class Program {
         std::string info_log() const;
 
         void use() const;
-        static void no_program();
+        static void noProgram();
 
         GLint getAttributeLocation(std::string) const;
+        GLint getUniformLocation(std::string) const;
+    
+        void sendUniform(GLint location, glm::mat4 const&);
 
         ~Program();
 

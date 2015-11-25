@@ -52,9 +52,9 @@ VBO build_sphere_mesh() {
     VBO s;
     std::vector<glm::vec4> vec;
     
-    vec.push_back(glm::vec4(-0.5, -0.5, 0, 1));
-    vec.push_back(glm::vec4(-0.5, 0.5, 0, 1));
-    vec.push_back(glm::vec4(0.5, 0.5, 0, 1));
+    vec.push_back(glm::vec4(-.5, -.5, 0, 1));
+    vec.push_back(glm::vec4(-.5, .5, 0, 1));
+    vec.push_back(glm::vec4(.5, .5, 0, 1));
 
     s.upload_data(vec);
     
@@ -76,32 +76,43 @@ int main(int argc, char** argv) {
     init_libs(argc, argv);
 
     {
-        glm::mat4 projMatrix = glm::perspective<float>(45, 1280.f/720.f, 0.1, 100);
+        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
+                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -10)),
+                  modelView = projMatrix * worldMatrix;
         WindowBuilder wb;
         Window window = wb.size(1280, 720)
                           .title("Projetlololol")
-                          .resizeCallback([&] (int w, int h) { GLV(glViewport(0, 0, w, h)); projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100); })
-                          .inputCallback(&key_callback)
                           .build();
         if (!window) {
             std::cerr << "Error : cannot create window" << std::endl;
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
-        std::cout << window.context_info() << std::endl;
         Program p = buildShaderProgram();
+        GLint projMatrixLocation = p.getUniformLocation("m_modelView");
+        p.use();
+        p.sendUniform(projMatrixLocation, modelView);
+        window.setResizeCallback([&] (int w, int h) {
+            GLV(glViewport(0, 0, w, h));
+            projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100);
+            modelView = projMatrix * worldMatrix;
+            p.use();
+            p.sendUniform(projMatrixLocation, modelView);
+        });
+        window.setInputCallback(&key_callback);
+        std::cout << window.context_info() << std::endl;
         VBO sphereVbo = build_sphere_mesh();
         VAO sphereVao;
         GLint l = p.getAttributeLocation("v_position");
         sphereVao.enableVertexAttribArray(l);
         sphereVao.vertexAttribPointer(sphereVbo, l, 4);
 
-        window.setRenderLoop([&] () {
+        window.setRenderCallback([&] () {
             p.use();
             sphereVao.bind();
             GLV(glDrawArrays(GL_TRIANGLES, 0, 3));
             VAO::unbind();
-            Program::no_program();
+            Program::noProgram();
             check_gl_errors();
         });
 
