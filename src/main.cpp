@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "gl_core_3_3.h"
 #include "window.h"
@@ -24,22 +25,9 @@ void init_libs(int argc, char** argv) {
     glfwSetErrorCallback(error_callback);
 }
 
-Window buildWindow() {
-    WindowBuilder wb;
-    Window window = wb.size(1280, 720)
-                      .title("Projetlololol")
-                      .build();
-    if (!window) {
-        std::cerr << "Error : cannot create window" << std::endl;
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    return window;
-}
-
 Program buildShaderProgram() {
-    std::ifstream fvs("shaders/passthrough.vs");
-    std::ifstream ffs("shaders/passthrough.fs");
+    std::ifstream fvs("shaders/perspective.vs");
+    std::ifstream ffs("shaders/perspective.fs");
     VertexShader vs(fvs);
     if(!vs) {
         std::cerr << "Vertex shader compile error : " << std::endl << vs.info_log() << std::endl;
@@ -60,7 +48,7 @@ Program buildShaderProgram() {
     return p;
 }
 
-VBO build_sphere() {
+VBO build_sphere_mesh() {
     VBO s;
     std::vector<glm::vec4> vec;
     
@@ -73,6 +61,12 @@ VBO build_sphere() {
     return s;
 }
 
+VBO build_sphere_indices() {
+    VBO i;
+
+    return i;
+}
+
 void key_callback(Window& window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         window.close();
@@ -82,12 +76,23 @@ int main(int argc, char** argv) {
     init_libs(argc, argv);
 
     {
-        Window window = buildWindow();
+        glm::mat4 projMatrix = glm::perspective<float>(45, 1280.f/720.f, 0.1, 100);
+        WindowBuilder wb;
+        Window window = wb.size(1280, 720)
+                          .title("Projetlololol")
+                          .resizeCallback([&] (int w, int h) { GLV(glViewport(0, 0, w, h)); projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100); })
+                          .inputCallback(&key_callback)
+                          .build();
+        if (!window) {
+            std::cerr << "Error : cannot create window" << std::endl;
+            glfwTerminate();
+            exit(EXIT_FAILURE);
+        }
         std::cout << window.context_info() << std::endl;
         Program p = buildShaderProgram();
-        VBO sphereVbo = build_sphere();
+        VBO sphereVbo = build_sphere_mesh();
         VAO sphereVao;
-        GLint l = p.getAttributeLocation("v_pos");
+        GLint l = p.getAttributeLocation("v_position");
         sphereVao.enableVertexAttribArray(l);
         sphereVao.vertexAttribPointer(sphereVbo, l, 4);
 

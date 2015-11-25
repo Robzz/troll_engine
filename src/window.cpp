@@ -3,11 +3,18 @@
 #include <iostream>
 #include <sstream>
 
-bool Window::glew_init = false;
+std::map<GLFWwindow*, Window*> Window::window_map = std::map<GLFWwindow*, Window*>();
 
-Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync, std::function<void(Window&, int, int, int, int)> input) :
+Window* Window::findWindowFromGlfwHandle(GLFWwindow* w) {
+    return Window::window_map.find(w) == Window::window_map.end() ? NULL : Window::window_map[w];
+}
+
+Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync,
+               std::function<void(Window&, int, int, int, int)> input,
+               std::function<void(int, int)> resize) :
     render(),
-    m_inputLoop(input)
+    m_inputLoop(input),
+    m_resize(resize)
 {
     // Use OpenGL 3.3 core profile
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -18,11 +25,19 @@ Window::Window(unsigned int width, unsigned int height, std::string const& title
     // Create the window and make the context current
     m_w = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(!m_w)
-        std::cerr << "Shit flew through the window" << std::endl;
+        std::cerr << "Cannot create window" << std::endl;
+    window_map[m_w] = this;
     if(m_inputLoop) {
-        std::function<void(GLFWwindow*, int, int, int, int)> cb = [&] (GLFWwindow* w, int key, int scancode, int action, int mods)
-                                                                  { m_inputLoop(*this, key, scancode, action, mods); } ;
-        glfwSetKeyCallback(m_w, cb.target<void(GLFWwindow*, int, int, int, int)>());
+        glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods)
+                                { Window* win = Window::findWindowFromGlfwHandle(w);
+                                  if(win)
+                                      win->m_inputLoop(*win, key, scancode, action, mods); });
+    }
+    if(m_resize) {
+        glfwSetWindowSizeCallback(m_w, [] (GLFWwindow* w, int width, int height)
+                                       { Window* win = Window::findWindowFromGlfwHandle(w);
+                                         if(win)
+                                             win->m_resize(width, height); });
     }
     makeCurrent();
 
@@ -31,6 +46,7 @@ Window::Window(unsigned int width, unsigned int height, std::string const& title
 }
 
 Window::~Window() {
+    window_map.erase(m_w);
     glfwDestroyWindow(m_w);
 }
 
@@ -85,7 +101,8 @@ WindowBuilder::WindowBuilder() :
     m_width(1280),
     m_title("LMG"),
     m_vsync(true),
-    m_keyCallback()
+    m_keyCallback(),
+    m_resizeCallback()
 { }
 
 WindowBuilder::~WindowBuilder() {
@@ -108,11 +125,16 @@ WindowBuilder& WindowBuilder::vsync(bool v) {
     return *this;
 }
 
-WindowBuilder& WindowBuilder::inputLoop(std::function<void(Window&, int, int, int, int)> f) {
+WindowBuilder& WindowBuilder::inputCallback(std::function<void(Window&, int, int, int, int)> f) {
     m_keyCallback = f;
     return *this;
 }
 
+WindowBuilder& WindowBuilder::resizeCallback(std::function<void(int, int)> f) {
+    m_resizeCallback = f;
+    return *this;
+}
+
 Window WindowBuilder::build() const {
-    return Window(m_width, m_height, m_title, m_vsync, m_keyCallback);
+    return Window(m_width, m_height, m_title, m_vsync, m_keyCallback, m_resizeCallback);
 }

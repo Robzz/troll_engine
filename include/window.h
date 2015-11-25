@@ -2,10 +2,13 @@
 
 #include <functional>
 #include <string>
+#include <map>
 
 class Window {
     public:
-        Window(unsigned int width, unsigned int height, std::string const& title, bool vsync, std::function<void(Window&, int, int, int, int)> input);
+        Window(unsigned int width, unsigned int height, std::string const& title, bool vsync,
+               std::function<void(Window&, int, int, int, int)> input,
+               std::function<void(int, int)> resize);
         ~Window();
         void makeCurrent();
         void swapBuffers();
@@ -22,8 +25,10 @@ class Window {
         GLFWwindow* m_w;
         std::function<void()> render;
         std::function<void(Window&, int, int, int, int)> m_inputLoop;
+        std::function<void(int, int)> m_resize;
 
-        static bool glew_init;
+        static std::map<GLFWwindow*, Window*> window_map;
+        static Window* findWindowFromGlfwHandle(GLFWwindow*);
 };
 
 class WindowBuilder {
@@ -34,7 +39,8 @@ class WindowBuilder {
         WindowBuilder& size(unsigned int width, unsigned int height);
         WindowBuilder& title(std::string const& title);
         WindowBuilder& vsync(bool v);
-        WindowBuilder& inputLoop(std::function<void(Window&, int, int, int, int)> f);
+        WindowBuilder& inputCallback(std::function<void(Window&, int, int, int, int)> f);
+        WindowBuilder& resizeCallback(std::function<void(int, int)> f);
 
         Window build() const;
 
@@ -44,4 +50,5 @@ class WindowBuilder {
         std::string m_title;
         bool m_vsync;
         std::function<void(Window&, int, int, int, int)> m_keyCallback;
+        std::function<void(int, int)> m_resizeCallback;
 };
