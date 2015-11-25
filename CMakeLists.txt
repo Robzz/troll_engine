@@ -16,7 +16,7 @@ set(SOURCES
 )
 
 add_executable(Projet ${SOURCES})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set_target_properties(Projet PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 # Enable C++11
 set_property(TARGET Projet PROPERTY CXX_STANDARD 11)
 
