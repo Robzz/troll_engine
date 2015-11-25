@@ -21,7 +21,6 @@ void init_libs(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-
     glfwSetErrorCallback(error_callback);
 }
 
@@ -64,6 +63,14 @@ VBO build_sphere_mesh() {
 VBO build_sphere_indices() {
     VBO i;
 
+    std::vector<GLshort> vec;
+    
+    vec.push_back(0);
+    vec.push_back(1);
+    vec.push_back(2);
+
+    i.upload_data(vec);
+
     return i;
 }
 
@@ -102,10 +109,12 @@ int main(int argc, char** argv) {
         window.setInputCallback(&key_callback);
         std::cout << window.context_info() << std::endl;
         VBO sphereVbo = build_sphere_mesh();
+        VBO sphereIndices = build_sphere_indices();
         VAO sphereVao;
         GLint l = p.getAttributeLocation("v_position");
         sphereVao.enableVertexAttribArray(l);
         sphereVao.vertexAttribPointer(sphereVbo, l, 4);
+        VAO::unbind();
 
         // Setup depth test
         glEnable(GL_DEPTH_TEST);
@@ -117,7 +126,9 @@ int main(int argc, char** argv) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             p.use();
             sphereVao.bind();
-            GLV(glDrawArrays(GL_TRIANGLES, 0, 3));
+            sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
+            GLV(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, NULL));
+            //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
             VAO::unbind();
             Program::noProgram();
         });
