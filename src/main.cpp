@@ -48,29 +48,54 @@ Program buildShaderProgram() {
 }
 
 VBO build_sphere_mesh() {
-    VBO s;
+    const int nMeridians = 30;
+    const int nParallels = 30;
+    const float radius = 0.5;
+    const float dPhi = M_PI / (nParallels+1);
+    const float dTheta = 2 * M_PI / (nMeridians-1);
     std::vector<glm::vec4> vec;
+    vec.reserve(nMeridians*nParallels);
     
-    vec.push_back(glm::vec4(-.5, -.5, 0, 1));
-    vec.push_back(glm::vec4(-.5, .5, 0, 1));
-    vec.push_back(glm::vec4(.5, .5, 0, 1));
+    // Start from the bottom
+    vec.push_back(glm::vec4(0, -.5, 0, 1));
 
+    // Generate points along the parallels
+    for(int i = 0 ; i != nParallels; ++i) {
+        float phi = M_PI/2 + i*dPhi;
+        float y = radius * sin(phi);
+        float r = radius * cos(phi);
+        for(int j = 0 ; j != nMeridians ; ++j) {
+            float theta = j * dTheta;
+            vec.push_back(glm::vec4(r*sin(theta), y, r*cos(theta), 1));
+        }
+    }
+
+    // Add the top
+    vec.push_back(glm::vec4(0, .5, 0, .5));
+
+    VBO s;
     s.upload_data(vec);
-    
     return s;
 }
 
 VBO build_sphere_indices() {
-    VBO i;
-
+    const int nMeridians = 30;
+    const int nParallels = 30;
     std::vector<GLshort> vec;
     
-    vec.push_back(0);
-    vec.push_back(1);
-    vec.push_back(2);
+    for(int i = 0 ; i != nParallels-1 ; ++i) {
+        for(int j = 0 ; j != nMeridians ; ++j) {
+            vec.push_back(nParallels * i + j);
+            vec.push_back(nParallels * i + j + 1);
+            vec.push_back(nParallels * (i + 1) + j + 1);
+            vec.push_back(nParallels * (i + 1) + j + 1);
+            vec.push_back(nParallels * (i + 1) + j);
+            vec.push_back(nParallels * i + j);
+        }
+    }
 
+    VBO i;
     i.upload_data(vec);
-
     return i;
 }
 
@@ -84,7 +109,7 @@ int main(int argc, char** argv) {
 
     {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
-                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -10)),
+                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5)),
                   modelView = projMatrix * worldMatrix;
         WindowBuilder wb;
         Window window = wb.size(1280, 720)
@@ -116,6 +141,7 @@ int main(int argc, char** argv) {
         sphereVao.vertexAttribPointer(sphereVbo, l, 4);
         VAO::unbind();
 
+        glDisable(GL_CULL_FACE);
         // Setup depth test
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
@@ -127,7 +153,7 @@ int main(int argc, char** argv) {
             p.use();
             sphereVao.bind();
             sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
-            GLV(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, NULL));
+            GLV(glDrawElements(GL_TRIANGLES, 29*29*2*3, GL_UNSIGNED_SHORT, NULL));
             //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
             VAO::unbind();
             Program::noProgram();
