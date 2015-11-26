@@ -48,8 +48,8 @@ Program buildShaderProgram() {
 }
 
 VBO build_sphere_mesh() {
-    const int nMeridians = 30;
-    const int nParallels = 30;
+    const int nMeridians = 10;
+    const int nParallels = 10;
     const float radius = 0.5;
     const float dPhi = M_PI / (nParallels+1);
     const float dTheta = 2 * M_PI / (nMeridians-1);
@@ -58,7 +58,7 @@ VBO build_sphere_mesh() {
     
     // Generate points along the parallels
     for(int i = 0 ; i != nParallels; ++i) {
-        float phi = M_PI/2 + i*dPhi;
+        float phi = -M_PI/2 + (i+1)*dPhi;
         float y = radius * sin(phi);
         float r = radius * cos(phi);
         for(int j = 0 ; j != nMeridians ; ++j) {
@@ -74,12 +74,12 @@ VBO build_sphere_mesh() {
 }
 
 VBO build_sphere_indices() {
-    const int nMeridians = 30;
-    const int nParallels = 30;
+    const int nMeridians = 10;
+    const int nParallels = 10;
     std::vector<GLshort> vec;
     
-    for(int i = 0 ; i != nParallels-1 ; ++i) {
-        for(int j = 0 ; j != nMeridians ; ++j) {
+    for(int i = 0 ; i != (nParallels-1) ; ++i) {
+        for(int j = 0 ; j != (nMeridians-1) ; ++j) {
             vec.push_back(nParallels * i + j);
             vec.push_back(nParallels * i + j + 1);
             vec.push_back(nParallels * (i + 1) + j + 1);
@@ -104,8 +104,8 @@ int main(int argc, char** argv) {
 
     {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
-                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5)),
-                  modelView = projMatrix * worldMatrix;
+                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
+        glm::vec3 lightPosition(0, 5, 5);
         WindowBuilder wb;
         Window window = wb.size(1280, 720)
                           .title("Projetlololol")
@@ -116,15 +116,20 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
         Program p = buildShaderProgram();
-        GLint projMatrixLocation = p.getUniformLocation("m_modelView");
+        GLint projMatrixLocation = p.getUniformLocation("m_proj");
+        GLint worldMatrixLocation = p.getUniformLocation("m_world");
+        GLint normalMatrixLocation = p.getUniformLocation("m_normalTransform");
+        GLint lightPosLocation = p.getUniformLocation("v_lightPosition");
         p.use();
-        p.sendUniform(projMatrixLocation, modelView);
+        p.sendUniform(projMatrixLocation, projMatrix);
+        p.sendUniform(worldMatrixLocation, worldMatrix);
+        p.sendUniform(normalMatrixLocation, glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
+        p.sendUniform(lightPosLocation, lightPosition);
         window.setResizeCallback([&] (int w, int h) {
             GLV(glViewport(0, 0, w, h));
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100);
-            modelView = projMatrix * worldMatrix;
             p.use();
-            p.sendUniform(projMatrixLocation, modelView);
+            p.sendUniform(projMatrixLocation, lightPosition);
         });
         window.setInputCallback(&key_callback);
         std::cout << window.context_info() << std::endl;
@@ -151,7 +156,7 @@ int main(int argc, char** argv) {
             p.use();
             sphereVao.bind();
             sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
-            GLV(glDrawElements(GL_TRIANGLES, 29*29*2*3, GL_UNSIGNED_SHORT, NULL));
+            GLV(glDrawElements(GL_TRIANGLES, 9*9*2*3, GL_UNSIGNED_SHORT, NULL));
             //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
             VAO::unbind();
             Program::noProgram();

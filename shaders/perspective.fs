@@ -1,7 +1,8 @@
 #version 330
 
-in vec3 vs_normal;
+in float vertex_diffuse_intensity;
 
 void main() {
-    gl_FragColor = vec4(vs_normal, 1);
+    vec3 diffuseColor = vec3(1);
+    gl_FragColor = vec4(diffuseColor*vertex_diffuse_intensity, 1);
 }

@@ -54,6 +54,14 @@ void Program::sendUniform(GLint location, glm::mat4 const& m) {
     GLV(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m)));
 }
 
+void Program::sendUniform(GLint location, glm::mat3 const& m) {
+    GLV(glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(m)));
+}
+
+void Program::sendUniform(GLint location, glm::vec3 const& v) {
+    GLV(glUniform3fv(location, 1, glm::value_ptr(v)));
+}
+
 ProgramBuilder::ProgramBuilder() :
     m_attachedShaders()
 {

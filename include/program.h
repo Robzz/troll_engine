@@ -21,6 +21,8 @@ class Program {
         GLint getUniformLocation(std::string) const;
     
         void sendUniform(GLint location, glm::mat4 const&);
+        void sendUniform(GLint location, glm::mat3 const&);
+        void sendUniform(GLint location, glm::vec3 const&);
 
         ~Program();
 
