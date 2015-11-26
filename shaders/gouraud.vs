@@ -15,6 +15,6 @@ void main() {
     gl_Position = m_proj * m_world * vec4(v_position, 1);
     vs_normal = m_normalTransform * v_normal;
     vec3 worldPos = vec3(m_world * vec4(v_position, 1));
-    vec3 L = -normalize(worldPos - v_lightPosition);
+    vec3 L = normalize(v_lightPosition - worldPos);
     vertex_diffuse_intensity = clamp(dot(L, vs_normal), 0, 1);
 }

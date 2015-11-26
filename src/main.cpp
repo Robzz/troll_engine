@@ -25,8 +25,8 @@ void init_libs(int argc, char** argv) {
 }
 
 Program buildShaderProgram() {
-    std::ifstream fvs("shaders/perspective.vs");
-    std::ifstream ffs("shaders/perspective.fs");
+    std::ifstream fvs("shaders/per_fragment.vs");
+    std::ifstream ffs("shaders/per_fragment.fs");
     VertexShader vs(fvs);
     if(!vs) {
         std::cerr << "Vertex shader compile error : " << std::endl << vs.info_log() << std::endl;
@@ -48,8 +48,8 @@ Program buildShaderProgram() {
 }
 
 VBO build_sphere_mesh() {
-    const int nMeridians = 10;
-    const int nParallels = 10;
+    const int nMeridians = 20;
+    const int nParallels = 20;
     const float radius = 0.5;
     const float dPhi = M_PI / (nParallels+1);
     const float dTheta = 2 * M_PI / (nMeridians-1);
@@ -74,8 +74,8 @@ VBO build_sphere_mesh() {
 }
 
 VBO build_sphere_indices() {
-    const int nMeridians = 10;
-    const int nParallels = 10;
+    const int nMeridians = 20;
+    const int nParallels = 20;
     std::vector<GLshort> vec;
     
     for(int i = 0 ; i != (nParallels-1) ; ++i) {
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
             p.use();
             sphereVao.bind();
             sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
-            GLV(glDrawElements(GL_TRIANGLES, 9*9*2*3, GL_UNSIGNED_SHORT, NULL));
+            GLV(glDrawElements(GL_TRIANGLES, 19*19*2*3, GL_UNSIGNED_SHORT, NULL));
             //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
             VAO::unbind();
             Program::noProgram();
