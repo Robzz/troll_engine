@@ -53,12 +53,9 @@ VBO build_sphere_mesh() {
     const float radius = 0.5;
     const float dPhi = M_PI / (nParallels+1);
     const float dTheta = 2 * M_PI / (nMeridians-1);
-    std::vector<glm::vec4> vec;
+    std::vector<glm::vec3> vec;
     vec.reserve(nMeridians*nParallels);
     
-    // Start from the bottom
-    vec.push_back(glm::vec4(0, -.5, 0, 1));
-
     // Generate points along the parallels
     for(int i = 0 ; i != nParallels; ++i) {
         float phi = M_PI/2 + i*dPhi;
@@ -66,12 +63,10 @@ VBO build_sphere_mesh() {
         float r = radius * cos(phi);
         for(int j = 0 ; j != nMeridians ; ++j) {
             float theta = j * dTheta;
-            vec.push_back(glm::vec4(r*sin(theta), y, r*cos(theta), 1));
+            vec.push_back(glm::vec3(r*sin(theta), y, r*cos(theta)));
+            // The normal is just the normalized position, but we can let glVertexAttribPointer do that
         }
     }
-
-    // Add the top
-    vec.push_back(glm::vec4(0, .5, 0, .5));
 
     VBO s;
     s.upload_data(vec);
@@ -136,9 +131,12 @@ int main(int argc, char** argv) {
         VBO sphereVbo = build_sphere_mesh();
         VBO sphereIndices = build_sphere_indices();
         VAO sphereVao;
-        GLint l = p.getAttributeLocation("v_position");
-        sphereVao.enableVertexAttribArray(l);
-        sphereVao.vertexAttribPointer(sphereVbo, l, 4);
+        GLint posIndex = p.getAttributeLocation("v_position");
+        GLint normalIndex = p.getAttributeLocation("v_normal");
+        sphereVao.enableVertexAttribArray(posIndex);
+        sphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
+        sphereVao.enableVertexAttribArray(normalIndex);
+        sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);
         VAO::unbind();
 
         glDisable(GL_CULL_FACE);
