@@ -147,8 +147,10 @@ int main(int argc, char** argv) {
         VAO::unbind();
 
         SceneGraph scene;
-        IndexedObject* sphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
-        scene.addChild(sphere);
+        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
+        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 19*19*2*3);
+        refSphere->addChild(leftSphere);
+        scene.addChild(refSphere);
 
         glDisable(GL_CULL_FACE);
         // Setup depth test
@@ -158,7 +160,7 @@ int main(int argc, char** argv) {
         glDepthRange(0.0f, 1.0f);
         glClearDepth(1.0f);
         window.setRenderCallback([&] () {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             scene.render(); });
         /*window.setRenderCallback([&] () {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

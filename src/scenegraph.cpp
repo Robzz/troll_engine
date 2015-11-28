@@ -52,7 +52,6 @@ SceneGraph::~SceneGraph() { }
 void SceneGraph::render() {
     for(auto it = m_children.begin() ; it != m_children.end() ; ++it) {
         Node* n = it->second;
-        m_matrixStack.push(n->m_position);
         render(n);
     }
 }
@@ -71,7 +70,7 @@ void SceneGraph::render(Node* n) {
     /* If the node inherits from DrawableNode, draw it.
      * Otherwise, just draw it's children. */
     if(dn) {
-        dn->draw();
+        dn->draw(m_matrixStack.top());
     }
     for(auto it = n->m_children.begin() ; it != n->m_children.end() ; ++it) {
         render(it->second);
@@ -98,8 +97,10 @@ IndexedObject::~IndexedObject() {
 
 }
 
-void IndexedObject::draw() {
+void IndexedObject::draw(glm::mat4 const& m) {
     m_program.use();
+    GLint worldMatrixLocation = m_program.getUniformLocation("m_world");
+    m_program.sendUniform(worldMatrixLocation, m);
     m_vao.bind();
     m_ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
     GLV(glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);)
