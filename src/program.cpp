@@ -1,6 +1,9 @@
 #include "program.h"
 #include "debug.h"
 
+#include <algorithm>
+
+
 
 Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
     m_id(id),
@@ -9,12 +12,15 @@ Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
 
 Program::~Program() {
     GLV(glDeleteProgram(m_id));
+    for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
+        delete *it;
+    }
 }
 
 Program::operator bool() const {
     GLint link_status = 1;
     GLV(glGetProgramiv(m_id, GL_LINK_STATUS, &link_status));
-    return link_status;
+    return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
 }
 
 bool Program::operator !() const {

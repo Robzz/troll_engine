@@ -85,17 +85,19 @@ class Uniform : public UniformBase {
         /* Upload uniform to GPU. Program must be in use. */
         virtual void upload() {
             // Do the upload
-            if(TYPE(T) == TYPE(glm::vec3)) {
-                GLV(glUniform3fv(m_location, 1, glm::value_ptr(m_value)))
+            if(!m_clean) {
+                if(TYPE(T) == TYPE(glm::vec3)) {
+                    GLV(glUniform3fv(m_location, 1, glm::value_ptr(m_value)));
+                }
+                else if(TYPE(T) == TYPE(glm::mat3)) {
+                    GLV(glUniformMatrix3fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value))) ;
+                }
+                else if(TYPE(T) == TYPE(glm::mat4)) {
+                    GLV(glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value)));
+                }
+                
+                m_clean = true;
             }
-            else if(TYPE(T) == TYPE(glm::mat3)) {
-                GLV(glUniformMatrix3fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value))) ;
-            }
-            else if(TYPE(T) == TYPE(glm::mat4)) {
-                GLV(glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value)));
-            }
-            
-            m_clean = true;
         }
 };
 
