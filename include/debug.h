@@ -3,9 +3,10 @@
 
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include "glm/glm.hpp"
 
 #define DEBUG
-//#define GL_TRACE
+#define GL_TRACE
 
 void check_gl_errors();
 const char* parse_error(GLenum err);
@@ -17,6 +18,8 @@ T wrap_gl_call(T val, const char* call_str, const char* filename, int lineno) {
     wrap_gl_call(call_str, filename, lineno);
     return val;
 }
+
+std::ostream& operator<<(std::ostream& s, glm::mat4 const& m);
 
 #define GL(c) (wrap_gl_call(c, #c, __FILE__, __LINE__))
 #define GLV(c) { c; wrap_gl_call(#c, __FILE__, __LINE__); }

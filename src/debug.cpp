@@ -32,3 +32,18 @@ void wrap_gl_call(const char* call_str, const char* filename, int lineno) {
     }
 #endif
 }
+
+std::ostream& operator<<(std::ostream& s, glm::mat4 const& m) {
+    for(int i = 0 ; i != 4 ; ++i) {
+        s << "[ ";
+        for(int j = 0 ; j != 4 ; ++j) {
+            s << m[i][j] << ' ';
+        }
+        s << ']' << std::endl;
+    }
+    return s;
+}
+
+void printMatrix(glm::mat4 const& m) {
+    std::cout << m;
+}
