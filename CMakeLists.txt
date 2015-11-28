@@ -13,6 +13,8 @@ set(SOURCES
     src/debug.cpp
     src/vbo.cpp
     src/vao.cpp
+    src/matrixstack.cpp
+    src/scenegraph.cpp
 )
 
 add_executable(Projet ${SOURCES})

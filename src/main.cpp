@@ -8,6 +8,8 @@
 #include "program.h"
 #include "vbo.h"
 #include "vao.h"
+#include <scenegraph.h>
+
 #include "debug.h"
 
 void error_callback(int error, const char* description) {
@@ -144,6 +146,10 @@ int main(int argc, char** argv) {
         sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);
         VAO::unbind();
 
+        SceneGraph scene;
+        IndexedObject* sphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
+        scene.addChild(sphere);
+
         glDisable(GL_CULL_FACE);
         // Setup depth test
         glEnable(GL_DEPTH_TEST);
@@ -153,6 +159,9 @@ int main(int argc, char** argv) {
         glClearDepth(1.0f);
         window.setRenderCallback([&] () {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            scene.render(); });
+        /*window.setRenderCallback([&] () {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             p.use();
             sphereVao.bind();
             sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
@@ -160,7 +169,7 @@ int main(int argc, char** argv) {
             //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
             VAO::unbind();
             Program::noProgram();
-        });
+        });*/
 
         /* Loop until the user closes the window */
         window.mainLoop();
