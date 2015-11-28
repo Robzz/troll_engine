@@ -41,6 +41,10 @@ Program buildShaderProgram() {
     }
     Program p = ProgramBuilder().attach_shader(vs)
                                 .attach_shader(fs)
+                                .with_uniform("m_proj", ProgramBuilder::mat4)
+                                .with_uniform("m_world", ProgramBuilder::mat4)
+                                .with_uniform("m_normalTransform", ProgramBuilder::mat3)
+                                .with_uniform("v_lightPosition", ProgramBuilder::vec3)
                                 .link();
     if(!p) {
         std::cerr << "Program link error : " << std::endl << p.info_log() << std::endl;
@@ -118,20 +122,18 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
         Program p = buildShaderProgram();
-        GLint projMatrixLocation = p.getUniformLocation("m_proj");
-        GLint worldMatrixLocation = p.getUniformLocation("m_world");
-        GLint normalMatrixLocation = p.getUniformLocation("m_normalTransform");
-        GLint lightPosLocation = p.getUniformLocation("v_lightPosition");
         p.use();
-        p.sendUniform(projMatrixLocation, projMatrix);
-        p.sendUniform(worldMatrixLocation, worldMatrix);
-        p.sendUniform(normalMatrixLocation, glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
-        p.sendUniform(lightPosLocation, lightPosition);
+        Uniform<glm::mat4>* u1 = dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"));
+        std::cout << u1 << std::endl;
+        u1->set(projMatrix);
+        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_world"))->set(worldMatrix);
+        dynamic_cast<Uniform<glm::mat3>*>(p.getUniform("m_normalTransform"))->set(glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
+        dynamic_cast<Uniform<glm::vec3>*>(p.getUniform("v_lightPosition"))->set(lightPosition);
         window.setResizeCallback([&] (int w, int h) {
             GLV(glViewport(0, 0, w, h));
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100);
             p.use();
-            p.sendUniform(projMatrixLocation, lightPosition);
+            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
         });
         window.setInputCallback(&key_callback);
         std::cout << window.context_info() << std::endl;

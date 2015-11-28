@@ -99,8 +99,8 @@ IndexedObject::~IndexedObject() {
 
 void IndexedObject::draw(glm::mat4 const& m) {
     m_program.use();
-    GLint worldMatrixLocation = m_program.getUniformLocation("m_world");
-    m_program.sendUniform(worldMatrixLocation, m);
+    dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"))->set(m);
+    m_program.uploadUniforms();
     m_vao.bind();
     m_ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
     GLV(glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);)
