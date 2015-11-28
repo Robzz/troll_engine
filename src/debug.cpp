@@ -33,6 +33,17 @@ void wrap_gl_call(const char* call_str, const char* filename, int lineno) {
 #endif
 }
 
+std::ostream& operator<<(std::ostream& s, glm::mat3 const& m) {
+    for(int i = 0 ; i != 3 ; ++i) {
+        s << "[ ";
+        for(int j = 0 ; j != 3 ; ++j) {
+            s << m[i][j] << ' ';
+        }
+        s << ']' << std::endl;
+    }
+    return s;
+}
+
 std::ostream& operator<<(std::ostream& s, glm::mat4 const& m) {
     for(int i = 0 ; i != 4 ; ++i) {
         s << "[ ";
@@ -41,6 +52,15 @@ std::ostream& operator<<(std::ostream& s, glm::mat4 const& m) {
         }
         s << ']' << std::endl;
     }
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& s, glm::vec3 const& v) {
+    s << "[ ";
+    for(int j = 0 ; j != 3 ; ++j) {
+        s << v[j] << ' ';
+    }
+    s << ']' << std::endl;
     return s;
 }
 

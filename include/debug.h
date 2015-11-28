@@ -19,7 +19,9 @@ T wrap_gl_call(T val, const char* call_str, const char* filename, int lineno) {
     return val;
 }
 
+std::ostream& operator<<(std::ostream& s, glm::mat3 const& m);
 std::ostream& operator<<(std::ostream& s, glm::mat4 const& m);
+std::ostream& operator<<(std::ostream& s, glm::vec3 const& v);
 
 #define GL(c) (wrap_gl_call(c, #c, __FILE__, __LINE__))
 #define GLV(c) { c; wrap_gl_call(#c, __FILE__, __LINE__); }
