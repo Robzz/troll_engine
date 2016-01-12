@@ -12,20 +12,17 @@
 
 #include "debug.h"
 
-void error_callback(int error, const char* description) {
-    std::cerr << description << std::endl;
-}
-
+// Initialize GLEW and GLFW
 void init_libs(int argc, char** argv) {
-    // Initialize GLEW and GLFW
     if (!glfwInit()) {
         std::cerr << "Error : cannot initialize GLFW" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback([] (int error, const char* description) { std::cerr << description << std::endl; });
 }
 
+// Build the shader program used in the project
 Program buildShaderProgram() {
     std::ifstream fvs("shaders/per_fragment.vs");
     std::ifstream ffs("shaders/per_fragment.fs");
@@ -53,6 +50,7 @@ Program buildShaderProgram() {
     return p;
 }
 
+// Build the sphere mesh used for planets
 VBO build_sphere_mesh() {
     const int nMeridians = 20;
     const int nParallels = 20;
@@ -79,6 +77,7 @@ VBO build_sphere_mesh() {
     return s;
 }
 
+// Compute the indices to draw the spheres in indexed mode
 VBO build_sphere_indices() {
     const int nMeridians = 20;
     const int nParallels = 20;
@@ -109,9 +108,7 @@ int main(int argc, char** argv) {
     init_libs(argc, argv);
 
     {
-        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
-                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
-        glm::vec3 lightPosition(0, 5, 5);
+        // First, create the window
         WindowBuilder wb;
         Window window = wb.size(1280, 720)
                           .title("Projetlololol")
@@ -121,6 +118,12 @@ int main(int argc, char** argv) {
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        window.setInputCallback(&key_callback);
+        std::cout << window.context_info() << std::endl;
+        // Then, the shader program
+        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
+                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
+        glm::vec3 lightPosition(0, 5, 5);
         Program p = buildShaderProgram();
         p.use();
         Uniform<glm::mat4>* u1 = dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"));
@@ -135,8 +138,7 @@ int main(int argc, char** argv) {
             p.use();
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
         });
-        window.setInputCallback(&key_callback);
-        std::cout << window.context_info() << std::endl;
+        // Create the sphere object
         VBO sphereVbo = build_sphere_mesh();
         VBO sphereIndices = build_sphere_indices();
         VAO sphereVao;
@@ -148,14 +150,15 @@ int main(int argc, char** argv) {
         sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);
         VAO::unbind();
 
+        // Fill the scene
         SceneGraph scene;
         IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
         IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 19*19*2*3);
         refSphere->addChild(leftSphere);
         scene.addChild(refSphere);
 
+        // Some more GL related stuff
         glDisable(GL_CULL_FACE);
-        // Setup depth test
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
@@ -164,18 +167,7 @@ int main(int argc, char** argv) {
         window.setRenderCallback([&] () {
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             scene.render(); });
-        /*window.setRenderCallback([&] () {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            p.use();
-            sphereVao.bind();
-            sphereIndices.bind(GL_ELEMENT_ARRAY_BUFFER);
-            GLV(glDrawElements(GL_TRIANGLES, 19*19*2*3, GL_UNSIGNED_SHORT, NULL));
-            //VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
-            VAO::unbind();
-            Program::noProgram();
-        });*/
 
-        /* Loop until the user closes the window */
         window.mainLoop();
     }
 

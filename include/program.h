@@ -20,6 +20,7 @@ class UniformBase {
         /* Destructor */
         virtual ~UniformBase();
 
+        // Check if the uniform is valid
         operator bool() const;
 
         std::string const& name() const;
@@ -34,18 +35,27 @@ class UniformBase {
         bool m_clean;
 };
 
+// Class for GPU programs
 class Program {
     friend class ProgramBuilder;
     public:
+        // Check if the program is valid (i.e. successfully linked)
         operator bool() const;
+        // Check if the program is invalid
         bool operator !() const;
+        // Return some information about the program.
         std::string info_log() const;
 
+        // Set as the program currently used for rendering
         void use() const;
+        // Disable programs for rendering
         static void noProgram();
 
+        // Return the OpenGL location of an attribute
         GLint getAttributeLocation(std::string) const;
+        // Return the Uniform object associated with an uniform
         UniformBase* getUniform(std::string const& name);
+        // Upload uniforms to GPU
         void uploadUniforms();
     
         ~Program();
@@ -58,6 +68,7 @@ class Program {
         std::vector<UniformBase*> m_uniforms;
 };
 
+// Class for Uniform objects
 template <class T>
 class Uniform : public UniformBase {
     friend class ProgramBuilder;
@@ -101,6 +112,7 @@ class Uniform : public UniformBase {
         }
 };
 
+// Use this class to build Program objects
 class ProgramBuilder {
     public:
         ProgramBuilder();
