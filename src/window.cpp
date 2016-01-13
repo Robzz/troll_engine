@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 std::map<GLFWwindow*, Window*> Window::window_map = std::map<GLFWwindow*, Window*>();
 
@@ -9,9 +10,18 @@ Window* Window::findWindowFromGlfwHandle(GLFWwindow* w) {
     return Window::window_map.find(w) == Window::window_map.end() ? NULL : Window::window_map[w];
 }
 
+Window::Window(Window&& w) :
+    m_w(w.m_w),
+    m_im(std::move(w.m_im)),
+    m_render(w.m_render),
+    m_resize(w.m_resize)
+{
+    w.m_w = NULL;
+}
+
 Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync) :
     m_render(),
-    m_input(),
+    m_im(),
     m_resize()
 {
     // Use OpenGL 3.3 core profile
@@ -27,13 +37,20 @@ Window::Window(unsigned int width, unsigned int height, std::string const& title
     window_map[m_w] = this;
     makeCurrent();
 
+    glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods)
+                            { Window* win = Window::findWindowFromGlfwHandle(w);
+                              if(win)
+                                  win->m_im.inputCallback(key, scancode, action, mods); });
+
     if(vsync)
         glfwSwapInterval(1);
 }
 
 Window::~Window() {
-    window_map.erase(m_w);
-    glfwDestroyWindow(m_w);
+    if(m_w) {
+        window_map.erase(m_w);
+        glfwDestroyWindow(m_w);
+    }
 }
 
 void Window::makeCurrent() {
@@ -59,12 +76,8 @@ void Window::setRenderCallback(std::function<void()> f) {
     m_render = f;
 }
 
-void Window::setInputCallback(std::function<void(Window&, int, int, int, int)> f) {
-    m_input = f;
-    glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods)
-                            { Window* win = Window::findWindowFromGlfwHandle(w);
-                              if(win)
-                                  win->m_input(*win, key, scancode, action, mods); });
+void Window::registerKeyCallback(int key, std::function<void()> f) {
+    m_im.registerCallback(key, f);
 }
 
 void Window::setResizeCallback(std::function<void(int, int)> f) {

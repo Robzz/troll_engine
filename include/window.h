@@ -4,12 +4,19 @@
 #include <string>
 #include <map>
 
+#include "input.h"
+
+
 /* This class represents a Window. It handles the display buffers, and can be assigned
  * several callback functions to react to input events, resize events, and register the
  * render loop. */
 class Window {
     friend class WindowBuilder;
     public:
+        // Move constructor
+        Window(Window&& w);
+        // Move assignment operator
+        Window& operator=(Window&& w);
         ~Window();
         // Make this window the current window
         void makeCurrent();
@@ -20,9 +27,9 @@ class Window {
 
         // Register the render loop.
         void setRenderCallback(std::function<void()> f);
-        /* Register the input callback. It is a function accepting 4 integer arguments :
-         * the keycode, the scancode, the action, and the modifiers (?) */
-        void setInputCallback(std::function<void(Window&, int, int, int, int)> f);
+
+        // Register a callback for a given key
+        void registerKeyCallback(int key, std::function<void()>);
 
         /* Set the window resize callback. It as a function accepting 2 integer arguments,
          * the new width and height of the window. */
@@ -39,9 +46,13 @@ class Window {
 
     private:
         Window(unsigned int width, unsigned int height, std::string const& title, bool vsync);
+        // No copy or assignment
+        Window(Window const& other);
+        Window& operator=(Window const& other);
+
         GLFWwindow* m_w;
+        InputManager m_im;
         std::function<void()> m_render;
-        std::function<void(Window&, int, int, int, int)> m_input;
         std::function<void(int, int)> m_resize;
 
         static std::map<GLFWwindow*, Window*> window_map;

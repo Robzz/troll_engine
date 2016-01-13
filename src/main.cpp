@@ -99,11 +99,6 @@ VBO build_sphere_indices() {
     return i;
 }
 
-void key_callback(Window& window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        window.close();
-}
-
 int main(int argc, char** argv) {
     init_libs(argc, argv);
 
@@ -118,8 +113,8 @@ int main(int argc, char** argv) {
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
-        window.setInputCallback(&key_callback);
         std::cout << window.context_info() << std::endl;
+        window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
         // Then, the shader program
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
                   worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));

@@ -15,6 +15,7 @@ set(SOURCES
     src/vao.cpp
     src/matrixstack.cpp
     src/scenegraph.cpp
+    src/input.cpp
 )
 
 add_executable(Projet ${SOURCES})
