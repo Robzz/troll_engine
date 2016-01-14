@@ -31,9 +31,15 @@ class Window {
         // Register a callback for a given key
         void registerKeyCallback(int key, std::function<void()>);
 
+        // Register a callback for the mouse
+        void registerMouseCallback(std::function<void(double, double)>);
+
         /* Set the window resize callback. It as a function accepting 2 integer arguments,
          * the new width and height of the window. */
         void setResizeCallback(std::function<void(int, int)> f);
+
+        // Show or hide the mouse cursor
+        void showCursor(bool show = true);
 
         // Start the main loop
         void mainLoop();

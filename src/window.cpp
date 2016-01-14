@@ -37,10 +37,10 @@ Window::Window(unsigned int width, unsigned int height, std::string const& title
     window_map[m_w] = this;
     makeCurrent();
 
-    glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods)
-                            { Window* win = Window::findWindowFromGlfwHandle(w);
-                              if(win)
-                                  win->m_im.inputCallback(key, scancode, action, mods); });
+    glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods) {
+                                   Window* win = Window::findWindowFromGlfwHandle(w);
+                                   if(win)
+                                       win->m_im.keyCallback(key, scancode, action, mods); });
 
     if(vsync)
         glfwSwapInterval(1);
@@ -77,7 +77,16 @@ void Window::setRenderCallback(std::function<void()> f) {
 }
 
 void Window::registerKeyCallback(int key, std::function<void()> f) {
-    m_im.registerCallback(key, f);
+    m_im.setKeyCallback(key, f);
+}
+
+void Window::registerMouseCallback(std::function<void(double, double)> f) {
+    m_im.setMouseCallback(f);
+    glfwSetCursorPosCallback(m_w, [] (GLFWwindow* w, double x, double y) {
+                                   Window* win = Window::findWindowFromGlfwHandle(w);
+                                   if(win)
+                                       win->m_im.mouseCallback(x, y);
+                                    });
 }
 
 void Window::setResizeCallback(std::function<void(int, int)> f) {
@@ -86,6 +95,10 @@ void Window::setResizeCallback(std::function<void(int, int)> f) {
                                    { Window* win = Window::findWindowFromGlfwHandle(w);
                                      if(win)
                                          win->m_resize(width, height); });
+}
+
+void Window::showCursor(bool show) {
+    glfwSetInputMode(m_w, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 void Window::mainLoop() {

@@ -112,6 +112,12 @@ void bind_input_callbacks(Window& window, Camera& cam) {
     window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 1);  std::cout << "Going left!" << std::endl; });
     window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1);  std::cout << "Going back!" << std::endl; });
     window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1);  std::cout << "Going right!" << std::endl; });
+
+    window.registerMouseCallback([] (double x, double y) {
+            static double prev_x = 0, prev_y = 0;
+            std::cout << "Mouse movement (" << x - prev_x << ", " << y - prev_y << ")" << std::endl; 
+            prev_x = x; prev_y = y;
+        });
 }
 
 int main(int argc, char** argv) {
@@ -129,6 +135,7 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
         std::cout << window.context_info() << std::endl;
+        window.showCursor(false);
         
         // Then, the shader program
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),

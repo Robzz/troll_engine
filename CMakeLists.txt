@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.3)
 # Use GLFW CMake build system
 add_subdirectory(./lib/glfw-3.1.2)
 
-add_definitions(-DGL_TRACE -DDEBUG)
+#add_definitions(-DGL_TRACE)
+add_definitions(-DDEBUG)
 
 # Define project
 set(SOURCES
