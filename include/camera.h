@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 class Camera {
     public:
@@ -30,7 +31,7 @@ class Camera {
     glm::vec3 m_right;
     glm::vec3 m_front;
     glm::vec3 m_position;
-    glm::vec3 m_euler_angles;
+    glm::fquat m_orientation;
 
     /* Copy constructor */
     Camera(Camera const& other);

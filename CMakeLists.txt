@@ -5,6 +5,7 @@ add_subdirectory(./lib/glfw-3.1.2)
 
 #add_definitions(-DGL_TRACE)
 add_definitions(-DDEBUG)
+add_definitions(-DGLM_SWIZZLE)
 
 # Define project
 set(SOURCES

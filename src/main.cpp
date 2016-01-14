@@ -113,10 +113,13 @@ void bind_input_callbacks(Window& window, Camera& cam) {
     window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1);  std::cout << "Going back!" << std::endl; });
     window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1);  std::cout << "Going right!" << std::endl; });
 
-    window.registerMouseCallback([] (double x, double y) {
+    window.registerMouseCallback([&cam] (double x, double y) {
             static double prev_x = 0, prev_y = 0;
-            std::cout << "Mouse movement (" << x - prev_x << ", " << y - prev_y << ")" << std::endl; 
+            double xoffset = x - prev_x, yoffset = y - prev_y;
             prev_x = x; prev_y = y;
+            std::cout << "Mouse movement (" << xoffset << ", " << yoffset << ")" << std::endl; 
+            cam.rotate(Camera::X, yoffset);
+            cam.rotate(Camera::Y, xoffset);
         });
 }
 

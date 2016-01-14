@@ -35,5 +35,9 @@ void InputManager::keyCallback(int key_code, int scan_code, int action, int mods
 }
 
 void InputManager::mouseCallback(double x, double y) {
-    m_mousePosCallback(x * m_mouseSensitivity, y * m_mouseSensitivity * m_invertY); 
+    m_mousePosCallback(x * m_mouseSensitivity, y * m_mouseSensitivity * -m_invertY); 
+}
+
+void InputManager::invertY(bool invert) {
+    m_invertY = invert ? -1 : 1;
 }

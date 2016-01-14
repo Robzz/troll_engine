@@ -18,6 +18,9 @@ class InputManager {
     void keyCallback(int keycode, int scancode, int action, int mods) const;
     void mouseCallback(double x, double y);
 
+    // Enable or disable Y axis inversion
+    void invertY(bool invert = true);
+
     private:
     std::map<int, std::function<void()>> m_callbacks;    
     std::function<void(double, double)> m_mousePosCallback;

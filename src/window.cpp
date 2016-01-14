@@ -17,6 +17,7 @@ Window::Window(Window&& w) :
     m_resize(w.m_resize)
 {
     w.m_w = NULL;
+    m_im.invertY(false);
 }
 
 Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync) :
