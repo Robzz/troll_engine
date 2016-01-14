@@ -6,9 +6,6 @@
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
 
-#define DEBUG
-#define GL_TRACE
-
 void check_gl_errors();
 const char* parse_error(GLenum err);
 
