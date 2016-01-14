@@ -18,6 +18,7 @@ set(SOURCES
     src/matrixstack.cpp
     src/scenegraph.cpp
     src/input.cpp
+    src/camera.cpp
 )
 
 add_executable(Projet ${SOURCES})

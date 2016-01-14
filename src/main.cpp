@@ -8,7 +8,8 @@
 #include "program.h"
 #include "vbo.h"
 #include "vao.h"
-#include <scenegraph.h>
+#include "scenegraph.h"
+#include "camera.h"
 
 #include "debug.h"
 
@@ -40,6 +41,7 @@ Program buildShaderProgram() {
                                 .attach_shader(fs)
                                 .with_uniform("m_proj", ProgramBuilder::mat4)
                                 .with_uniform("m_world", ProgramBuilder::mat4)
+                                .with_uniform("m_camera", ProgramBuilder::mat4)
                                 .with_uniform("m_normalTransform", ProgramBuilder::mat3)
                                 .with_uniform("v_lightPosition", ProgramBuilder::vec3)
                                 .link();
@@ -99,6 +101,19 @@ VBO build_sphere_indices() {
     return i;
 }
 
+void bind_camera_keys(Camera const& cam) {
+}
+
+void bind_input_callbacks(Window& window, Camera& cam) {
+    window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
+    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1);  std::cout << "Going up!" << std::endl; });
+    window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1);  std::cout << "Going down!" << std::endl; });
+    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 1);  std::cout << "Going forward!" << std::endl; });
+    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 1);  std::cout << "Going left!" << std::endl; });
+    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1);  std::cout << "Going back!" << std::endl; });
+    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1);  std::cout << "Going right!" << std::endl; });
+}
+
 int main(int argc, char** argv) {
     init_libs(argc, argv);
 
@@ -114,7 +129,7 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
         std::cout << window.context_info() << std::endl;
-        window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
+        
         // Then, the shader program
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
                   worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
@@ -146,6 +161,7 @@ int main(int argc, char** argv) {
         VAO::unbind();
 
         // Fill the scene
+        Camera camera;
         SceneGraph scene;
         IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
         IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 19*19*2*3);
@@ -159,7 +175,14 @@ int main(int argc, char** argv) {
         glDepthFunc(GL_LEQUAL);
         glDepthRange(0.0f, 1.0f);
         glClearDepth(1.0f);
+
+        // Install input callbacks
+        bind_input_callbacks(window, camera);
+
+        // Finally, the render function
         window.setRenderCallback([&] () {
+            glm::mat4 cameraMatrix = camera.mat();
+            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
             scene.render(); });
 
