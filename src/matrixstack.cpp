@@ -27,7 +27,12 @@ glm::mat4 const& MatrixStack::top() const {
 }
 
 void MatrixStack::push(glm::mat4 const& m) {
-    m_current *= m;
+    glm::mat4 m2;
+    m2[0] = glm::normalize(m_current[0]);
+    m2[1] = glm::normalize(m_current[1]);
+    m2[2] = glm::normalize(m_current[2]);
+    m2[3] = m[3];
+    m_current = m2 * m;
     stack::push(m_current);
 }
 

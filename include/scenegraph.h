@@ -89,7 +89,7 @@ class Object : public DrawableNode {
     private:
         unsigned int m_n_primitives;
         GLenum m_primitiveMode;
-        Program& m_program;
+        Program & m_program;
         VAO& m_vao;
 };
 

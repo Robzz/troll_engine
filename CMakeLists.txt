@@ -24,6 +24,7 @@ set(SOURCES
     src/input.cpp
     src/camera.cpp
     src/texture.cpp
+    src/planet.cpp
 )
 
 add_executable(Projet ${SOURCES})
@@ -43,8 +44,7 @@ set(ARCHIVE_FILES
     lib
     shaders
     CMakeLists.txt
-    rapport.tex
-    rapport.pdf
+    rapport.odt
     )
 add_custom_command(OUTPUT chavignat_lmg.tar.gz
                    COMMAND tar -acf chavignat_lmg.tar.gz ${ARCHIVE_FILES})

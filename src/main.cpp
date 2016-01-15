@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include <chrono>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include "gl_core_3_3.h"
 #include "window.h"
 #include "program.h"
@@ -12,6 +12,7 @@
 #include "scenegraph.h"
 #include "camera.h"
 #include "texture.h"
+#include "planet.h"
 
 #include "debug.h"
 
@@ -136,14 +137,14 @@ void bind_input_callbacks(Engine::Window& window, Camera& cam) {
 
 int main(int argc, char** argv) {
     init_libs(argc, argv);
-    std::chrono::high_resolution_clock clock;
 
     {
         // First, create the window
         Engine::WindowBuilder wb;
         Engine::Window window = wb.size(1280, 720)
-                          .title("Projetlololol")
-                          .build();
+                                .title("Projetlololol")
+                                .vsync(false)
+                                .build();
         if (!window) {
             std::cerr << "Error : cannot create window" << std::endl;
             glfwTerminate();
@@ -153,75 +154,95 @@ int main(int argc, char** argv) {
         window.showCursor(false);
         
         // Then, the shader program
-        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
-                  worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
-        glm::vec3 lightPosition(0, 5, 5);
+        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
+                  worldMatrix = glm::scale(glm::mat4(1.f), glm::vec3(30, 30, 30));
+        glm::vec3 lightPosition(0, 0, 0);
         std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2;
 
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_normalTransform", ProgramBuilder::mat3));
-        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("v_lightPosition", ProgramBuilder::vec3));
-        Program p = buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1);
-
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("ambient_intensity", ProgramBuilder::float_));
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("u_tex", ProgramBuilder::int_));
+        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
-        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("u_tex", ProgramBuilder::int_));
-        Program texProgram = buildShaderProgram("shaders/texture.vs", "shaders/texture.fs", uniforms_p2);
+        Program planetProgram = buildShaderProgram("shaders/tex_lighting.vs", "shaders/tex_lighting.fs", uniforms_p1),
+                sunProgram = buildShaderProgram("shaders/texture.vs", "shaders/texture.fs", uniforms_p2);
 
-        texProgram.use();
-        dynamic_cast<Uniform<int>*>(texProgram.getUniform("u_tex"))->set(0);
-        dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_proj"))->set(projMatrix);;
-        dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_world"))->set(worldMatrix);
-        p.use();
+        dynamic_cast<Uniform<glm::mat4>*>(planetProgram.getUniform("m_proj"))->set(projMatrix);;
+        dynamic_cast<Uniform<float>*>(planetProgram.getUniform("ambient_intensity"))->set(0.02);
 
-        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);;
-        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_world"))->set(worldMatrix);
-        dynamic_cast<Uniform<glm::mat3>*>(p.getUniform("m_normalTransform"))->set(glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
-        dynamic_cast<Uniform<glm::vec3>*>(p.getUniform("v_lightPosition"))->set(lightPosition);
+        dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_proj"))->set(projMatrix);;
+        dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_world"))->set(worldMatrix);
 
         window.setResizeCallback([&] (int w, int h) {
             GLV(glViewport(0, 0, w, h));
-            projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100);
-            p.use();
-            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
+            projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
+            planetProgram.use();
+            dynamic_cast<Uniform<glm::mat4>*>(planetProgram.getUniform("m_proj"))->set(projMatrix);
+            sunProgram.use();
+            dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_proj"))->set(projMatrix);
         });
 
         VBO sphereVbo = build_sphere_mesh(), sphereTexCoords = build_sphere_texcoords(), sphereIndices = build_sphere_indices();
-        VAO flatSphereVao, texSphereVao;
+        VAO planetVao, sunVao;
 
         // Setup vertex attributes
-        GLint posIndex = p.getAttributeLocation("v_position");
-        GLint normalIndex = p.getAttributeLocation("v_normal");
-        flatSphereVao.enableVertexAttribArray(posIndex);
-        flatSphereVao.enableVertexAttribArray(normalIndex);
-        flatSphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
-        flatSphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0 , NULL, GL_FLOAT, GL_TRUE);
+        GLint posIndex = planetProgram.getAttributeLocation("v_position");
+        GLint normalIndex = planetProgram.getAttributeLocation("v_normal");
+        GLint texCoordsIndex = planetProgram.getAttributeLocation("v_texCoord");
+        planetVao.enableVertexAttribArray(posIndex);
+        planetVao.enableVertexAttribArray(normalIndex);
+        planetVao.enableVertexAttribArray(texCoordsIndex);
+        planetVao.vertexAttribPointer(sphereVbo, posIndex, 3);
+        planetVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0 , NULL, GL_FLOAT, GL_TRUE);
+        planetVao.vertexAttribPointer(sphereTexCoords, texCoordsIndex, 2);
 
-        posIndex = texProgram.getAttributeLocation("v_position");
-        GLint texCoordsIndex = texProgram.getAttributeLocation("v_texCoord");
-        texSphereVao.enableVertexAttribArray(posIndex);
-        texSphereVao.enableVertexAttribArray(texCoordsIndex);
-        texSphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
-        texSphereVao.vertexAttribPointer(sphereTexCoords, texCoordsIndex, 2);
-        VAO::unbind();
+        posIndex = sunProgram.getAttributeLocation("v_position");
+        texCoordsIndex = sunProgram.getAttributeLocation("v_texCoord");
+        sunVao.enableVertexAttribArray(posIndex);
+        sunVao.enableVertexAttribArray(normalIndex);
 
         // Fill the scene
         Camera camera;
+        camera.translate(Camera::Back, 100);
         SceneGraph scene;
         glActiveTexture(GL_TEXTURE0);
-        Texture earthTex(Texture::from_image("assets/earth.bmp"));
+        Texture earthTex(Texture::from_image("assets/texture_earth.bmp")),
+                mercuryTex(Texture::from_image("assets/texture_mercury.bmp")),
+                venusTex(Texture::from_image("assets/texture_venus_surface.bmp")),
+                marsTex(Texture::from_image("assets/texture_mars.bmp")),
+                jupiterTex(Texture::from_image("assets/texture_jupiter.bmp")),
+                saturnTex(Texture::from_image("assets/texture_saturn.bmp")),
+                uranusTex(Texture::from_image("assets/texture_uranus.bmp")),
+                neptuneTex(Texture::from_image("assets/texture_neptune.bmp")),
+                //plutoTex(Texture::from_image("assets/texture_pluto.bmp")),
+                sunTex(Texture::from_image("assets/texture_sun.bmp"));
         
-        IndexedObject* sun = new IndexedObject(worldMatrix, p, sphereIndices, flatSphereVao, 29*29*2*3);
-        IndexedObject* earth = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), texProgram, sphereIndices, texSphereVao, 29*29*2*3, earthTex);
+        IndexedObject* sun = new IndexedObject(worldMatrix, sunProgram, sphereIndices, planetVao, 29*29*2*3, sunTex);
+        Planet* earth = new Planet(1, 50, 1, 1, planetProgram, sphereIndices, planetVao, 29*29*2*3, earthTex);
+        Planet* mercury = new Planet(0.3829, 30, 0.2408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
+        Planet* venus = new Planet(0.9499, 40, 0.6152, -243, planetProgram, sphereIndices, planetVao, 29*29*2*3, venusTex);
+        Planet* mars = new Planet(0.53, 60, 1.881, 1.026, planetProgram, sphereIndices, planetVao, 29*29*2*3, marsTex);
+        Planet* jupiter = new Planet(11.21, 70, 11.86, 0.4135, planetProgram, sphereIndices, planetVao, 29*29*2*3, jupiterTex);
+        Planet* saturn = new Planet(9.449, 80, 29.46, 0.4396, planetProgram, sphereIndices, planetVao, 29*29*2*3, saturnTex);
+        Planet* uranus = new Planet(4.007, 90, 84.02, 0.7183, planetProgram, sphereIndices, planetVao, 29*29*2*3, uranusTex);
+        Planet* neptune = new Planet(3.883, 100, 164.8, 0.6713, planetProgram, sphereIndices, planetVao, 29*29*2*3, neptuneTex);
         sun->addChild(earth);
+        sun->addChild(mercury);
+        sun->addChild(venus);
+        sun->addChild(mars);
+        sun->addChild(jupiter);
+        sun->addChild(saturn);
+        sun->addChild(uranus);
+        sun->addChild(neptune);
         scene.addChild(sun);
 
-
         // Some more GL related stuff
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
@@ -231,19 +252,17 @@ int main(int argc, char** argv) {
         // Install input callbacks
         bind_input_callbacks(window, camera);
 
-        auto start = clock.now();
         // Finally, the render function
         window.setRenderCallback([&] () {
             glm::mat4 cameraMatrix = camera.mat();
-            p.use();
-            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
-            texProgram.use();
-            dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_camera"))->set(cameraMatrix);
+            planetProgram.use();
+            dynamic_cast<Uniform<glm::mat4>*>(planetProgram.getUniform("m_camera"))->set(cameraMatrix);
+            dynamic_cast<Uniform<glm::mat3>*>(planetProgram.getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
+            sunProgram.use();
+            dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_camera"))->set(cameraMatrix);
+
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-            float t = std::chrono::duration<float>(clock.now() - start).count();
-            glm::mat4 m(glm::translate(glm::rotate(glm::mat4(1), t, glm::vec3(0, 1, 0)), glm::vec3(-1, 0, 0)));
-            earth->set_transform(m);
             scene.render(); });
 
         window.mainLoop();

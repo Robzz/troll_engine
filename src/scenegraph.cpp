@@ -2,6 +2,7 @@
 #include "vao.h"
 #include "vbo.h"
 #include "program.h"
+#include "glm/gtc/matrix_inverse.hpp"
 
 Node::Node(glm::mat4 const& position, std::string const& name, bool enabled) :
     m_enabled(enabled),
@@ -134,6 +135,7 @@ IndexedObject::~IndexedObject() {
 
 void IndexedObject::draw(glm::mat4 const& m) {
     m_program.use();
+    // Remove scaling from m or it will apply to children too
     auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"));
     if(u)
         u->set(m);

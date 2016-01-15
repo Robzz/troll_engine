@@ -141,13 +141,40 @@ class Uniform<int> : public UniformBase {
         }
 };
 
+template <>
+class Uniform<float> : public UniformBase {
+    friend class ProgramBuilder;
+    public:
+        virtual ~Uniform() { }
+
+        void set(float value) {
+            m_value = value;
+            m_clean = false;
+        }
+
+    private:
+        float m_value;
+
+        Uniform(GLint location, std::string const& name) :
+            UniformBase(location, name),
+            m_value()
+        { }
+
+        virtual void upload() {
+            if(!m_clean) {
+                GLV(glUniform1f(m_location, m_value));
+                m_clean = true;
+            }
+        }
+};
+
 // Use this class to build Program objects
 class ProgramBuilder {
     public:
         ProgramBuilder();
         ~ProgramBuilder();
 
-        enum UniformType { vec3, mat3, mat4, int_ };
+        enum UniformType { vec3, mat3, mat4, int_, float_ };
 
         /* Attach a shader to the program*/
         ProgramBuilder& attach_shader(Shader&);

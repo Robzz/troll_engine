@@ -135,6 +135,9 @@ Program ProgramBuilder::link() {
         else if(t == UniformType::int_) {
             v.push_back(new Uniform<int>(loc, name));
         } 
+        else if(t == UniformType::float_) {
+            v.push_back(new Uniform<float>(loc, name));
+        } 
         else {
             throw std::runtime_error("SHIT");
         }
