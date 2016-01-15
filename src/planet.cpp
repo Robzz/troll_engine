@@ -21,10 +21,9 @@ Planet::~Planet() { };
 void Planet::updateWorldTransform(float t) {
     glm::mat4 rot_self(glm::rotate(glm::mat4(1), t * m_rotSpeed, glm::vec3(0, 1, 0)));
     glm::mat4 trans(glm::translate(glm::mat4(1), glm::vec3(m_distance, 0, 0)));
-    //glm::mat4 rot_sun(glm::rotate(glm::mat4(1), t*m_revSpeed, glm::vec3(0,1,0)));
-    glm::mat4 rot_sun(1);
+    glm::mat4 rot_sun(glm::rotate(glm::mat4(1), t*m_revSpeed, glm::vec3(0,1,0)));
     glm::mat4 scale(glm::scale(glm::mat4(1), glm::vec3(m_radius)));
-    set_transform(rot_sun * trans * rot_self * scale);
+    set_transform(rot_self * trans * scale * rot_sun);
 }
 
 void Planet::draw(glm::mat4 const& m) {

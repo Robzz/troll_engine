@@ -148,11 +148,11 @@ VBO build_plane_texCoords() {
 void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
     window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1); });
-    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1); });
-    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 1); });
-    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 1); });
-    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1); });
-    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1); });
+    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 5); });
+    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 5); });
+    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 5); });
+    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 5); });
+    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 5); });
 
     window.registerMouseCallback([&cam] (double x, double y) {
             static double prev_x = 0, prev_y = 0;
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
         std::cout << window.context_info() << std::endl;
         window.showCursor(false);
         
-        // Then, the shader program
+        // Then, the shader programs
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
                   worldMatrix = glm::scale(glm::mat4(1.f), glm::vec3(30, 30, 30));
         glm::vec3 lightPosition(0, 0, 0);
@@ -250,6 +250,7 @@ int main(int argc, char** argv) {
         camera.translate(Camera::Back, 100);
         SceneGraph scene;
         glActiveTexture(GL_TEXTURE0);
+        // Load textures
         Texture earthTex(   Texture::from_image("assets/texture_earth.bmp")),
                 mercuryTex( Texture::from_image("assets/texture_mercury.bmp")),
                 venusTex(   Texture::from_image("assets/texture_venus_surface.bmp")),
@@ -274,13 +275,13 @@ int main(int argc, char** argv) {
                *skyBack  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxBack);
         IndexedObject* sun = new IndexedObject(worldMatrix, sunProgram, sphereIndices, planetVao, 29*29*2*3, sunTex);
         Planet* earth = new Planet(1, 50, 1, 1, planetProgram, sphereIndices, planetVao, 29*29*2*3, earthTex);
-        Planet* mercury = new Planet(0.3829, 30, 0.2408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
+        Planet* mercury = new Planet(0.3829, 30, 0.5408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
         Planet* venus = new Planet(0.9499, 40, 0.6152, -243, planetProgram, sphereIndices, planetVao, 29*29*2*3, venusTex);
         Planet* mars = new Planet(0.53, 60, 1.881, 1.026, planetProgram, sphereIndices, planetVao, 29*29*2*3, marsTex);
-        Planet* jupiter = new Planet(11.21, 70, 11.86, 0.4135, planetProgram, sphereIndices, planetVao, 29*29*2*3, jupiterTex);
-        Planet* saturn = new Planet(9.449, 80, 29.46, 0.4396, planetProgram, sphereIndices, planetVao, 29*29*2*3, saturnTex);
-        Planet* uranus = new Planet(4.007, 90, 84.02, 0.7183, planetProgram, sphereIndices, planetVao, 29*29*2*3, uranusTex);
-        Planet* neptune = new Planet(3.883, 100, 164.8, 0.6713, planetProgram, sphereIndices, planetVao, 29*29*2*3, neptuneTex);
+        Planet* jupiter = new Planet(11.21, 70, 0.86, 0.4135, planetProgram, sphereIndices, planetVao, 29*29*2*3, jupiterTex);
+        Planet* saturn = new Planet(9.449, 80, 0.46, 0.4396, planetProgram, sphereIndices, planetVao, 29*29*2*3, saturnTex);
+        Planet* uranus = new Planet(4.007, 90, 0.12, 0.7183, planetProgram, sphereIndices, planetVao, 29*29*2*3, uranusTex);
+        Planet* neptune = new Planet(3.883, 100, 0.18, 0.6713, planetProgram, sphereIndices, planetVao, 29*29*2*3, neptuneTex);
         sun->addChild(earth);
         sun->addChild(mercury);
         sun->addChild(venus);
@@ -329,8 +330,9 @@ int main(int argc, char** argv) {
             skyDown->draw(glm::mat4(m2));
             skyLeft->draw(m * ry);
             skyRight->draw(m * glm::transpose(ry));
-            glEnable(GL_DEPTH_TEST);
 
+            // Then render the rest with depth test on
+            glEnable(GL_DEPTH_TEST);
             dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_camera"))->set(cameraMatrix);
             scene.render(); });
 
