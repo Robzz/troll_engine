@@ -117,6 +117,34 @@ VBO build_sphere_indices() {
     return i;
 }
 
+VBO build_plane_mesh() {
+    std::vector<glm::vec3> vec;
+    vec.push_back(glm::vec3(-1,  1, -1));
+    vec.push_back(glm::vec3(-1, -1, -1));
+    vec.push_back(glm::vec3( 1, -1, -1));
+    vec.push_back(glm::vec3(-1,  1, -1));
+    vec.push_back(glm::vec3( 1, -1, -1));
+    vec.push_back(glm::vec3( 1,  1, -1));
+
+    VBO v;
+    v.upload_data(vec);
+    return v;
+}
+
+VBO build_plane_texCoords() {
+    std::vector<glm::vec2> vec;
+    vec.push_back(glm::vec2(0,  1));
+    vec.push_back(glm::vec2(0,  0));
+    vec.push_back(glm::vec2(1,  0));
+    vec.push_back(glm::vec2(0,  1));
+    vec.push_back(glm::vec2(1,  0));
+    vec.push_back(glm::vec2(1,  1));
+
+    VBO v;
+    v.upload_data(vec);
+    return v;
+}
+
 void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
     window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1); });
@@ -157,7 +185,7 @@ int main(int argc, char** argv) {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
                   worldMatrix = glm::scale(glm::mat4(1.f), glm::vec3(30, 30, 30));
         glm::vec3 lightPosition(0, 0, 0);
-        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2;
+        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2, uniforms_p3;
 
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
@@ -187,12 +215,16 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_proj"))->set(projMatrix);
         });
 
-        VBO sphereVbo = build_sphere_mesh(), sphereTexCoords = build_sphere_texcoords(), sphereIndices = build_sphere_indices();
-        VAO planetVao, sunVao;
+        VBO sphereVbo = build_sphere_mesh(),
+            sphereTexCoords = build_sphere_texcoords(),
+            sphereIndices = build_sphere_indices(),
+            planeVbo = build_plane_mesh(),
+            planeTexCoords = build_plane_texCoords();
+        VAO planetVao, sunVao, planeVao;
 
         // Setup vertex attributes
-        GLint posIndex = planetProgram.getAttributeLocation("v_position");
-        GLint normalIndex = planetProgram.getAttributeLocation("v_normal");
+        GLint posIndex       = planetProgram.getAttributeLocation("v_position");
+        GLint normalIndex    = planetProgram.getAttributeLocation("v_normal");
         GLint texCoordsIndex = planetProgram.getAttributeLocation("v_texCoord");
         planetVao.enableVertexAttribArray(posIndex);
         planetVao.enableVertexAttribArray(normalIndex);
@@ -201,27 +233,45 @@ int main(int argc, char** argv) {
         planetVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0 , NULL, GL_FLOAT, GL_TRUE);
         planetVao.vertexAttribPointer(sphereTexCoords, texCoordsIndex, 2);
 
-        posIndex = sunProgram.getAttributeLocation("v_position");
+        posIndex       = sunProgram.getAttributeLocation("v_position");
         texCoordsIndex = sunProgram.getAttributeLocation("v_texCoord");
         sunVao.enableVertexAttribArray(posIndex);
-        sunVao.enableVertexAttribArray(normalIndex);
+        sunVao.enableVertexAttribArray(texCoordsIndex);
+        sunVao.vertexAttribPointer(sphereVbo, posIndex, 3);
+        sunVao.vertexAttribPointer(sphereTexCoords, texCoordsIndex, 2);
+
+        planeVao.enableVertexAttribArray(posIndex);
+        planeVao.enableVertexAttribArray(texCoordsIndex);
+        planeVao.vertexAttribPointer(planeVbo, posIndex, 3);
+        planeVao.vertexAttribPointer(planeTexCoords, texCoordsIndex, 2);
 
         // Fill the scene
         Camera camera;
         camera.translate(Camera::Back, 100);
         SceneGraph scene;
         glActiveTexture(GL_TEXTURE0);
-        Texture earthTex(Texture::from_image("assets/texture_earth.bmp")),
-                mercuryTex(Texture::from_image("assets/texture_mercury.bmp")),
-                venusTex(Texture::from_image("assets/texture_venus_surface.bmp")),
-                marsTex(Texture::from_image("assets/texture_mars.bmp")),
-                jupiterTex(Texture::from_image("assets/texture_jupiter.bmp")),
-                saturnTex(Texture::from_image("assets/texture_saturn.bmp")),
-                uranusTex(Texture::from_image("assets/texture_uranus.bmp")),
-                neptuneTex(Texture::from_image("assets/texture_neptune.bmp")),
-                //plutoTex(Texture::from_image("assets/texture_pluto.bmp")),
-                sunTex(Texture::from_image("assets/texture_sun.bmp"));
+        Texture earthTex(   Texture::from_image("assets/texture_earth.bmp")),
+                mercuryTex( Texture::from_image("assets/texture_mercury.bmp")),
+                venusTex(   Texture::from_image("assets/texture_venus_surface.bmp")),
+                marsTex(    Texture::from_image("assets/texture_mars.bmp")),
+                jupiterTex( Texture::from_image("assets/texture_jupiter.bmp")),
+                saturnTex(  Texture::from_image("assets/texture_saturn.bmp")),
+                uranusTex(  Texture::from_image("assets/texture_uranus.bmp")),
+                neptuneTex( Texture::from_image("assets/texture_neptune.bmp")),
+                sunTex(     Texture::from_image("assets/texture_sun.bmp")),
+                skyboxFront(Texture::from_image("assets/stars_fr.bmp")),
+                skyboxBack( Texture::from_image("assets/stars_bk.bmp")),
+                skyboxLeft( Texture::from_image("assets/stars_lf.bmp")),
+                skyboxRight(Texture::from_image("assets/stars_rt.bmp")),
+                skyboxUp(   Texture::from_image("assets/stars_up.bmp")),
+                skyboxDown( Texture::from_image("assets/stars_dn.bmp"));
         
+        Object *skyUp    = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxUp),
+               *skyDown  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxDown),
+               *skyLeft  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxLeft),
+               *skyRight = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxRight),
+               *skyFront = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxFront),
+               *skyBack  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxBack);
         IndexedObject* sun = new IndexedObject(worldMatrix, sunProgram, sphereIndices, planetVao, 29*29*2*3, sunTex);
         Planet* earth = new Planet(1, 50, 1, 1, planetProgram, sphereIndices, planetVao, 29*29*2*3, earthTex);
         Planet* mercury = new Planet(0.3829, 30, 0.2408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
@@ -259,10 +309,29 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat4>*>(planetProgram.getUniform("m_camera"))->set(cameraMatrix);
             dynamic_cast<Uniform<glm::mat3>*>(planetProgram.getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
             sunProgram.use();
-            dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_camera"))->set(cameraMatrix);
 
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+            // First draw the skybox with depth test off
+            glDisable(GL_DEPTH_TEST);
+            sunProgram.use();
+            glm::mat4 m(cameraMatrix), m2,
+                      rz(glm::rotate(glm::mat4(1), 3.141592f / 2, glm::vec3(1, 0, 0))),
+                      ry(glm::rotate(glm::mat4(1), 3.141592f / 2, glm::vec3(0, 1, 0)));
+            m[3] = glm::vec4(0, 0, 0, 1);
+            dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_camera"))->set(glm::mat4(1));
+            skyFront->draw(m);
+            m2 = m * rz;
+            skyUp->draw(glm::mat4(m2));
+            m2 = m2 * rz;
+            skyBack->draw(glm::mat4(m2));
+            m2 = m2 * rz;
+            skyDown->draw(glm::mat4(m2));
+            skyLeft->draw(m * ry);
+            skyRight->draw(m * glm::transpose(ry));
+            glEnable(GL_DEPTH_TEST);
+
+            dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_camera"))->set(cameraMatrix);
             scene.render(); });
 
         window.mainLoop();
