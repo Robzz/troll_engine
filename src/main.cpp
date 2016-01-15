@@ -153,6 +153,8 @@ void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 5); });
     window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 5); });
     window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 5); });
+    window.registerKeyCallback('Q', [&cam] () { cam.rotate(Camera::Z, 15); });
+    window.registerKeyCallback('E', [&cam] () { cam.rotate(Camera::Z, -15); });
 
     window.registerMouseCallback([&cam] (double x, double y) {
             static double prev_x = 0, prev_y = 0;
@@ -252,6 +254,7 @@ int main(int argc, char** argv) {
         glActiveTexture(GL_TEXTURE0);
         // Load textures
         Texture earthTex(   Texture::from_image("assets/texture_earth.bmp")),
+                moonTex(    Texture::from_image("assets/texture_moon.bmp")),
                 mercuryTex( Texture::from_image("assets/texture_mercury.bmp")),
                 venusTex(   Texture::from_image("assets/texture_venus_surface.bmp")),
                 marsTex(    Texture::from_image("assets/texture_mars.bmp")),
@@ -275,6 +278,7 @@ int main(int argc, char** argv) {
                *skyBack  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxBack);
         IndexedObject* sun = new IndexedObject(worldMatrix, sunProgram, sphereIndices, planetVao, 29*29*2*3, sunTex);
         Planet* earth = new Planet(1, 50, 1, 1, planetProgram, sphereIndices, planetVao, 29*29*2*3, earthTex);
+        Planet* moon = new Planet(0.2, 0.1, 0.1, 0.1, planetProgram, sphereIndices, planetVao, 29*29*2*3, moonTex);
         Planet* mercury = new Planet(0.3829, 30, 0.5408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
         Planet* venus = new Planet(0.9499, 40, 0.6152, -243, planetProgram, sphereIndices, planetVao, 29*29*2*3, venusTex);
         Planet* mars = new Planet(0.53, 60, 1.881, 1.026, planetProgram, sphereIndices, planetVao, 29*29*2*3, marsTex);
@@ -290,6 +294,7 @@ int main(int argc, char** argv) {
         sun->addChild(saturn);
         sun->addChild(uranus);
         sun->addChild(neptune);
+        earth->addChild(moon);
         scene.addChild(sun);
 
         // Some more GL related stuff
