@@ -23,7 +23,7 @@ void VAO::enableVertexAttribArray(GLuint index, bool enable) {
     if(enable)
         GLV(glEnableVertexAttribArray(index))
     else
-        GLV(glEnableVertexAttribArray(index));
+        GLV(glDisableVertexAttribArray(index));
 }
 
 void VAO::vertexAttribPointer(VBO& array, GLuint index, GLint size, GLsizei stride, const GLvoid* offset, GLenum type, bool normalize) {

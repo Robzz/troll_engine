@@ -90,7 +90,30 @@ DrawableNode::DrawableNode(glm::mat4 const& position) :
     Node(position)
 { }
 
-IndexedObject::IndexedObject(glm::mat4 position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
+Object::Object(glm::mat4 const& position, Program& p, VAO& vao, unsigned int n_primitives,
+               GLenum primitiveMode) :
+    DrawableNode(position),
+    m_n_primitives(n_primitives),
+    m_primitiveMode(primitiveMode),
+    m_program(p),
+    m_vao(vao)
+{ }
+
+Object::~Object() { }
+
+void Object::draw(glm::mat4 const& m) {
+    m_program.use();
+    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"));
+    if(u)
+        u->set(m);
+    m_program.uploadUniforms();
+    m_vao.bind();
+    GLV(glDrawArrays(m_primitiveMode, 0, m_n_primitives));
+    VAO::unbind();
+    Program::noProgram();
+}
+
+IndexedObject::IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
                              GLenum indexType, GLenum primitiveMode) :
     DrawableNode(position),
     m_program(p),
@@ -107,7 +130,9 @@ IndexedObject::~IndexedObject() {
 
 void IndexedObject::draw(glm::mat4 const& m) {
     m_program.use();
-    dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"))->set(m);
+    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"));
+    if(u)
+        u->set(m);
     m_program.uploadUniforms();
     m_vao.bind();
     m_ebo.bind(GL_ELEMENT_ARRAY_BUFFER);

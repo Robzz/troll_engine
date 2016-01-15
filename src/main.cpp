@@ -1,10 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <CImg.h>
-
 #include "gl_core_3_3.h"
 #include "window.h"
 #include "program.h"
@@ -12,6 +11,7 @@
 #include "vao.h"
 #include "scenegraph.h"
 #include "camera.h"
+#include "texture.h"
 
 #include "debug.h"
 
@@ -26,9 +26,9 @@ void init_libs(int argc, char** argv) {
 }
 
 // Build the shader program used in the project
-Program buildShaderProgram() {
-    std::ifstream fvs("shaders/per_fragment.vs");
-    std::ifstream ffs("shaders/per_fragment.fs");
+Program buildShaderProgram(std::string const& vs_file, std::string const& fs_file, std::vector<std::pair<std::string, ProgramBuilder::UniformType>> const& uniforms) {
+    std::ifstream fvs(vs_file);
+    std::ifstream ffs(fs_file);
     VertexShader vs(fvs);
     if(!vs) {
         std::cerr << "Vertex shader compile error : " << std::endl << vs.info_log() << std::endl;
@@ -39,14 +39,13 @@ Program buildShaderProgram() {
         std::cerr << "Fragment shader compile error : " << std::endl << fs.info_log() << std::endl;
         exit(EXIT_FAILURE);
     }
-    Program p = ProgramBuilder().attach_shader(vs)
-                                .attach_shader(fs)
-                                .with_uniform("m_proj", ProgramBuilder::mat4)
-                                .with_uniform("m_world", ProgramBuilder::mat4)
-                                .with_uniform("m_camera", ProgramBuilder::mat4)
-                                .with_uniform("m_normalTransform", ProgramBuilder::mat3)
-                                .with_uniform("v_lightPosition", ProgramBuilder::vec3)
-                                .link();
+    ProgramBuilder pb = ProgramBuilder().attach_shader(vs)
+                                        .attach_shader(fs);
+    for(auto it = uniforms.begin() ; it != uniforms.end() ; ++it) {
+        pb = pb.with_uniform((*it).first, (*it).second);
+    }
+    Program p = pb.link();
+
     if(!p) {
         std::cerr << "Program link error : " << std::endl << p.info_log() << std::endl;
         exit(EXIT_FAILURE);
@@ -129,12 +128,6 @@ int main(int argc, char** argv) {
     init_libs(argc, argv);
     std::chrono::high_resolution_clock clock;
 
-    std:: cout << "Loading textures (1/2)..." << std::endl;
-    cimg_library::CImg<float> img("assets/earth_heightmap.jpg");
-    std:: cout << "Loading textures (2/2)..." << std::endl;
-    cimg_library::CImg<float> img2("assets/earth.png");
-    std:: cout << "Done!" << std::endl;
-
     {
         // First, create the window
         Engine::WindowBuilder wb;
@@ -153,11 +146,25 @@ int main(int argc, char** argv) {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
                   worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
         glm::vec3 lightPosition(0, 5, 5);
-        Program p = buildShaderProgram();
+        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2, u_p3;
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_normalTransform", ProgramBuilder::mat3));
+        uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("v_lightPosition", ProgramBuilder::vec3));
+        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
+        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
+        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
+        uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("u_tex", ProgramBuilder::int_));
+        Program p = buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1);
+        Program texProgram = buildShaderProgram("shaders/texture.vs", "shaders/texture.fs", uniforms_p2);
+        Program p3 = buildShaderProgram("shaders/passthrough.vs", "shaders/passthrough.fs", u_p3);
+        texProgram.use();
+        dynamic_cast<Uniform<int>*>(texProgram.getUniform("u_tex"))->set(0);
+        dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_proj"))->set(projMatrix);;
+        dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_world"))->set(worldMatrix);
         p.use();
-        Uniform<glm::mat4>* u1 = dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"));
-        std::cout << u1 << std::endl;
-        u1->set(projMatrix);
+        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);;
         dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_world"))->set(worldMatrix);
         dynamic_cast<Uniform<glm::mat3>*>(p.getUniform("m_normalTransform"))->set(glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
         dynamic_cast<Uniform<glm::vec3>*>(p.getUniform("v_lightPosition"))->set(lightPosition);
@@ -168,24 +175,54 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
         });
         // Create the sphere object
+        std::vector<glm::vec3> planeCoords;
+        planeCoords.push_back(glm::vec3(-1,  1, 0));
+        planeCoords.push_back(glm::vec3( 1, -1, 0));
+        planeCoords.push_back(glm::vec3( 1,  1, 0));
+        planeCoords.push_back(glm::vec3(-1,  1, 0));
+        planeCoords.push_back(glm::vec3(-1, -1, 0));
+        planeCoords.push_back(glm::vec3( 1, -1, 0));
+        VBO texPlane;
+        texPlane.upload_data(planeCoords);
+
+        std::vector<glm::vec2> planeTexCoords;
+        planeTexCoords.push_back(glm::vec2(0, 1));
+        planeTexCoords.push_back(glm::vec2(1, 1));
+        planeTexCoords.push_back(glm::vec2(1, 0));
+        planeTexCoords.push_back(glm::vec2(0, 1));
+        planeTexCoords.push_back(glm::vec2(1, 0));
+        planeTexCoords.push_back(glm::vec2(0, 0));
+        VBO texCoordsVbo;
+        texCoordsVbo.upload_data(planeTexCoords);
+
         VBO sphereVbo = build_sphere_mesh();
         VBO sphereIndices = build_sphere_indices();
-        VAO sphereVao;
+        VAO sphereVao, texPlaneVao;
         GLint posIndex = p.getAttributeLocation("v_position");
         GLint normalIndex = p.getAttributeLocation("v_normal");
         sphereVao.enableVertexAttribArray(posIndex);
-        sphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
         sphereVao.enableVertexAttribArray(normalIndex);
+        sphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
         sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);
+
+        posIndex = texProgram.getAttributeLocation("v_position");
+        GLint texcoord = texProgram.getAttributeLocation("v_texCoord");
+        texPlaneVao.enableVertexAttribArray(posIndex);
+        texPlaneVao.enableVertexAttribArray(texcoord);
+        texPlaneVao.vertexAttribPointer(texPlane, posIndex, 3);
+        texPlaneVao.vertexAttribPointer(texCoordsVbo, texcoord, 2);
         VAO::unbind();
 
         // Fill the scene
         Camera camera;
         SceneGraph scene;
+        
+        Object* plane = new Object(glm::translate(glm::mat4(1), glm::vec3(0, 0, 3)), texProgram, texPlaneVao, 6);
         IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 29*29*2*3);
         IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 29*29*2*3);
         refSphere->addChild(leftSphere);
         scene.addChild(refSphere);
+        scene.addChild(plane);
 
         // Some more GL related stuff
         glDisable(GL_CULL_FACE);
@@ -197,12 +234,30 @@ int main(int argc, char** argv) {
 
         // Install input callbacks
         bind_input_callbacks(window, camera);
+        glActiveTexture(GL_TEXTURE0);
+        Texture earth(Texture::from_image("/home/robzz/cours/m1/lmg/projet/assets/earth.png"));
+        std::vector<glm::vec3> vec;
+        /*vec.push_back(glm::vec3(0, 0, 0));
+        vec.push_back(glm::vec3(1, 0, 0));
+        vec.push_back(glm::vec3(0, 1, 0));
+        vec.push_back(glm::vec3(0, 0, 1));*/
+        for(int i = 0 ; i != 4 ; ++i)
+        for(int j = 0 ; j != 4 ; ++j) {
+            vec.push_back(glm::vec3(static_cast<float>(i) / 4, static_cast<float>(j) / 4, 0));
+        }
+        Texture tex2;
+        tex2.texData(GL_RGB32F, GL_RGB, GL_FLOAT, 4, 4, vec.data());
 
         auto start = clock.now();
         // Finally, the render function
         window.setRenderCallback([&] () {
             glm::mat4 cameraMatrix = camera.mat();
+            p.use();
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
+            texProgram.use();
+            glActiveTexture(GL_TEXTURE0);
+            tex2.bind();
+            dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_camera"))->set(cameraMatrix);
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             float t = std::chrono::duration<float>(clock.now() - start).count();

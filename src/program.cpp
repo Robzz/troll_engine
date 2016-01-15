@@ -131,6 +131,9 @@ Program ProgramBuilder::link() {
         else if(t == UniformType::mat4) {
             v.push_back(new Uniform<glm::mat4>(loc, name));
         }
+        else if(t == UniformType::int_) {
+            v.push_back(new Uniform<int>(loc, name));
+        } 
         else {
             throw std::runtime_error("SHIT");
         }

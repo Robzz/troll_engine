@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <vector>
+#include <type_traits>
 #include <typeinfo>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -44,6 +45,7 @@ class Program {
         // Check if the program is invalid
         bool operator !() const;
         // Return some information about the program.
+        // TODO : return information about the uniforms too (e.g. found/not found)
         std::string info_log() const;
 
         // Set as the program currently used for rendering
@@ -112,13 +114,40 @@ class Uniform : public UniformBase {
         }
 };
 
+template <>
+class Uniform<int> : public UniformBase {
+    friend class ProgramBuilder;
+    public:
+        virtual ~Uniform() { }
+
+        void set(int value) {
+            m_value = value;
+            m_clean = false;
+        }
+
+    private:
+        int m_value;
+
+        Uniform(GLint location, std::string const& name) :
+            UniformBase(location, name),
+            m_value()
+        { }
+
+        virtual void upload() {
+            if(!m_clean) {
+                GLV(glUniform1i(m_location, m_value));
+                m_clean = true;
+            }
+        }
+};
+
 // Use this class to build Program objects
 class ProgramBuilder {
     public:
         ProgramBuilder();
         ~ProgramBuilder();
 
-        enum UniformType { vec3, mat3, mat4 };
+        enum UniformType { vec3, mat3, mat4, int_ };
 
         /* Attach a shader to the program*/
         ProgramBuilder& attach_shader(Shader&);

@@ -75,13 +75,16 @@ class DrawableNode : public Node {
 };
 
 /* Drawable object with its own geometry, rendered with array rendering. */
-class Object : DrawableNode {
+class Object : public DrawableNode {
     public:
-        Object(glm::mat4 const& position);
+        Object(glm::mat4 const& position, Program& p, VAO& vao, unsigned int n_primitives,
+               GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
     private:
+        unsigned int m_n_primitives;
+        GLenum m_primitiveMode;
         Program& m_program;
         VAO& m_vao;
 };
@@ -89,7 +92,7 @@ class Object : DrawableNode {
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
+        IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
                       GLenum indexType = GL_UNSIGNED_SHORT, GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
         virtual void draw(glm::mat4 const& m);
