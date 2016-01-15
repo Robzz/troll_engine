@@ -90,6 +90,7 @@ std::string const& UniformBase::name() const {
 }
 
 ProgramBuilder::ProgramBuilder() :
+    m_program(),
     m_attachedShaders(),
     m_uniforms()
 {

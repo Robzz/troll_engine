@@ -36,7 +36,7 @@ Texture Texture::from_image(std::string const& filename) {
     tex.bind(GL_TEXTURE_2D);
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    SOIL_load_OGL_texture("assets/earth.jpg", SOIL_LOAD_AUTO, tex.m_id, 0);
+    SOIL_load_OGL_texture(filename.c_str(), SOIL_LOAD_AUTO, tex.m_id, 0);
     return tex;
 }
 

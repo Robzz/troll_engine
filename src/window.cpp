@@ -22,8 +22,9 @@ namespace Engine {
     }
 
     Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync) :
-        m_render(),
+        m_w(),
         m_im(),
+        m_render(),
         m_resize()
     {
         // Use OpenGL 3.3 core profile

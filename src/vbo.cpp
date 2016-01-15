@@ -1,6 +1,8 @@
 #include "vbo.h"
 
-VBO::VBO() {
+VBO::VBO() :
+    m_id()
+{
     GLV(glGenBuffers(1, &m_id));
 }
 

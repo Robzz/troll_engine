@@ -2,7 +2,9 @@
 #include "vbo.h"
 #include "debug.h"
 
-VAO::VAO() {
+VAO::VAO() :
+    m_id()
+{
     GLV(glGenVertexArrays(1, &m_id));
 }
 

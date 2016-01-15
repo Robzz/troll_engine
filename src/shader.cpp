@@ -4,7 +4,9 @@
 
 #include "debug.h"
 
-Shader::Shader(std::istream& str_stream, GLenum shader_type) {
+Shader::Shader(std::istream& str_stream, GLenum shader_type) :
+    m_id()
+{
     // Read source and compile
     m_id = GL(glCreateShader(shader_type));
     std::string source((std::istreambuf_iterator<char>(str_stream)), (std::istreambuf_iterator<char>()));

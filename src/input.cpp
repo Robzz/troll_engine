@@ -10,7 +10,10 @@ InputManager::InputManager() :
 { }
 
 InputManager::InputManager(InputManager&& other) :
-    m_callbacks(other.m_callbacks)
+    m_callbacks(other.m_callbacks),
+    m_mousePosCallback(other.m_mousePosCallback),
+    m_invertY(other.m_invertY),
+    m_mouseSensitivity(other.m_mouseSensitivity)
 { }
 
 InputManager::~InputManager() {

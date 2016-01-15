@@ -52,7 +52,8 @@ int Node::nextId() {
 }
 
 SceneGraph::SceneGraph() :
-    Node()
+    Node(),
+    m_matrixStack()
 { }
 
 SceneGraph::~SceneGraph() { }

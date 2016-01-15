@@ -102,9 +102,6 @@ VBO build_sphere_indices() {
     return i;
 }
 
-void bind_camera_keys(Camera const& cam) {
-}
-
 void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
     window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1);  std::cout << "Going up!" << std::endl; });
