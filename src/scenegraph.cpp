@@ -39,6 +39,14 @@ void Node::removeChildsByName(std::string const& name) {
     }
 }
 
+glm::mat4 Node::transform() const {
+    return m_position;
+}
+
+void Node::set_transform(glm::mat4 const& m) {
+    m_position = m;
+}
+
 int Node::nextId() {
     return m_id++;
 }

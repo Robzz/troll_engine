@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <CImg.h>
 
 #include "gl_core_3_3.h"
 #include "window.h"
@@ -54,8 +56,8 @@ Program buildShaderProgram() {
 
 // Build the sphere mesh used for planets
 VBO build_sphere_mesh() {
-    const int nMeridians = 20;
-    const int nParallels = 20;
+    const int nMeridians = 30;
+    const int nParallels = 30;
     const float radius = 0.5;
     const float dPhi = M_PI / (nParallels+1);
     const float dTheta = 2 * M_PI / (nMeridians-1);
@@ -81,8 +83,8 @@ VBO build_sphere_mesh() {
 
 // Compute the indices to draw the spheres in indexed mode
 VBO build_sphere_indices() {
-    const int nMeridians = 20;
-    const int nParallels = 20;
+    const int nMeridians = 30;
+    const int nParallels = 30;
     std::vector<GLshort> vec;
     
     for(int i = 0 ; i != (nParallels-1) ; ++i) {
@@ -104,7 +106,7 @@ VBO build_sphere_indices() {
 void bind_camera_keys(Camera const& cam) {
 }
 
-void bind_input_callbacks(Window& window, Camera& cam) {
+void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
     window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1);  std::cout << "Going up!" << std::endl; });
     window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1);  std::cout << "Going down!" << std::endl; });
@@ -125,11 +127,18 @@ void bind_input_callbacks(Window& window, Camera& cam) {
 
 int main(int argc, char** argv) {
     init_libs(argc, argv);
+    std::chrono::high_resolution_clock clock;
+
+    std:: cout << "Loading textures (1/2)..." << std::endl;
+    cimg_library::CImg<float> img("assets/earth_heightmap.jpg");
+    std:: cout << "Loading textures (2/2)..." << std::endl;
+    cimg_library::CImg<float> img2("assets/earth.png");
+    std:: cout << "Done!" << std::endl;
 
     {
         // First, create the window
-        WindowBuilder wb;
-        Window window = wb.size(1280, 720)
+        Engine::WindowBuilder wb;
+        Engine::Window window = wb.size(1280, 720)
                           .title("Projetlololol")
                           .build();
         if (!window) {
@@ -173,8 +182,8 @@ int main(int argc, char** argv) {
         // Fill the scene
         Camera camera;
         SceneGraph scene;
-        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 19*19*2*3);
-        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 19*19*2*3);
+        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 29*29*2*3);
+        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 29*29*2*3);
         refSphere->addChild(leftSphere);
         scene.addChild(refSphere);
 
@@ -189,11 +198,16 @@ int main(int argc, char** argv) {
         // Install input callbacks
         bind_input_callbacks(window, camera);
 
+        auto start = clock.now();
         // Finally, the render function
         window.setRenderCallback([&] () {
             glm::mat4 cameraMatrix = camera.mat();
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+            float t = std::chrono::duration<float>(clock.now() - start).count();
+            glm::mat4 m(glm::translate(glm::rotate(glm::mat4(1), t, glm::vec3(0, 1, 0)), glm::vec3(-1, 0, 0)));
+            leftSphere->set_transform(m);
             scene.render(); });
 
         window.mainLoop();

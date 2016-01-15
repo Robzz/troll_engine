@@ -28,5 +28,5 @@ set_target_properties(Projet PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 # Enable C++11
 set_property(TARGET Projet PROPERTY CXX_STANDARD 11)
 
-include_directories(include lib/glfw-3.1.2/include lib/glm-0.9.7.1)
+include_directories(include lib/glfw-3.1.2/include lib/glm-0.9.7.1 lib/CImg/)
 target_link_libraries(Projet glfw ${GLFW_LIBRARIES})

@@ -28,6 +28,9 @@ class Node {
         /* Remove all childs with a given name */
         void removeChildsByName(std::string const&);
 
+        glm::mat4 transform() const;
+        void set_transform(glm::mat4 const& m);
+
     protected:
         /* Do we draw this node and its children? */
         bool m_enabled;
