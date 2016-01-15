@@ -5,16 +5,6 @@ include(ExternalProject)
 # Use GLFW CMake build system
 add_subdirectory(./lib/glfw-3.1.2)
 
-ExternalProject_Add(soil_build
-                    PREFIX lib/soil
-                    SOURCE_DIR lib/soil
-                    CONFIGURE_COMMAND \;
-                    BINARY_DIR lib/soil/projects/makefile
-                    BUILD_COMMAND make
-                    INSTALL_COMMAND \;)
-add_library(soil STATIC IMPORTED)
-set_property(TARGET soil PROPERTY IMPORTED_LOCATION lib/soil/lib/libSOIL.a)
-
 #add_definitions(-DGL_TRACE)
 add_definitions(-DDEBUG)
 add_definitions(-DGLM_SWIZZLE)
@@ -37,8 +27,6 @@ set(SOURCES
 )
 
 add_executable(Projet ${SOURCES})
-add_dependencies(soil soil_build)
-#add_dependencies(Projet soil glfw)
 set_target_properties(Projet PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 # Enable C++11
 set_property(TARGET Projet PROPERTY CXX_STANDARD 11)

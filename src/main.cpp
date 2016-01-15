@@ -118,18 +118,17 @@ VBO build_sphere_indices() {
 
 void bind_input_callbacks(Engine::Window& window, Camera& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
-    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1);  std::cout << "Going up!" << std::endl; });
-    window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1);  std::cout << "Going down!" << std::endl; });
-    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 1);  std::cout << "Going forward!" << std::endl; });
-    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 1);  std::cout << "Going left!" << std::endl; });
-    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1);  std::cout << "Going back!" << std::endl; });
-    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1);  std::cout << "Going right!" << std::endl; });
+    window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1); });
+    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 1); });
+    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 1); });
+    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 1); });
+    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 1); });
+    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 1); });
 
     window.registerMouseCallback([&cam] (double x, double y) {
             static double prev_x = 0, prev_y = 0;
             double xoffset = x - prev_x, yoffset = y - prev_y;
             prev_x = x; prev_y = y;
-            std::cout << "Mouse movement (" << xoffset << ", " << yoffset << ")" << std::endl; 
             cam.rotate(Camera::X, yoffset);
             cam.rotate(Camera::Y, xoffset);
         });
@@ -185,19 +184,10 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
         });
 
-        /*VBO sphereVbo = build_sphere_mesh();
-        VBO sphereIndices = build_sphere_indices();
-        VAO sphereVao, texPlaneVao;
-        GLint posIndex = p.getAttributeLocation("v_position");
-        GLint normalIndex = p.getAttributeLocation("v_normal");
-        sphereVao.enableVertexAttribArray(posIndex);
-        sphereVao.enableVertexAttribArray(normalIndex);
-        sphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
-        sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);*/
-
         VBO sphereVbo = build_sphere_mesh(), sphereTexCoords = build_sphere_texcoords(), sphereIndices = build_sphere_indices();
         VAO flatSphereVao, texSphereVao;
 
+        // Setup vertex attributes
         GLint posIndex = p.getAttributeLocation("v_position");
         GLint normalIndex = p.getAttributeLocation("v_normal");
         flatSphereVao.enableVertexAttribArray(posIndex);
@@ -222,6 +212,10 @@ int main(int argc, char** argv) {
         refSphere->addChild(leftSphere);
         scene.addChild(refSphere);
 
+        glActiveTexture(GL_TEXTURE0);
+        Texture earth(Texture::from_image("assets/earth.bmp"));
+        earth.bind();
+
         // Some more GL related stuff
         glDisable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
@@ -232,8 +226,6 @@ int main(int argc, char** argv) {
 
         // Install input callbacks
         bind_input_callbacks(window, camera);
-        glActiveTexture(GL_TEXTURE0);
-        Texture earth(Texture::from_image("/home/robzz/cours/m1/lmg/projet/assets/earth.bmp"));
 
         auto start = clock.now();
         // Finally, the render function
@@ -242,8 +234,6 @@ int main(int argc, char** argv) {
             p.use();
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
             texProgram.use();
-            glActiveTexture(GL_TEXTURE0);
-            earth.bind();
             dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_camera"))->set(cameraMatrix);
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
