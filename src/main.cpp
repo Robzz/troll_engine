@@ -80,6 +80,20 @@ VBO build_sphere_mesh() {
     return s;
 }
 
+VBO build_sphere_texcoords() {
+    const int nMeridians = 30;
+    const int nParallels = 30;
+    std::vector<glm::vec2> vec;
+    for(int i = 0 ; i != nParallels ; ++i)
+    for(int j = 0 ; j != nMeridians ; ++j) {
+        vec.push_back(glm::vec2(static_cast<float>(j) / nMeridians,
+                                -static_cast<float>(i) / nParallels));
+    }
+    VBO s;
+    s.upload_data(vec);
+    return s;
+}
+
 // Compute the indices to draw the spheres in indexed mode
 VBO build_sphere_indices() {
     const int nMeridians = 30;
@@ -143,7 +157,7 @@ int main(int argc, char** argv) {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 100),
                   worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
         glm::vec3 lightPosition(0, 5, 5);
-        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2, u_p3;
+        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2;
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
@@ -155,7 +169,6 @@ int main(int argc, char** argv) {
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("u_tex", ProgramBuilder::int_));
         Program p = buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1);
         Program texProgram = buildShaderProgram("shaders/texture.vs", "shaders/texture.fs", uniforms_p2);
-        Program p3 = buildShaderProgram("shaders/passthrough.vs", "shaders/passthrough.fs", u_p3);
         texProgram.use();
         dynamic_cast<Uniform<int>*>(texProgram.getUniform("u_tex"))->set(0);
         dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_proj"))->set(projMatrix);;
@@ -171,28 +184,8 @@ int main(int argc, char** argv) {
             p.use();
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
         });
-        // Create the sphere object
-        std::vector<glm::vec3> planeCoords;
-        planeCoords.push_back(glm::vec3(-1,  1, 0));
-        planeCoords.push_back(glm::vec3( 1, -1, 0));
-        planeCoords.push_back(glm::vec3( 1,  1, 0));
-        planeCoords.push_back(glm::vec3(-1,  1, 0));
-        planeCoords.push_back(glm::vec3(-1, -1, 0));
-        planeCoords.push_back(glm::vec3( 1, -1, 0));
-        VBO texPlane;
-        texPlane.upload_data(planeCoords);
 
-        std::vector<glm::vec2> planeTexCoords;
-        planeTexCoords.push_back(glm::vec2(0, 1));
-        planeTexCoords.push_back(glm::vec2(1, 0));
-        planeTexCoords.push_back(glm::vec2(1, 1));
-        planeTexCoords.push_back(glm::vec2(0, 1));
-        planeTexCoords.push_back(glm::vec2(0, 0));
-        planeTexCoords.push_back(glm::vec2(1, 0));
-        VBO texCoordsVbo;
-        texCoordsVbo.upload_data(planeTexCoords);
-
-        VBO sphereVbo = build_sphere_mesh();
+        /*VBO sphereVbo = build_sphere_mesh();
         VBO sphereIndices = build_sphere_indices();
         VAO sphereVao, texPlaneVao;
         GLint posIndex = p.getAttributeLocation("v_position");
@@ -200,26 +193,34 @@ int main(int argc, char** argv) {
         sphereVao.enableVertexAttribArray(posIndex);
         sphereVao.enableVertexAttribArray(normalIndex);
         sphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
-        sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);
+        sphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0, NULL, GL_FLOAT, GL_TRUE);*/
+
+        VBO sphereVbo = build_sphere_mesh(), sphereTexCoords = build_sphere_texcoords(), sphereIndices = build_sphere_indices();
+        VAO flatSphereVao, texSphereVao;
+
+        GLint posIndex = p.getAttributeLocation("v_position");
+        GLint normalIndex = p.getAttributeLocation("v_normal");
+        flatSphereVao.enableVertexAttribArray(posIndex);
+        flatSphereVao.enableVertexAttribArray(normalIndex);
+        flatSphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
+        flatSphereVao.vertexAttribPointer(sphereVbo, normalIndex, 3, 0 , NULL, GL_FLOAT, GL_TRUE);
 
         posIndex = texProgram.getAttributeLocation("v_position");
-        GLint texcoord = texProgram.getAttributeLocation("v_texCoord");
-        texPlaneVao.enableVertexAttribArray(posIndex);
-        texPlaneVao.enableVertexAttribArray(texcoord);
-        texPlaneVao.vertexAttribPointer(texPlane, posIndex, 3);
-        texPlaneVao.vertexAttribPointer(texCoordsVbo, texcoord, 2);
+        GLint texCoordsIndex = texProgram.getAttributeLocation("v_texCoord");
+        texSphereVao.enableVertexAttribArray(posIndex);
+        texSphereVao.enableVertexAttribArray(texCoordsIndex);
+        texSphereVao.vertexAttribPointer(sphereVbo, posIndex, 3);
+        texSphereVao.vertexAttribPointer(sphereTexCoords, texCoordsIndex, 2);
         VAO::unbind();
 
         // Fill the scene
         Camera camera;
         SceneGraph scene;
         
-        Object* plane = new Object(glm::translate(glm::mat4(1), glm::vec3(0, 0, 3)), texProgram, texPlaneVao, 6);
-        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, sphereVao, 29*29*2*3);
-        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), p, sphereIndices, sphereVao, 29*29*2*3);
+        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, flatSphereVao, 29*29*2*3);
+        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), texProgram, sphereIndices, texSphereVao, 29*29*2*3);
         refSphere->addChild(leftSphere);
         scene.addChild(refSphere);
-        scene.addChild(plane);
 
         // Some more GL related stuff
         glDisable(GL_CULL_FACE);
@@ -233,17 +234,6 @@ int main(int argc, char** argv) {
         bind_input_callbacks(window, camera);
         glActiveTexture(GL_TEXTURE0);
         Texture earth(Texture::from_image("/home/robzz/cours/m1/lmg/projet/assets/earth.bmp"));
-        std::vector<glm::vec3> vec;
-        /*vec.push_back(glm::vec3(0, 0, 0));
-        vec.push_back(glm::vec3(1, 0, 0));
-        vec.push_back(glm::vec3(0, 1, 0));
-        vec.push_back(glm::vec3(0, 0, 1));*/
-        for(int i = 0 ; i != 4 ; ++i)
-        for(int j = 0 ; j != 4 ; ++j) {
-            vec.push_back(glm::vec3(static_cast<float>(i) / 4, static_cast<float>(j) / 4, 0));
-        }
-        Texture tex2;
-        tex2.texData(GL_RGB32F, GL_RGB, GL_FLOAT, 4, 4, vec.data());
 
         auto start = clock.now();
         // Finally, the render function
