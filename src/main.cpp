@@ -184,11 +184,11 @@ int main(int argc, char** argv) {
 
         std::vector<glm::vec2> planeTexCoords;
         planeTexCoords.push_back(glm::vec2(0, 1));
+        planeTexCoords.push_back(glm::vec2(1, 0));
         planeTexCoords.push_back(glm::vec2(1, 1));
-        planeTexCoords.push_back(glm::vec2(1, 0));
         planeTexCoords.push_back(glm::vec2(0, 1));
-        planeTexCoords.push_back(glm::vec2(1, 0));
         planeTexCoords.push_back(glm::vec2(0, 0));
+        planeTexCoords.push_back(glm::vec2(1, 0));
         VBO texCoordsVbo;
         texCoordsVbo.upload_data(planeTexCoords);
 
