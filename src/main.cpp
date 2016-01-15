@@ -157,26 +157,31 @@ int main(int argc, char** argv) {
                   worldMatrix = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5));
         glm::vec3 lightPosition(0, 5, 5);
         std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2;
+
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_normalTransform", ProgramBuilder::mat3));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("v_lightPosition", ProgramBuilder::vec3));
+        Program p = buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1);
+
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p2.push_back(std::pair<std::string, ProgramBuilder::UniformType>("u_tex", ProgramBuilder::int_));
-        Program p = buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1);
         Program texProgram = buildShaderProgram("shaders/texture.vs", "shaders/texture.fs", uniforms_p2);
+
         texProgram.use();
         dynamic_cast<Uniform<int>*>(texProgram.getUniform("u_tex"))->set(0);
         dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_proj"))->set(projMatrix);;
         dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_world"))->set(worldMatrix);
         p.use();
+
         dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);;
         dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_world"))->set(worldMatrix);
         dynamic_cast<Uniform<glm::mat3>*>(p.getUniform("m_normalTransform"))->set(glm::transpose(glm::inverse(glm::mat3(worldMatrix))));
         dynamic_cast<Uniform<glm::vec3>*>(p.getUniform("v_lightPosition"))->set(lightPosition);
+
         window.setResizeCallback([&] (int w, int h) {
             GLV(glViewport(0, 0, w, h));
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 100);
@@ -206,15 +211,14 @@ int main(int argc, char** argv) {
         // Fill the scene
         Camera camera;
         SceneGraph scene;
-        
-        IndexedObject* refSphere = new IndexedObject(worldMatrix, p, sphereIndices, flatSphereVao, 29*29*2*3);
-        IndexedObject* leftSphere = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), texProgram, sphereIndices, texSphereVao, 29*29*2*3);
-        refSphere->addChild(leftSphere);
-        scene.addChild(refSphere);
-
         glActiveTexture(GL_TEXTURE0);
-        Texture earth(Texture::from_image("assets/earth.bmp"));
-        earth.bind();
+        Texture earthTex(Texture::from_image("assets/earth.bmp"));
+        
+        IndexedObject* sun = new IndexedObject(worldMatrix, p, sphereIndices, flatSphereVao, 29*29*2*3);
+        IndexedObject* earth = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(-1, 0, 0)), texProgram, sphereIndices, texSphereVao, 29*29*2*3, earthTex);
+        sun->addChild(earth);
+        scene.addChild(sun);
+
 
         // Some more GL related stuff
         glDisable(GL_CULL_FACE);
@@ -239,7 +243,7 @@ int main(int argc, char** argv) {
 
             float t = std::chrono::duration<float>(clock.now() - start).count();
             glm::mat4 m(glm::translate(glm::rotate(glm::mat4(1), t, glm::vec3(0, 1, 0)), glm::vec3(-1, 0, 0)));
-            leftSphere->set_transform(m);
+            earth->set_transform(m);
             scene.render(); });
 
         window.mainLoop();

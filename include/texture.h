@@ -15,8 +15,9 @@ class Texture {
     /* Move-assignment operator */
     Texture& operator=(Texture&& other);
 
-    void bind(GLenum target = GL_TEXTURE_2D);
+    void bind(GLenum target = GL_TEXTURE_2D) const;
     static void unbind(GLenum target = GL_TEXTURE_2D);
+    static Texture noTexture();
 
     static Texture from_image(std::string const& filename);
 
@@ -25,9 +26,8 @@ class Texture {
     private:
     GLuint m_id;
 
-    /* Copy constructor */
+    Texture(GLuint id);
     Texture(Texture const& other);
-    /* Assignment operator */
     void operator=(Texture const& other);
 };
 

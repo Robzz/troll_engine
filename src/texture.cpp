@@ -14,21 +14,30 @@ Texture::Texture(Texture&& other):
     m_id(other.m_id)
 { }
 
+Texture::Texture(GLuint id) :
+    m_id(id)
+{ }
+
 Texture& Texture::operator=(Texture&& other) {
     m_id = other.m_id;
     return *this;
 }
 
 Texture::~Texture() {
-    GLV(glDeleteTextures(1, &m_id));
+    if(m_id)
+        GLV(glDeleteTextures(1, &m_id));
 }
 
-void Texture::bind(GLenum target) {
+void Texture::bind(GLenum target) const {
     glBindTexture(target, m_id);
 }
 
 void Texture::unbind(GLenum target) {
     glBindTexture(target, 0);
+}
+
+Texture Texture::noTexture() {
+    return Texture(0);
 }
 
 Texture Texture::from_image(std::string const& filename) {
