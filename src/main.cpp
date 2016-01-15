@@ -232,7 +232,7 @@ int main(int argc, char** argv) {
         // Install input callbacks
         bind_input_callbacks(window, camera);
         glActiveTexture(GL_TEXTURE0);
-        Texture earth(Texture::from_image("/home/robzz/cours/m1/lmg/projet/assets/earth.png"));
+        Texture earth(Texture::from_image("/home/robzz/cours/m1/lmg/projet/assets/earth.bmp"));
         std::vector<glm::vec3> vec;
         /*vec.push_back(glm::vec3(0, 0, 0));
         vec.push_back(glm::vec3(1, 0, 0));
@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
             texProgram.use();
             glActiveTexture(GL_TEXTURE0);
-            tex2.bind();
+            earth.bind();
             dynamic_cast<Uniform<glm::mat4>*>(texProgram.getUniform("m_camera"))->set(cameraMatrix);
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 

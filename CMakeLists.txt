@@ -38,14 +38,14 @@ set(SOURCES
 
 add_executable(Projet ${SOURCES})
 add_dependencies(soil soil_build)
-add_dependencies(Projet soil glfw)
+#add_dependencies(Projet soil glfw)
 set_target_properties(Projet PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 # Enable C++11
 set_property(TARGET Projet PROPERTY CXX_STANDARD 11)
 target_compile_options(Projet PUBLIC -Wall -Wextra -Weffc++)
 
-include_directories(include lib/glfw-3.1.2/include lib/glm-0.9.7.1 lib/soil/src)
-target_link_libraries(Projet glfw ${GLFW_LIBRARIES} "soil")
+include_directories(include lib/glfw-3.1.2/include lib/glm-0.9.7.1 lib/bitmap)
+target_link_libraries(Projet glfw ${GLFW_LIBRARIES})
 
 # Archive target
 set(ARCHIVE_FILES

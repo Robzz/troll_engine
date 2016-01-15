@@ -1,6 +1,6 @@
 #include "texture.h"
 #include "debug.h"
-#include "SOIL.h"
+#include "bitmap_image.hpp"
 #include <vector>
 
 
@@ -36,7 +36,10 @@ Texture Texture::from_image(std::string const& filename) {
     tex.bind(GL_TEXTURE_2D);
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    SOIL_load_OGL_texture(filename.c_str(), SOIL_LOAD_AUTO, tex.m_id, 0);
+    bitmap_image img(filename);
+    if(!img)
+        throw std::runtime_error("Cannot read BMP file");
+    tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data());
     return tex;
 }
 
