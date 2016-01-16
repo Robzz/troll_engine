@@ -1,18 +1,23 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 2.8)
 
-include(ExternalProject)
+project(MCGYVER CXX)
 
-# Use GLFW CMake build system
-add_subdirectory(./lib/glfw-3.1.2)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
 
-#add_definitions(-DGL_TRACE)
-add_definitions(-DDEBUG)
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    add_definitions(-DGL_TRACE)
+    add_definitions(-DDEBUG)
+endif()
 add_definitions(-DGLM_SWIZZLE)
 
-# Define project
-set(SOURCES
+option(MCGYVER_BUILD_EXAMPLES "Build examples" ON)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Engine sources
+set(MCGYVER_SOURCES
     src/gl_core_3_3.cpp
-    src/main.cpp
     src/window.cpp
     src/shader.cpp
     src/program.cpp
@@ -27,25 +32,51 @@ set(SOURCES
     src/planet.cpp
 )
 
-add_executable(Projet ${SOURCES})
-set_target_properties(Projet PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
-# Enable C++11
-set_property(TARGET Projet PROPERTY CXX_STANDARD 11)
-target_compile_options(Projet PUBLIC -Wall -Wextra -Weffc++)
+set(MCGYVER_HEADERS
+    include/gl_core_3_3.h
+    include/window.h
+    include/shader.h
+    include/program.h
+    include/debug.h
+    include/vbo.h
+    include/vao.h
+    include/matrixstack.h
+    include/scenegraph.h
+    include/input.h
+    include/camera.h
+    include/texture.h
+    include/planet.h
+)
 
-include_directories(include lib/glfw-3.1.2/include lib/glm-0.9.7.1 lib/bitmap)
-target_link_libraries(Projet glfw ${GLFW_LIBRARIES})
+add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
+include_directories(McGyver "${MCGYVER_SOURCE_DIR}/include"
+                            ${GLFW_INCLUDE_DIRS}
+                            "lib/glm-0.9.7.1"
+                            "lib/bitmap")
+
+set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
+
+target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES})
+
+# Enable C++11 and extra warnings
+set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
+target_compile_options(McGyver PUBLIC -Wall -Wextra -Weffc++)
+
+if(MCGYVER_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 # Archive target
 set(ARCHIVE_FILES
     include
     src
-    assets
+    examples
+    doc
     lib
     shaders
     CMakeLists.txt
-    rapport.odt
-    )
-add_custom_command(OUTPUT chavignat_lmg.tar.gz
-                   COMMAND tar -acf chavignat_lmg.tar.gz ${ARCHIVE_FILES})
-add_custom_target(archive DEPENDS chavignat_lmg.tar.gz)
+)
+
+add_custom_command(OUTPUT mcgyver.tar.xz
+    COMMAND tar -acf mcgyver.tar.xz ${ARCHIVE_FILES})
+add_custom_target(archive DEPENDS mcgyver.tar.xz)
