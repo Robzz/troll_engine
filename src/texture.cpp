@@ -1,6 +1,6 @@
 #include "texture.h"
 #include "debug.h"
-#include "bitmap_image.hpp"
+#include "bitmap.h"
 #include <vector>
 
 
@@ -45,10 +45,8 @@ Texture Texture::from_image(std::string const& filename) {
     tex.bind(GL_TEXTURE_2D);
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    bitmap_image img(filename);
-    if(!img)
-        throw std::runtime_error("Cannot read BMP file");
-    tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data());
+    image::Bitmap img(image::Bitmap::readFile(filename));
+    tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data().data());
     return tex;
 }
 

@@ -6,7 +6,7 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    add_definitions(-DGL_TRACE)
+    #add_definitions(-DGL_TRACE)
     add_definitions(-DDEBUG)
 endif()
 add_definitions(-DGLM_SWIZZLE)
@@ -30,6 +30,7 @@ set(MCGYVER_SOURCES
     src/camera.cpp
     src/texture.cpp
     src/planet.cpp
+    src/mesh.cpp
 )
 
 set(MCGYVER_HEADERS
@@ -46,17 +47,20 @@ set(MCGYVER_HEADERS
     include/camera.h
     include/texture.h
     include/planet.h
+    include/mesh.h
 )
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
 include_directories(McGyver "${MCGYVER_SOURCE_DIR}/include"
                             ${GLFW_INCLUDE_DIRS}
-                            "lib/glm-0.9.7.1"
-                            "lib/bitmap")
+                            "${IMAGE_SOURCE_DIR}/include")
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
-target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES})
+target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} image)
+
+add_subdirectory(image)
+add_dependencies(McGyver image)
 
 # Enable C++11 and extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)

@@ -16,6 +16,7 @@
 
 #include "debug.h"
 
+// TODO : wrap this in the lib
 // Initialize GLEW and GLFW
 void init_libs(int argc, char** argv) {
     if (!glfwInit()) {
@@ -54,6 +55,7 @@ Program buildShaderProgram(std::string const& vs_file, std::string const& fs_fil
     return p;
 }
 
+// TODO : lib to build simple meshes such as spheres
 // Build the sphere mesh used for planets
 VBO build_sphere_mesh() {
     const int nMeridians = 30;
@@ -189,6 +191,7 @@ int main(int argc, char** argv) {
         glm::vec3 lightPosition(0, 0, 0);
         std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p1, uniforms_p2, uniforms_p3;
 
+        // TODO : Heh. Maybe not *so* elegant after all?
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
         uniforms_p1.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
@@ -209,6 +212,7 @@ int main(int argc, char** argv) {
         dynamic_cast<Uniform<glm::mat4>*>(sunProgram.getUniform("m_world"))->set(worldMatrix);
 
         window.setResizeCallback([&] (int w, int h) {
+            // TODO : wrap the GL call away
             GLV(glViewport(0, 0, w, h));
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
             planetProgram.use();
@@ -297,6 +301,7 @@ int main(int argc, char** argv) {
         earth->addChild(moon);
         scene.addChild(sun);
 
+        // TODO : this must go
         // Some more GL related stuff
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
@@ -316,6 +321,7 @@ int main(int argc, char** argv) {
             dynamic_cast<Uniform<glm::mat3>*>(planetProgram.getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
             sunProgram.use();
 
+            // TODO : this too
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             // First draw the skybox with depth test off
@@ -344,6 +350,7 @@ int main(int argc, char** argv) {
         window.mainLoop();
     }
 
+        // TODO : yep, this too
         glfwTerminate();
 
         return 0;

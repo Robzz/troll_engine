@@ -28,4 +28,12 @@ std::ostream& operator<<(std::ostream& s, glm::vec3 const& v);
 #define GL(c) (wrap_gl_call(c, #c, __FILE__, __LINE__))
 #define GLV(c) { c; wrap_gl_call(#c, __FILE__, __LINE__); }
 
+/* This macro enables conditional compilation based on debug mode. The inner code will only be
+ * executed on debug builds. */
+#ifdef DEBUG
+#define DBG(code) { code }
+#else
+#define DBG(code) { }
+#endif
+
 #endif
