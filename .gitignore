@@ -9,6 +9,8 @@ glLoadGen
 *.tar.gz
 *.a
 examples/solar_system/solar_system
+examples/buddha/buddha
+**/assets/*
 include/obj_parser.h
 include/stack.hh
 src/obj_*.cpp

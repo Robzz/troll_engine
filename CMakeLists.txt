@@ -10,6 +10,9 @@ pkg_search_module(GLFW REQUIRED glfw3)
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     #add_definitions(-DGL_TRACE)
     add_definitions(-DDEBUG)
+else()
+    # Silence some expected warnings
+    set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_SWIZZLE)
 
