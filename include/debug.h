@@ -3,6 +3,7 @@
 #define DEBUG_H
 
 #include <iostream>
+#include <vector>
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
 
@@ -21,6 +22,14 @@ T wrap_gl_call(T val, const char* call_str, const char* filename, int lineno) {
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m);
 std::ostream& operator<<(std::ostream& s, glm::mat4 const& m);
 std::ostream& operator<<(std::ostream& s, glm::vec3 const& v);
+std::ostream& operator<<(std::ostream& s, glm::vec4 const& v);
+template<class T>
+std::ostream& operator<<(std::ostream& s, std::vector<T> const& v) {
+    for(T const& t: v) {
+        s << t << std::endl;
+    }
+    return s;
+}
 
 /* These two macros are designed to wrap calls to OpenGL functions.
  * If GL_TRACE is defined, they will log the OpenGL calls to the standard error stream.
