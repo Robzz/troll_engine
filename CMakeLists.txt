@@ -1,6 +1,32 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(MCGYVER CXX)
+include(ExternalProject)
+
+ExternalProject_Add(
+    glLoadGen
+    PREFIX glLoadGen
+    HG_REPOSITORY https://bitbucket.org/alfonse/glloadgen
+    HG_TAG 2.0.5
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+find_program(LUA_EXECUTABLE lua)
+if(${LUA_EXECUTABLE} EQUAL "")
+    message(FATAL_ERROR "You need lua in your path to generate the gl loader.")
+endif()
+
+# Teach the build system how to generate the gl loaders
+add_custom_target(generate_gl_loader
+                  DEPENDS glLoadGen ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h
+                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glLoadGen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3
+                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.c ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp
+                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
+
+# Remove the loader files on clean
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp\
+                                                                 ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h")
 
 find_package(PkgConfig REQUIRED)
 find_package(BISON REQUIRED)
@@ -33,7 +59,8 @@ add_custom_target(move_bison_files
                   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/obj_parser.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/stack.hh)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/stack.hh
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/src/stack.hh ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES include/stack.hh)
+get_directory_property(TEMP DIRECTORY ${CMAKE_HOME_DIRECTORY} ADDITIONAL_MAKE_CLEAN_FILES)
+set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP} include/stack.hh")
 
 # Silence warnings in Flex and Bison files
 set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
@@ -93,7 +120,7 @@ set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} image)
 
 add_subdirectory(image)
-add_dependencies(McGyver image move_bison_files)
+add_dependencies(McGyver image move_bison_files generate_gl_loader)
 
 # Enable C++11 and a proper metric fuckton of extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
