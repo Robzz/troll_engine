@@ -21,12 +21,12 @@ class Texture {
 
     static Texture from_image(std::string const& filename);
 
-    void texData(GLint internalFormat, GLint format, GLint type, GLint width, GLint height, const void* data);
+    void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
 
     private:
     GLuint m_id;
 
-    Texture(GLuint id);
+    explicit Texture(GLuint id);
     Texture(Texture const& other);
     void operator=(Texture const& other);
 };

@@ -76,7 +76,3 @@ std::ostream& operator<<(std::ostream& s, glm::vec4 const& v) {
     s << ']';
     return s;
 }
-
-void printMatrix(glm::mat4 const& m) {
-    std::cout << m;
-}

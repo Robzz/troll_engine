@@ -11,10 +11,10 @@ class Camera {
     /* Destructor */
     virtual ~Camera();
 
-    /* Move constructor */
-    Camera(Camera&& other);
-    /* Move-assignment operator */
-    void operator=(Camera&& other);
+    /* Copy constructor */
+    Camera(Camera const& other);
+    /* Assignment operator */
+    Camera& operator=(Camera const& other);
 
     enum Direction { Up, Down, Left, Right, Front, Back };
     enum Axis { X, Y, Z };
@@ -33,10 +33,8 @@ class Camera {
     glm::vec3 m_position;
     glm::fquat m_orientation;
 
-    /* Copy constructor */
-    Camera(Camera const& other);
-    /* Assignment operator */
-    void operator=(Camera const& other);
+    Camera(Camera&& other);
+    Camera& operator=(Camera&& other);
 };
 
 #endif

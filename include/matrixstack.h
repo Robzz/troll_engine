@@ -11,7 +11,7 @@ class MatrixStack : std::stack<glm::mat4> {
     public:
     /* Default constructor
      * Construct a new MatrixStack with the identity matrix. */
-    MatrixStack(glm::mat4 const& rootMatrix = glm::mat4(1.f));
+    explicit MatrixStack(glm::mat4 const& rootMatrix = glm::mat4(1.f));
     /* Destructor */
     virtual ~MatrixStack();
 

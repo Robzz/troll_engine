@@ -46,7 +46,7 @@ class Mesh {
 
     protected:
         friend class MeshBuilder;
-        Mesh(AttributeMap const& attrmap);
+        explicit Mesh(AttributeMap const& attrmap);
 
         AttributeMap m_attributes;
 };

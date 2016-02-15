@@ -6,6 +6,7 @@ cmake_install.cmake
 Makefile
 bin
 glLoadGen
+src/stack.hh
 *.tar.gz
 *.a
 examples/solar_system/solar_system

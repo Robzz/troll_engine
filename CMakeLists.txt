@@ -12,6 +12,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
     add_definitions(-DDEBUG)
 else()
     # Silence some expected warnings
+    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w")
     set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_SWIZZLE)
@@ -83,9 +84,9 @@ set(MCGYVER_HEADERS
 )
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
-include_directories(McGyver "${MCGYVER_SOURCE_DIR}/include"
-                            ${GLFW_INCLUDE_DIRS}
-                            "${IMAGE_SOURCE_DIR}/include")
+include_directories("${MCGYVER_SOURCE_DIR}/include"
+                    ${GLFW_INCLUDE_DIRS}
+                    "${IMAGE_SOURCE_DIR}/include")
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
@@ -94,9 +95,9 @@ target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} image)
 add_subdirectory(image)
 add_dependencies(McGyver image move_bison_files)
 
-# Enable C++11 and extra warnings
+# Enable C++11 and a proper metric fuckton of extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
-target_compile_options(McGyver PUBLIC -Wall -Wextra -Weffc++)
+target_compile_options(McGyver PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
 
 if(MCGYVER_BUILD_EXAMPLES)
     add_subdirectory(examples)

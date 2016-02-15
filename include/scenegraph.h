@@ -3,7 +3,7 @@
 
 #include <map>
 #include "glm/glm.hpp"
-#include <gl_core_3_3.h>
+#include "gl_core_3_3.h"
 
 #include "matrixstack.h"
 #include "texture.h"
@@ -81,13 +81,13 @@ class DrawableNode : public Node {
 /* Drawable object with its own geometry, rendered with array rendering. */
 class Object : public DrawableNode {
     public:
-        Object(glm::mat4 const& position, Program& p, VAO& vao, unsigned int n_primitives,
+        Object(glm::mat4 const& position, Program& p, VAO& vao, int n_primitives,
                Texture const& tex = Texture::noTexture(), GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
     private:
-        unsigned int m_n_primitives;
+        int m_n_primitives;
         GLenum m_primitiveMode;
         Program & m_program;
         VAO& m_vao;
@@ -96,7 +96,7 @@ class Object : public DrawableNode {
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
+        IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, int nVertices,
                       Texture const& tex = Texture::noTexture(), GLenum indexType = GL_UNSIGNED_SHORT,
                       GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
@@ -106,7 +106,7 @@ class IndexedObject : public DrawableNode {
         Program& m_program;
         VBO& m_ebo;
         VAO& m_vao;
-        unsigned int m_nVertices;
+        int m_nVertices;
         GLenum m_indexType;
         GLenum m_primitiveMode;
 };

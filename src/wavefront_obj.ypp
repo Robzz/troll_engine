@@ -34,7 +34,7 @@
         unsigned int index;
         unsigned int uv;
         unsigned int normal;
-        IndexUvNormal(unsigned int i = 0, unsigned int u = 0, unsigned int n = 0) : index(i), uv(u), normal(n) { }
+        explicit IndexUvNormal(unsigned int i = 0, unsigned int u = 0, unsigned int n = 0) : index(i), uv(u), normal(n) { }
     };
 
     struct Face {
@@ -117,7 +117,6 @@ normal_spec: NORMAL coord coord coord {
 
 vertex_spec: VERTEX coord coord coord { 
         DBG(std::cout << "Bison : vec3" << std::endl;)
-        std::cout << "Parsed vertex " << glm::vec3($2, $3, $4);
         reader.add_vertex(glm::vec3($2, $3, $4));
  }
              | VERTEX coord coord coord coord {

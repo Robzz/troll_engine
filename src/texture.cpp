@@ -50,7 +50,7 @@ Texture Texture::from_image(std::string const& filename) {
     return tex;
 }
 
-void Texture::texData(GLint internalFormat, GLint format, GLint type, GLint width, GLint height, const void* data) {
+void Texture::texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data) {
     GLV(glBindTexture(GL_TEXTURE_2D, m_id));
     GLV(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data));
     GLV(glGenerateMipmap(GL_TEXTURE_2D));

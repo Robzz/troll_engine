@@ -19,19 +19,19 @@ class Shader {
 
 class VertexShader : public Shader {
     public:
-         VertexShader(std::istream& src_stream);
+         explicit VertexShader(std::istream& src_stream);
          virtual ~VertexShader();
 };
 
 class FragmentShader : public Shader {
     public:
-         FragmentShader(std::istream& src_stream);
+         explicit FragmentShader(std::istream& src_stream);
          virtual ~FragmentShader();
 };
 
 class GeometryShader : public Shader {
     public:
-         GeometryShader(std::istream& src_stream);
+         explicit GeometryShader(std::istream& src_stream);
          virtual ~GeometryShader();
 };
 

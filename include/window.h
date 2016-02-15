@@ -53,7 +53,7 @@ namespace Engine {
             operator bool() const;
 
         private:
-            Window(unsigned int width, unsigned int height, std::string const& title, bool vsync);
+            Window(int width, int height, std::string const& title, bool vsync);
             // No copy or assignment
             Window(Window const& other);
             Window& operator=(Window const& other);
@@ -74,7 +74,7 @@ namespace Engine {
             ~WindowBuilder();
 
             // Set the size of the Window
-            WindowBuilder& size(unsigned int width, unsigned int height);
+            WindowBuilder& size(int width, int height);
             // Set the Window title
             WindowBuilder& title(std::string const& title);
             // Turn vsync on or off
@@ -84,8 +84,8 @@ namespace Engine {
             Window build() const;
 
         private:
-            unsigned int m_height;
-            unsigned int m_width;
+            int m_height;
+            int m_width;
             std::string m_title;
             bool m_vsync;
     };

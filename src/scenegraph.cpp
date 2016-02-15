@@ -93,7 +93,7 @@ DrawableNode::DrawableNode(glm::mat4 const& position, Texture const& tex) :
     m_tex(tex)
 { }
 
-Object::Object(glm::mat4 const& position, Program& p, VAO& vao, unsigned int n_primitives,
+Object::Object(glm::mat4 const& position, Program& p, VAO& vao, int n_primitives,
                Texture const& tex, GLenum primitiveMode) :
     DrawableNode(position, tex),
     m_n_primitives(n_primitives),
@@ -118,7 +118,7 @@ void Object::draw(glm::mat4 const& m) {
     Program::noProgram();
 }
 
-IndexedObject::IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, unsigned int nVertices,
+IndexedObject::IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, int nVertices,
                              Texture const& tex, GLenum indexType, GLenum primitiveMode) :
     DrawableNode(position, tex),
     m_program(p),

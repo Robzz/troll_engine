@@ -9,6 +9,24 @@ Camera::Camera() :
     m_orientation(1, 0, 0, 0)
 { }
 
+Camera::Camera(Camera const& other) :
+    m_up(other.m_up),
+    m_right(other.m_right),
+    m_front(other.m_front),
+    m_position(other.m_position),
+    m_orientation(other.m_orientation)
+{ }
+
+Camera& Camera::operator=(Camera const& other) {
+    m_up = other.m_up;
+    m_right = other.m_right;
+    m_front = other.m_front;
+    m_position = other.m_position;
+    m_orientation = other.m_orientation;
+
+    return *this;
+}
+
 Camera::~Camera() { }
 
 void Camera::translate(Camera::Direction dir, float distance) {

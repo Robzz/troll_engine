@@ -21,7 +21,7 @@ namespace Engine {
         m_im.invertY(false);
     }
 
-    Window::Window(unsigned int width, unsigned int height, std::string const& title, bool vsync) :
+    Window::Window(int width, int height, std::string const& title, bool vsync) :
         m_w(),
         m_im(),
         m_render(),
@@ -138,7 +138,7 @@ namespace Engine {
 
     }
 
-    WindowBuilder& WindowBuilder::size(unsigned int width, unsigned int height) {
+    WindowBuilder& WindowBuilder::size(int width, int height) {
         m_width = width;
         m_height = height;
         return *this;
