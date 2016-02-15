@@ -54,6 +54,7 @@ set(MCGYVER_SOURCES
     src/planet.cpp
     src/mesh.cpp
     src/obj.cpp
+    src/attribute.cpp
     ${FLEX_obj_lexer_INPUT}
     ${FLEX_obj_lexer_OUTPUTS}
     ${BISON_obj_parser_INPUT}
@@ -77,6 +78,7 @@ set(MCGYVER_HEADERS
     include/mesh.h
     include/obj.h
     include/obj_lexer.h
+    include/attribute.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 

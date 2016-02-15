@@ -43,19 +43,24 @@ void Obj::add_group(std::string const& name) {
         throw std::runtime_error("Group already exists");
     }
     else {
-        m_groups.insert(std::pair<std::string, IndexedMesh<unsigned int>>(name, IndexedMesh<unsigned int>()));
+        MeshBuilder mb;
+        mb.with_attribute<unsigned int>("indices")
+          .with_attribute<glm::vec4>   ("vertices")
+          .with_attribute<glm::vec3>   ("normals")
+          .with_attribute<glm::vec2>   ("texCoords");
+        m_groups.insert(std::pair<std::string, Mesh*>(name, mb.build_mesh()));
     }
 }
 
-IndexedMesh<unsigned int>* Obj::get_group(std::string const& name) {
+Mesh* Obj::get_group(std::string const& name) {
     auto it = m_groups.find(name);
     if(it == m_groups.end()) {
         return nullptr;
     }
-    return &((*it).second);
+    return (*it).second;
 }
 
-std::map<std::string, IndexedMesh<unsigned int>> const& Obj::groups() const {
+std::map<std::string, Mesh*> const& Obj::groups() const {
     return m_groups;
 }
 
@@ -113,21 +118,14 @@ Obj ObjReader::read() {
 
     //m_parser->set_debug_level(1);
 
-    if(m_parser->parse() != 0)
-        std::cout << "Parsing failed..." << std::endl;
-    else {
-        std::cout << "Parsing suceeded!!!" << std::endl 
-                  << m_currentGroup->vertices.size() << " vertices" << std::endl
-                  << m_currentGroup->normals.size()  << " normals"  << std::endl
-                  << m_currentGroup->faces.size()    << " faces"    << std::endl;
+    if(m_parser->parse() != 0) {
+        throw std::runtime_error("Cannot parse obj file");
     }
 
     Obj obj;
     for(auto &group: m_groups) {
-        std::cout << "Vertices :" << std::endl << group.second.vertices;
-        std::cout << "Normals :" << std::endl << group.second.normals;
         obj.add_group(group.first);
-        IndexedMesh<unsigned int>* m(obj.get_group(group.first));
+        Mesh* m(obj.get_group(group.first));
         std::map<IndexUvNormal, unsigned int, std::function<bool(IndexUvNormal const&, IndexUvNormal const&)>> unique_vertices([] (IndexUvNormal const& e1, IndexUvNormal const& e2) {
             if(e1.index == e2.index) {
                 if(e1.uv == e2.uv) {
@@ -142,24 +140,28 @@ Obj ObjReader::read() {
             }
         });
         unsigned int index = 0;
+        Attribute<unsigned int>* indices = m->get_attribute<unsigned int>("indices");
+        Attribute<glm::vec4>*   vertices = m->get_attribute<glm::vec4>("vertices");
+        Attribute<glm::vec3>*   normals  = m->get_attribute<glm::vec3>("normals");
+        Attribute<glm::vec2>*  texCoords = m->get_attribute<glm::vec2>("texCoords");
         for(auto &face: group.second.faces) {
-            auto f = [&m, &group, &unique_vertices, &index] (IndexUvNormal const& iun) {
+            auto f = [&] (IndexUvNormal const& iun) {
                 if(unique_vertices.count(iun) == 0) {
                     // Add vertex, attributes and index to arrays
-                    m->add_vertex(group.second.vertices[iun.index]);
+                    vertices->data().push_back(group.second.vertices[iun.index]);
                     if(group.second.texCoords.size() != 0) {
-                        m->add_texCoord(group.second.texCoords[iun.uv]);
+                        texCoords->data().push_back(group.second.texCoords[iun.uv]);
                     }
                     if(group.second.normals.size() != 0) {
-                        m->add_normal(group.second.normals[iun.normal]);
+                        normals->data().push_back(group.second.normals[iun.normal]);
                     }
-                    m->add_index(index);
+                    indices->data().push_back(index);
                     unique_vertices.insert(std::pair<IndexUvNormal, unsigned int>(iun, index));
                     ++index;
                 }
                 else {
                     // Vertex already exists, find its index
-                    m->add_index((*unique_vertices.find(iun)).second);
+                    indices->data().push_back((*unique_vertices.find(iun)).second);
                 }
             };
             f(face.v1);

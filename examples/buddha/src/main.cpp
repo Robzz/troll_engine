@@ -77,19 +77,16 @@ void bind_input_callbacks(Engine::Window& window, Camera& cam) {
 
 int main(int argc, char** argv) {
     init_libs(argc, argv);
-    Obj obj = ObjReader().file("assets/cube.obj").read();
-    IndexedMesh<unsigned int>* mesh = obj.get_group("default");
+    Obj obj = ObjReader().file("assets/buddha.obj").read();
+    Mesh* mesh = obj.get_group("default");
 
     std::cout << "Got " << obj.groups().size() << std::endl;
     for(auto& p: obj.groups()) {
         std::cout << "Group " << p.first << " :" << std::endl
-                  << p.second.n_vertices()  << " vertices"  << std::endl
-                  << p.second.n_texCoords() << " texCoords" << std::endl
-                  << p.second.n_normals()   << " normals"   << std::endl
-                  << p.second.n_indices()   << " indices"   << std::endl;
-        std::cout << "Vertices : " << std::endl << p.second.vertices();
-        std::cout << "Normals : "  << std::endl << p.second.normals();
-        std::cout << "Indices : "  << std::endl << p.second.indices();
+                  << p.second->get_attribute<glm::vec4>("vertices")->size()   << " vertices"  << std::endl
+                  << p.second->get_attribute<glm::vec2>("texCoords")->size()  << " texCoords" << std::endl
+                  << p.second->get_attribute<glm::vec3>("normals")->size()    << " normals"   << std::endl
+                  << p.second->get_attribute<unsigned int>("indices")->size() << " indices"   << std::endl;
     }
 
     {
@@ -108,9 +105,9 @@ int main(int argc, char** argv) {
         window.showCursor(false);
 
         VBO coords, normals, indices;
-        coords.upload_data(mesh->vertices());
-        normals.upload_data(mesh->normals());
-        indices.upload_data(mesh->indices());
+        coords.upload_data(mesh->get_attribute<glm::vec4>("vertices")->data());
+        normals.upload_data(mesh->get_attribute<glm::vec3>("normals")->data());
+        indices.upload_data(mesh->get_attribute<unsigned int>("indices")->data());
         
         // Then, the shader programs
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
@@ -150,7 +147,7 @@ int main(int argc, char** argv) {
         Camera camera;
         camera.translate(Camera::Back, 10);
         SceneGraph scene;
-        IndexedObject* buddha = new IndexedObject(glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -5)), p, indices, vao, mesh->indices().size(), Texture::noTexture(), GL_UNSIGNED_INT);
+        IndexedObject* buddha = new IndexedObject(glm::translate(glm::rotate(glm::scale(glm::mat4(1.f), glm::vec3(3)), 180.f, glm::vec3(0, 1, 0)), glm::vec3(0, 0, -2)), p, indices, vao, mesh->get_attribute<unsigned int>("indices")->size(), Texture::noTexture(), GL_UNSIGNED_INT);
         scene.addChild(buddha);
         
         // TODO : this must go
@@ -180,6 +177,8 @@ int main(int argc, char** argv) {
             scene.render(); });
 
         window.mainLoop();
+
+        delete mesh;
     }
 
         // TODO : yep, this too

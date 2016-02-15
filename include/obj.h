@@ -29,17 +29,15 @@ class Obj {
     Obj& operator=(Obj&& other);
 
     void add_group(std::string const& name);
-    IndexedMesh<unsigned int>* get_group(std::string const& name);
-    std::map<std::string, IndexedMesh<unsigned int>> const& groups() const;
+    Mesh* get_group(std::string const& name);
+    std::map<std::string, Mesh*> const& groups() const;
 
     private:
     std::string m_objName;
-    std::map<std::string, IndexedMesh<unsigned int>> m_groups;
+    std::map<std::string, Mesh*> m_groups;
 };
 
 class ObjReader {
-    friend class yy::ObjParser;
-
     public:
     /* Default constructor */
     ObjReader();
@@ -57,6 +55,8 @@ class ObjReader {
     Obj read();
 
     private:
+    /* The private interface is only designed for use by yy::ObjParser */
+    friend class yy::ObjParser;
     struct Group {
         std::vector<glm::vec4> vertices;
         std::vector<glm::vec3> normals;

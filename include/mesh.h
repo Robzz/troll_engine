@@ -3,12 +3,15 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <string>
+#include <unordered_map>
+#include "attribute.h"
+
+typedef std::unordered_map<std::string, AttributeBase*> AttributeMap;
 
 /* This class contains mesh geometry and attributes. */
 class Mesh {
     public:
-    /* Default constructor */
-    Mesh();
     /* Destructor */
     virtual ~Mesh();
 
@@ -21,66 +24,59 @@ class Mesh {
     /* Move-assignment operator */
     Mesh& operator=(Mesh&& other);
 
-    size_t n_vertices() const;
-    size_t n_normals() const;
-    size_t n_texCoords() const;
+    template <class T>
+    Attribute<T>* get_attribute(std::string const& name) {
+        Attribute<T>* ptr = dynamic_cast<Attribute<T>*>(m_attributes[name]);
+        if(ptr)
+            return ptr;
+        else {
+            throw std::runtime_error("Invalid attribute type");
+        }
+    }
 
-    std::vector<glm::vec4> const& vertices() const;
-    std::vector<glm::vec3> const& normals() const;
-    std::vector<glm::vec2> const& texCoords() const;
-
-    void add_vertex(glm::vec4 const& v);
-    void add_vertex(glm::vec3 const& v);
-    void add_normal(glm::vec3 const& v);
-    void add_texCoord(glm::vec2 const& v);
+    template <class T>
+    Attribute<T> const* get_attribute(std::string const& name) const {
+        Attribute<T>* ptr = dynamic_cast<Attribute<T>*>(m_attributes.at(name));
+        if(ptr)
+            return ptr;
+        else {
+            throw std::runtime_error("Invalid attribute type");
+        }
+    }
 
     protected:
-        std::vector<glm::vec4> m_vertices;
-        std::vector<glm::vec3> m_normals;
-        std::vector<glm::vec2> m_texCoords;
+        friend class MeshBuilder;
+        Mesh(AttributeMap const& attrmap);
+
+        AttributeMap m_attributes;
 };
 
-/* This class contains mesh geometry in indexed form. */
-template <class T>
-class IndexedMesh : public Mesh {
+class MeshBuilder {
     public:
     /* Default constructor */
-    IndexedMesh() :
-        Mesh(),
-        m_indices()
-    { }
+    MeshBuilder();
     /* Destructor */
-    virtual ~IndexedMesh() { }
+    virtual ~MeshBuilder();
 
-    /* Copy constructor */
-    IndexedMesh(IndexedMesh const& other) :
-        Mesh(other),
-        m_indices(other.m_indices)
-    { }
-    /* Move constructor */
-    IndexedMesh(IndexedMesh&& other) :
-        Mesh(other),
-        m_indices(other.m_indices)
-    { }
-    /* Assignment operator */
-    IndexedMesh& operator=(IndexedMesh const& other) {
-        *this = dynamic_cast<Mesh const&>(other);
-        m_indices = other.m_indices;
-        return *this;
-    }
-    /* Move-assignment operator */
-    IndexedMesh& operator=(IndexedMesh&& other) {
-        *this = std::move(dynamic_cast<Mesh const&>(other));
-        m_indices = std::move(other.m_indices);
-        return *this;
+    template<class T>
+    MeshBuilder& with_attribute(std::string const& name) {
+        if(m_attributes.count(name)) {
+            throw std::runtime_error("Attribute already present");
+        }
+        else {
+            m_attributes.insert(std::pair<std::string, AttributeBase*>(name, new Attribute<T>()));
+            return *this;
+        }
     }
 
-    size_t n_indices() const { return m_indices.size(); }
-    std::vector<unsigned int> const& indices() const { return m_indices; }
-    void add_index(unsigned int i) { m_indices.push_back(i); }
+    Mesh* build_mesh() const;
 
     private:
-        std::vector<T> m_indices;
+    /* This class is not copyable. */
+    MeshBuilder(MeshBuilder const& other);
+    MeshBuilder& operator=(MeshBuilder const& other);
+    
+    AttributeMap m_attributes;
 };
 
 #endif
