@@ -83,6 +83,7 @@ set(MCGYVER_SOURCES
     src/mesh.cpp
     src/obj.cpp
     src/attribute.cpp
+    src/fbo.cpp
     ${FLEX_obj_lexer_INPUT}
     ${FLEX_obj_lexer_OUTPUTS}
     ${BISON_obj_parser_INPUT}
@@ -107,6 +108,7 @@ set(MCGYVER_HEADERS
     include/obj.h
     include/obj_lexer.h
     include/attribute.h
+    include/fbo.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 

@@ -5,6 +5,8 @@
 #include <string>
 
 class Texture {
+    friend class FBO;
+
     public:
     /* Default constructor */
     Texture();
@@ -15,8 +17,10 @@ class Texture {
     /* Move-assignment operator */
     Texture& operator=(Texture&& other);
 
-    void bind(GLenum target = GL_TEXTURE_2D) const;
-    static void unbind(GLenum target = GL_TEXTURE_2D);
+    enum Target { Tex2D = GL_TEXTURE_2D };
+
+    void bind(Target target = Tex2D) const;
+    static void unbind(Target target = Tex2D);
     static Texture noTexture();
 
     static Texture from_image(std::string const& filename);
