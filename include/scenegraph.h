@@ -81,31 +81,37 @@ class DrawableNode : public Node {
 /* Drawable object with its own geometry, rendered with array rendering. */
 class Object : public DrawableNode {
     public:
-        Object(glm::mat4 const& position, Program& p, VAO& vao, int n_primitives,
+        Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
                Texture const& tex = Texture::noTexture(), GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
+        void set_program(Program* prog);
+        void set_vao(VAO* vao);
+
     private:
         int m_n_primitives;
         GLenum m_primitiveMode;
-        Program & m_program;
-        VAO& m_vao;
+        Program* m_program;
+        VAO* m_vao;
 };
 
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, int nVertices,
+        IndexedObject(glm::mat4 const& position, Program* p, VBO* ebo, VAO* vao, int nVertices,
                       Texture const& tex = Texture::noTexture(), GLenum indexType = GL_UNSIGNED_SHORT,
                       GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
         virtual void draw(glm::mat4 const& m);
 
+        void set_program(Program* prog);
+        void set_vao(VAO* vao);
+
     private:
-        Program& m_program;
-        VBO& m_ebo;
-        VAO& m_vao;
+        Program* m_program;
+        VBO* m_ebo;
+        VAO* m_vao;
         int m_nVertices;
         GLenum m_indexType;
         GLenum m_primitiveMode;

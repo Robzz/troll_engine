@@ -274,22 +274,22 @@ int main(int argc, char** argv) {
                 skyboxUp(   Texture::from_image("assets/stars_up.bmp")),
                 skyboxDown( Texture::from_image("assets/stars_dn.bmp"));
         
-        Object *skyUp    = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxUp),
-               *skyDown  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxDown),
-               *skyLeft  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxLeft),
-               *skyRight = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxRight),
-               *skyFront = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxFront),
-               *skyBack  = new Object(glm::mat4(1), sunProgram, planeVao, 6, skyboxBack);
-        IndexedObject* sun = new IndexedObject(worldMatrix, sunProgram, sphereIndices, planetVao, 29*29*2*3, sunTex);
-        Planet* earth = new Planet(1, 50, 1, 1, planetProgram, sphereIndices, planetVao, 29*29*2*3, earthTex);
-        Planet* moon = new Planet(0.2, 0.1, 0.1, 0.1, planetProgram, sphereIndices, planetVao, 29*29*2*3, moonTex);
-        Planet* mercury = new Planet(0.3829, 30, 0.5408, 58.64, planetProgram, sphereIndices, planetVao, 29*29*2*3, mercuryTex);
-        Planet* venus = new Planet(0.9499, 40, 0.6152, -243, planetProgram, sphereIndices, planetVao, 29*29*2*3, venusTex);
-        Planet* mars = new Planet(0.53, 60, 1.881, 1.026, planetProgram, sphereIndices, planetVao, 29*29*2*3, marsTex);
-        Planet* jupiter = new Planet(11.21, 70, 0.86, 0.4135, planetProgram, sphereIndices, planetVao, 29*29*2*3, jupiterTex);
-        Planet* saturn = new Planet(9.449, 80, 0.46, 0.4396, planetProgram, sphereIndices, planetVao, 29*29*2*3, saturnTex);
-        Planet* uranus = new Planet(4.007, 90, 0.12, 0.7183, planetProgram, sphereIndices, planetVao, 29*29*2*3, uranusTex);
-        Planet* neptune = new Planet(3.883, 100, 0.18, 0.6713, planetProgram, sphereIndices, planetVao, 29*29*2*3, neptuneTex);
+        Object *skyUp    = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxUp),
+               *skyDown  = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxDown),
+               *skyLeft  = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxLeft),
+               *skyRight = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxRight),
+               *skyFront = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxFront),
+               *skyBack  = new Object(glm::mat4(1), &sunProgram, &planeVao, 6, skyboxBack);
+        IndexedObject* sun = new IndexedObject(worldMatrix, &sunProgram, &sphereIndices, &planetVao, 29*29*2*3, sunTex);
+        Planet* earth = new Planet(1, 50, 1, 1, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, earthTex);
+        Planet* moon = new Planet(0.2, 0.1, 0.1, 0.1, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, moonTex);
+        Planet* mercury = new Planet(0.3829, 30, 0.5408, 58.64, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, mercuryTex);
+        Planet* venus = new Planet(0.9499, 40, 0.6152, -243, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, venusTex);
+        Planet* mars = new Planet(0.53, 60, 1.881, 1.026, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, marsTex);
+        Planet* jupiter = new Planet(11.21, 70, 0.86, 0.4135, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, jupiterTex);
+        Planet* saturn = new Planet(9.449, 80, 0.46, 0.4396, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, saturnTex);
+        Planet* uranus = new Planet(4.007, 90, 0.12, 0.7183, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, uranusTex);
+        Planet* neptune = new Planet(3.883, 100, 0.18, 0.6713, &planetProgram, &sphereIndices, &planetVao, 29*29*2*3, neptuneTex);
         sun->addChild(earth);
         sun->addChild(mercury);
         sun->addChild(venus);

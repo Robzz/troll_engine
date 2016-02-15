@@ -28,7 +28,9 @@ void init_libs(int argc, char** argv) {
 }
 
 // Build the shader program used in the project
-Program buildShaderProgram(std::string const& vs_file, std::string const& fs_file, std::vector<std::pair<std::string, ProgramBuilder::UniformType>> const& uniforms) {
+typedef std::pair<std::string, ProgramBuilder::UniformType> UniformDescriptor;
+
+Program buildShaderProgram(std::string const& vs_file, std::string const& fs_file, std::vector<UniformDescriptor> const& uniforms) {
     std::ifstream fvs(vs_file);
     std::ifstream ffs(fs_file);
     VertexShader vs(fvs);
@@ -113,42 +115,65 @@ int main(int argc, char** argv) {
         glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
                   worldMatrix = glm::mat4(1.f);
         glm::vec3 lightPosition(5, 15, -15);
-        std::vector<std::pair<std::string, ProgramBuilder::UniformType>> uniforms_p;
 
-        // TODO : Heh. Maybe not *so* elegant after all?
-        uniforms_p.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_proj", ProgramBuilder::mat4));
-        uniforms_p.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_world", ProgramBuilder::mat4));
-        uniforms_p.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_camera", ProgramBuilder::mat4));
-        uniforms_p.push_back(std::pair<std::string, ProgramBuilder::UniformType>("m_normalTransform", ProgramBuilder::mat3));
-        uniforms_p.push_back(std::pair<std::string, ProgramBuilder::UniformType>("ambient_intensity", ProgramBuilder::float_));
-        Program p(buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p));
-        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);;
-        dynamic_cast<Uniform<float>*>(p.getUniform("ambient_intensity"))->set(0.2);
-        dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_world"))->set(worldMatrix);
+        std::vector<UniformDescriptor> uniforms_p1, uniforms_p2;
+
+        uniforms_p1.push_back(UniformDescriptor("m_proj", ProgramBuilder::mat4));
+        uniforms_p1.push_back(UniformDescriptor("m_world", ProgramBuilder::mat4));
+        uniforms_p1.push_back(UniformDescriptor("m_camera", ProgramBuilder::mat4));
+        uniforms_p1.push_back(UniformDescriptor("m_normalTransform", ProgramBuilder::mat3));
+        uniforms_p1.push_back(UniformDescriptor("ambient_intensity", ProgramBuilder::float_));
+        Program prog_phong(buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1));
+        dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
+        dynamic_cast<Uniform<float>*>(prog_phong.getUniform("ambient_intensity"))->set(0.2);
+        dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_world"))->set(worldMatrix);
+
+        uniforms_p2.push_back(UniformDescriptor("m_camera",ProgramBuilder::mat4));
+        uniforms_p2.push_back(UniformDescriptor("m_world",ProgramBuilder::mat4));
+        uniforms_p2.push_back(UniformDescriptor("m_proj",ProgramBuilder::mat4));
+        uniforms_p2.push_back(UniformDescriptor("m_normalTransform",ProgramBuilder::mat3));
+        Program prog_normals(buildShaderProgram("shaders/normals.vs", "shaders/normals.fs", uniforms_p2));
+        dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
+        dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_world"))->set(worldMatrix);
 
         window.setResizeCallback([&] (int w, int h) {
             // TODO : wrap the GL call away
             GLV(glViewport(0, 0, w, h));
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
-            p.use();
-            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_proj"))->set(projMatrix);
+            dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
+            dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
         });
 
         // Setup vertex attributes
-        VAO vao;
-        GLint posIndex       = p.getAttributeLocation("v_position");
-        GLint normalIndex    = p.getAttributeLocation("v_normal");
-        vao.enableVertexAttribArray(posIndex);
-        vao.vertexAttribPointer(coords, posIndex, 4, 0, 0);
-        vao.enableVertexAttribArray(normalIndex);
-        vao.vertexAttribPointer(normals, normalIndex, 3, 0, 0);
+        VAO vao_phong, vao_normals;
+        GLint posIndex    = prog_phong.getAttributeLocation("v_position");
+        GLint normalIndex = prog_phong.getAttributeLocation("v_normal");
+        vao_phong.enableVertexAttribArray(posIndex);
+        vao_phong.vertexAttribPointer(coords, posIndex, 4, 0, 0);
+        vao_phong.enableVertexAttribArray(normalIndex);
+        vao_phong.vertexAttribPointer(normals, normalIndex, 3, 0, 0);
+        posIndex    = prog_normals.getAttributeLocation("v_position");
+        normalIndex = prog_normals.getAttributeLocation("v_normal");
+        vao_normals.enableVertexAttribArray(posIndex);
+        vao_normals.vertexAttribPointer(coords, posIndex, 4, 0, 0);
+        vao_normals.enableVertexAttribArray(normalIndex);
+        vao_normals.vertexAttribPointer(normals, normalIndex, 3, 0, 0);
 
         // Fill the scene
         Camera camera;
         camera.translate(Camera::Back, 10);
         SceneGraph scene;
-        IndexedObject* buddha = new IndexedObject(glm::translate(glm::rotate(glm::scale(glm::mat4(1.f), glm::vec3(3)), 180.f, glm::vec3(0, 1, 0)), glm::vec3(0, 0, -2)), p, indices, vao, mesh->get_attribute<unsigned int>("indices")->size(), Texture::noTexture(), GL_UNSIGNED_INT);
+        IndexedObject* buddha = new IndexedObject(glm::rotate(glm::translate(glm::mat4(1), glm::vec3(0, 0, 0.5)), 180.f, glm::vec3(0,1,0)), &prog_phong, &indices, &vao_phong, mesh->get_attribute<unsigned int>("indices")->size(), Texture::noTexture(), GL_UNSIGNED_INT);
         scene.addChild(buddha);
+
+        Program* current_prog = &prog_phong;
+        VAO* current_vao = &vao_phong;
+        window.registerKeyCallback('P', [&] () {
+            current_prog = (current_prog == &prog_phong) ? &prog_normals : &prog_phong;
+            current_vao = (current_prog == &prog_phong) ? &vao_normals : &vao_phong;
+            buddha->set_program(current_prog);
+            buddha->set_vao(current_vao);
+        });
         
         // TODO : this must go
         // Some more GL related stuff
@@ -167,9 +192,9 @@ int main(int argc, char** argv) {
         // Finally, the render function
         window.setRenderCallback([&] () {
             glm::mat4 cameraMatrix = camera.mat();
-            p.use();
-            dynamic_cast<Uniform<glm::mat4>*>(p.getUniform("m_camera"))->set(cameraMatrix);
-            dynamic_cast<Uniform<glm::mat3>*>(p.getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
+            current_prog->use();
+            dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(cameraMatrix);
+            dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
 
             // TODO : this too
             GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));

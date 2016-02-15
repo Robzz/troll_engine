@@ -3,17 +3,35 @@
 
 #include <algorithm>
 
-
+const Program* Program::s_current = nullptr;
 
 Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
     m_id(id),
     m_uniforms(uniforms)
 { }
 
+Program::Program(Program&& other) :
+    m_id(other.m_id),
+    m_uniforms(other.m_uniforms)
+{
+    other.m_id = 0;
+}
+
+Program& Program::operator=(Program&& other) {
+    for(auto& it : m_uniforms) {
+        delete it;
+    }
+    m_id = other.m_id;
+    m_uniforms = other.m_uniforms;
+    other.m_id = 0;
+    return *this;
+}
+
 Program::~Program() {
-    GLV(glDeleteProgram(m_id));
-    for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
-        delete *it;
+    if(m_id)
+        GLV(glDeleteProgram(m_id));
+    for(auto& it : m_uniforms) {
+        delete it;
     }
 }
 
@@ -40,10 +58,12 @@ std::string Program::info_log() const {
 
 void Program::use() const {
     GLV(glUseProgram(m_id));
+    s_current = this;
 }
 
 void Program::noProgram() {
     GLV(glUseProgram(0));
+    s_current = nullptr;
 }
 
 UniformBase* Program::getUniform(std::string const& name) {
@@ -56,10 +76,17 @@ UniformBase* Program::getUniform(std::string const& name) {
 }
 
 void Program::uploadUniforms() {
+    const Program* previous = s_current;
+    if(!is_current())
+        use();
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
         (*it)->upload();
     }
+    if(previous != this && previous != nullptr)
+        previous->use();
 }
+
+bool Program::is_current() const { return this == s_current; }
 
 GLint Program::getAttributeLocation(std::string attribName) const {
     GLint loc = GL(glGetAttribLocation(m_id, attribName.c_str()));
@@ -70,6 +97,8 @@ GLint Program::getUniformLocation(std::string uniformName) const {
     GLint loc = GL(glGetUniformLocation(m_id, uniformName.c_str()));
     return loc;
 }
+
+const Program* Program::current() { return s_current; }
 
 UniformBase::UniformBase(GLint location, std::string const& name) :
     m_location(location),

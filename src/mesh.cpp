@@ -21,7 +21,9 @@ Mesh::Mesh(Mesh const& other) :
 
 Mesh::Mesh(Mesh&& other) :
     m_attributes(other.m_attributes)
-{ }
+{
+    other.m_attributes.clear();
+}
 
 Mesh& Mesh::operator=(Mesh const& other) {
     m_attributes = other.m_attributes;
@@ -30,6 +32,7 @@ Mesh& Mesh::operator=(Mesh const& other) {
 
 Mesh& Mesh::operator=(Mesh&& other) {
     m_attributes = std::move(other.m_attributes);
+    other.m_attributes.clear();
     return *this;
 }
 

@@ -7,7 +7,7 @@ const float Planet::c_rotK = 2 * 3.141592 / 24;
 const float Planet::c_revK = 2 * 3.141592 / 365.25 / 5;
 
 Planet::Planet(float radius, float distance, float rotPeriod, float revPeriod,
-               Program& p, VBO& indices, VAO& vao, int nVertices, Texture const& tex) :
+               Program* p, VBO* indices, VAO* vao, int nVertices, Texture const& tex) :
     IndexedObject(glm::mat4(1), p, indices, vao, nVertices, tex),
     m_radius(radius),
     m_distance(distance),

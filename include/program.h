@@ -40,6 +40,9 @@ class UniformBase {
 class Program {
     friend class ProgramBuilder;
     public:
+        Program(Program&& other);
+        Program& operator=(Program&& other);
+
         // Check if the program is valid (i.e. successfully linked)
         operator bool() const;
         // Check if the program is invalid
@@ -59,15 +62,24 @@ class Program {
         UniformBase* getUniform(std::string const& name);
         // Upload uniforms to GPU
         void uploadUniforms();
+
+        bool is_current() const;
+        static const Program* current();
     
         ~Program();
 
     private:
         Program(GLuint id, std::vector<UniformBase*> uniforms);
+        
+        // Not copyable
+        Program(Program const& other);
+        Program& operator=(Program const& other);
+
         GLint getUniformLocation(std::string) const;
 
         GLuint m_id;
         std::vector<UniformBase*> m_uniforms;
+        static const Program* s_current;
 };
 
 // Class for Uniform objects
@@ -97,7 +109,6 @@ class Uniform : public UniformBase {
 
         /* Upload uniform to GPU. Program must be in use. */
         virtual void upload() {
-            // Do the upload
             if(!m_clean) {
                 if(TYPE(T) == TYPE(glm::vec3)) {
                     GLV(glUniform3fv(m_location, 1, glm::value_ptr(m_value)));

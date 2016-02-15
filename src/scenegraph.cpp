@@ -93,7 +93,7 @@ DrawableNode::DrawableNode(glm::mat4 const& position, Texture const& tex) :
     m_tex(tex)
 { }
 
-Object::Object(glm::mat4 const& position, Program& p, VAO& vao, int n_primitives,
+Object::Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
                Texture const& tex, GLenum primitiveMode) :
     DrawableNode(position, tex),
     m_n_primitives(n_primitives),
@@ -105,12 +105,12 @@ Object::Object(glm::mat4 const& position, Program& p, VAO& vao, int n_primitives
 Object::~Object() { }
 
 void Object::draw(glm::mat4 const& m) {
-    m_program.use();
-    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"));
+    m_program->use();
+    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program->getUniform("m_world"));
     if(u)
         u->set(m);
-    m_program.uploadUniforms();
-    m_vao.bind();
+    m_program->uploadUniforms();
+    m_vao->bind();
     m_tex.bind();
     GLV(glDrawArrays(m_primitiveMode, 0, m_n_primitives));
     Texture::unbind();
@@ -118,7 +118,11 @@ void Object::draw(glm::mat4 const& m) {
     Program::noProgram();
 }
 
-IndexedObject::IndexedObject(glm::mat4 const& position, Program& p, VBO& ebo, VAO& vao, int nVertices,
+void Object::set_program(Program* prog) {
+    m_program = prog;
+}
+
+IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, VBO* ebo, VAO* vao, int nVertices,
                              Texture const& tex, GLenum indexType, GLenum primitiveMode) :
     DrawableNode(position, tex),
     m_program(p),
@@ -134,18 +138,26 @@ IndexedObject::~IndexedObject() {
 }
 
 void IndexedObject::draw(glm::mat4 const& m) {
-    m_program.use();
+    m_program->use();
     // Remove scaling from m or it will apply to children too
-    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program.getUniform("m_world"));
+    auto u = dynamic_cast<Uniform<glm::mat4>*>(m_program->getUniform("m_world"));
     if(u)
         u->set(m);
-    m_program.uploadUniforms();
-    m_vao.bind();
-    m_ebo.bind(GL_ELEMENT_ARRAY_BUFFER);
+    m_program->uploadUniforms();
+    m_vao->bind();
+    m_ebo->bind(GL_ELEMENT_ARRAY_BUFFER);
     m_tex.bind();
     GLV(glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);)
     Texture::unbind();
     VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
     VAO::unbind();
     Program::noProgram();
+}
+
+void IndexedObject::set_program(Program* prog) {
+    m_program = prog;
+}
+
+void IndexedObject::set_vao(VAO* vao) {
+    m_vao = vao;
 }

@@ -9,7 +9,7 @@ class Planet : public IndexedObject {
     public:
     /* Default constructor */
     Planet(float radius, float distance, float rotPeriod, float revPeriod,
-           Program& p, VBO& indices, VAO& vao, int nVertices, Texture const& tex);
+           Program* p, VBO* indices, VAO* vao, int nVertices, Texture const& tex);
     /* Destructor */
     virtual ~Planet();
 
