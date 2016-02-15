@@ -27,6 +27,9 @@ namespace Engine {
             // Return information about the underlying OpenGL context
             std::string context_info() const;
 
+            int width() const;
+            int height() const;
+
             // Register the render loop.
             void setRenderCallback(std::function<void()> f);
 
@@ -62,6 +65,8 @@ namespace Engine {
             InputManager m_im;
             std::function<void()> m_render;
             std::function<void(int, int)> m_resize;
+            int m_width;
+            int m_height;
 
             static std::map<GLFWwindow*, Window*> window_map;
             static Window* findWindowFromGlfwHandle(GLFWwindow*);

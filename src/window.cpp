@@ -15,7 +15,9 @@ namespace Engine {
         m_w(w.m_w),
         m_im(std::move(w.m_im)),
         m_render(w.m_render),
-        m_resize(w.m_resize)
+        m_resize(w.m_resize),
+        m_width(w.m_width),
+        m_height(w.m_height)
     {
         w.m_w = NULL;
         m_im.invertY(false);
@@ -25,7 +27,9 @@ namespace Engine {
         m_w(),
         m_im(),
         m_render(),
-        m_resize()
+        m_resize(),
+        m_width(width),
+        m_height(height)
     {
         // Use OpenGL 3.3 core profile
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -75,6 +79,14 @@ namespace Engine {
         return ss.str();
     }
 
+    int Window::width() const {
+        return m_width;
+    }
+
+    int Window::height() const {
+        return m_height;
+    }
+
     void Window::setRenderCallback(std::function<void()> f) {
         m_render = f;
     }
@@ -97,6 +109,8 @@ namespace Engine {
         glfwSetWindowSizeCallback(m_w, [] (GLFWwindow* w, int width, int height)
                                        { Window* win = Window::findWindowFromGlfwHandle(w);
                                          if(win)
+                                             win->m_width = width;
+                                             win->m_height = height;
                                              win->m_resize(width, height); });
     }
 

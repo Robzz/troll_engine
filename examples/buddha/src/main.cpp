@@ -15,6 +15,7 @@
 #include "planet.h"
 #include "debug.h"
 #include "obj.h"
+#include "fbo.h"
 
 // TODO : wrap this in the lib
 // Initialize GLEW and GLFW
@@ -188,6 +189,36 @@ int main(int argc, char** argv) {
 
         // Install input callbacks
         bind_input_callbacks(window, camera);
+
+        // Setup render to texture
+        Texture colorTex, depthTex, normalTex;
+        colorTex.texData (GL_RGB, GL_RGB, GL_FLOAT, window.width(), window.height(), nullptr);
+        depthTex.texData (GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, window.width(), window.height(), nullptr);
+        normalTex.texData(GL_RGB, GL_RGB, GL_FLOAT, window.width(), window.height(), nullptr);
+        FBO fbo;
+        fbo.bind(FBO::Draw);
+        fbo.attach(FBO::Draw, FBO::Color, Texture::Tex2D, colorTex);
+        fbo.attach(FBO::Draw, FBO::Depth, Texture::Tex2D, depthTex);
+        assert(FBO::is_complete(FBO::Draw));
+
+        glm::mat4 cameraMatrix = camera.mat();
+        current_prog->use();
+        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.mat());
+        dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
+        GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        scene.render();
+
+        fbo.attach(FBO::Draw, FBO::Color, Texture::Tex2D, colorTex);
+        current_prog = &prog_normals;
+        current_prog->use();
+        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.mat());
+        dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
+        GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        scene.render();
+        FBO::bind_default(FBO::Draw);
+        current_prog = &prog_phong;
+
+        std::vector<glm::vec3> color(colorTex.get_pixels<glm::vec3>(GL_FLOAT, GL_RGB, window.height() * window.width()));
 
         // Finally, the render function
         window.setRenderCallback([&] () {
