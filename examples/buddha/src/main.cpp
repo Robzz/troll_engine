@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +17,8 @@
 #include "debug.h"
 #include "obj.h"
 #include "fbo.h"
+//#include "image.h"
+#include <FreeImage.h>
 
 // TODO : wrap this in the lib
 // Initialize GLEW and GLFW
@@ -80,7 +83,7 @@ void bind_input_callbacks(Engine::Window& window, Camera& cam) {
 
 int main(int argc, char** argv) {
     init_libs(argc, argv);
-    Obj obj = ObjReader().file("assets/buddha.obj").read();
+    Obj obj = ObjReader().file("assets/buddha_11k.obj").read();
     Mesh* mesh = obj.get_group("default");
 
     std::cout << "Got " << obj.groups().size() << std::endl;
@@ -192,13 +195,17 @@ int main(int argc, char** argv) {
 
         // Setup render to texture
         Texture colorTex, depthTex, normalTex;
-        colorTex.texData (GL_RGB, GL_RGB, GL_FLOAT, window.width(), window.height(), nullptr);
-        depthTex.texData (GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, window.width(), window.height(), nullptr);
-        normalTex.texData(GL_RGB, GL_RGB, GL_FLOAT, window.width(), window.height(), nullptr);
+        colorTex.texData (GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, window.width(), window.height(), nullptr);
+        depthTex.texData (GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, window.width(), window.height(), nullptr);
+        normalTex.texData(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, window.width(), window.height(), nullptr);
+        Texture::unbind();
         FBO fbo;
-        fbo.bind(FBO::Draw);
-        fbo.attach(FBO::Draw, FBO::Color, Texture::Tex2D, colorTex);
-        fbo.attach(FBO::Draw, FBO::Depth, Texture::Tex2D, depthTex);
+        fbo.bind(FBO::Both);   
+        GLV(glViewport(0,0,1280,720));
+        GLenum drawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+        GLV(glDrawBuffers(1, drawBuffers));
+        fbo.attach(FBO::Draw, FBO::Color, colorTex);
+        fbo.attach(FBO::Draw, FBO::Depth, depthTex);
         assert(FBO::is_complete(FBO::Draw));
 
         glm::mat4 cameraMatrix = camera.mat();
@@ -207,18 +214,41 @@ int main(int argc, char** argv) {
         dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
         GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         scene.render();
+        window.swapBuffers();
 
-        fbo.attach(FBO::Draw, FBO::Color, Texture::Tex2D, colorTex);
+        fbo.attach(FBO::Read, FBO::Color, colorTex);
+        std::vector<unsigned char> color(FBO::readPixels(FBO::Bgr, FBO::Ubyte, window.width(), window.height()));
+
+        FIBITMAP* bmp = FreeImage_ConvertFromRawBits(color.data(), window.width(), window.height(), 3*1280, 24, 0x0000FF00, 0x00FF0000, 0xFF000000, FALSE);
+        FreeImage_Save(FIF_BMP, bmp, "colorTex.bmp", 0);
+        FreeImage_Unload(bmp);
+
+        fbo.attach(FBO::Draw, FBO::Color, normalTex);
         current_prog = &prog_normals;
         current_prog->use();
         dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.mat());
         dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
+        buddha->set_program(current_prog);
         GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         scene.render();
-        FBO::bind_default(FBO::Draw);
-        current_prog = &prog_phong;
+        window.swapBuffers();
 
-        std::vector<glm::vec3> color(colorTex.get_pixels<glm::vec3>(GL_FLOAT, GL_RGB, window.height() * window.width()));
+        fbo.attach(FBO::Read, FBO::Color, normalTex);
+        std::vector<unsigned char> normal(FBO::readPixels(FBO::Bgr, FBO::Ubyte, window.width(), window.height()));
+
+        bmp = FreeImage_ConvertFromRawBits(normal.data(), window.width(), window.height(), 3*1280, 24, 0xFF000000, 0x00FF0000, 0x0000FF00, FALSE);
+        FreeImage_Save(FIF_BMP, bmp, "normalTex.bmp", 0);
+        FreeImage_Unload(bmp);
+        
+        FBO::bind_default(FBO::Both);
+        current_prog = &prog_phong;
+        buddha->set_program(current_prog);
+
+        FreeImage_SetOutputMessage([] (FREE_IMAGE_FORMAT fif, const char *message) {
+                if(fif != FIF_UNKNOWN) {
+                std::cerr << "Format : " << FreeImage_GetFormatFromFIF(fif) << std::endl;
+                }
+                std::cerr << (message) << std::endl; });
 
         // Finally, the render function
         window.setRenderCallback([&] () {

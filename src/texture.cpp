@@ -1,6 +1,5 @@
 #include "texture.h"
 #include "debug.h"
-#include "bitmap.h"
 #include <vector>
 
 
@@ -54,8 +53,8 @@ Texture Texture::noTexture() {
 Texture Texture::from_image(std::string const& filename) {
     Texture tex;
     tex.bind(Tex2D);
-    image::Bitmap img(image::Bitmap::readFile(filename));
-    tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data().data());
+    //image::Bitmap img(image::Bitmap::readFile(filename));
+    //tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data().data());
     return tex;
 }
 

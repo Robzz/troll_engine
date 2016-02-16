@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "gl_core_3_3.h"
+#include "debug.h"
 #include <string>
 #include <vector>
 
@@ -40,10 +41,14 @@ class Texture {
 
     template <class T>
     std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0) {
+        unsigned char* buf = new unsigned char[size*sizeof(T)];
         std::vector<T> vec;
         vec.reserve(size);
         bind(Tex2D);
-        GLV(glGetTexImage(Tex2D, level, format, type, vec.data()));
+        GLV(glGetTexImage(Tex2D, level, format, type, buf));
+        for(int i = 0 ; i != size ; ++i) {
+            
+        }
         return vec;
     }
 

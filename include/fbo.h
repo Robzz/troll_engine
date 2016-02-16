@@ -21,6 +21,8 @@ class FBO {
                            IncompleteMultisample  = GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE,
                            IncompleteLayerTargets = GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS,
                            Unsupported            = GL_FRAMEBUFFER_UNSUPPORTED };
+    enum Format : GLenum { Rgb = GL_RGB, Bgr = GL_BGR, Rgba = GL_RGBA, DepthComponent = GL_DEPTH_COMPONENT };
+    enum Type : GLenum { Ubyte = GL_UNSIGNED_BYTE, Float = GL_FLOAT };
 
     /* Move constructor */
     FBO(FBO&& other);
@@ -30,13 +32,15 @@ class FBO {
     void bind(Target const& t);
     static void bind_default(Target const& t);
 
-    void attach(Target t, Attachment a, Texture::Target tex_t, Texture& tex, GLint layer = 0);
+    void attach(Target t, Attachment a, Texture& tex, GLint layer = 0);
     static void detach(Target t, Attachment a);
 
     /* Status query */
     static bool is_complete(Target t);
     // TODO : dunno why Status won't work as return type
     static GLenum status(Target t);
+
+    static std::vector<unsigned char> readPixels(Format f, Type t, GLsizei width, GLsizei height, int x = 0, int y = 0);
 
     private:
     /* Not copyable. */

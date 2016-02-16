@@ -12,8 +12,8 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
 )
 find_program(LUA_EXECUTABLE lua)
-if(${LUA_EXECUTABLE} EQUAL "")
-    message(FATAL_ERROR "You need lua in your path to generate the gl loader.")
+if(${LUA_EXECUTABLE} STREQUAL LUA_EXECUTABLE-NOTFOUND)
+    message(FATAL_ERROR "Lua not found")
 endif()
 
 # Teach the build system how to generate the gl loaders
@@ -32,6 +32,10 @@ find_package(PkgConfig REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
+find_library(FREEIMAGE_LIBRARY freeimage)
+if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
+    message(FATAL_ERROR "libfreeimage not found.")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     #add_definitions(-DGL_TRACE)
@@ -119,10 +123,9 @@ include_directories("${MCGYVER_SOURCE_DIR}/include"
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
-target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} image)
+target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY})
 
-add_subdirectory(image)
-add_dependencies(McGyver image move_bison_files generate_gl_loader)
+add_dependencies(McGyver move_bison_files generate_gl_loader)
 
 # Enable C++11 and a proper metric fuckton of extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
