@@ -17,8 +17,7 @@
 #include "debug.h"
 #include "obj.h"
 #include "fbo.h"
-//#include "image.h"
-#include <FreeImage.h>
+#include "image.h"
 
 // TODO : wrap this in the lib
 // Initialize GLEW and GLFW
@@ -219,9 +218,8 @@ int main(int argc, char** argv) {
         fbo.attach(FBO::Read, FBO::Color, colorTex);
         std::vector<unsigned char> color(FBO::readPixels(FBO::Bgr, FBO::Ubyte, window.width(), window.height()));
 
-        FIBITMAP* bmp = FreeImage_ConvertFromRawBits(color.data(), window.width(), window.height(), 3*1280, 24, 0x0000FF00, 0x00FF0000, 0xFF000000, FALSE);
-        FreeImage_Save(FIF_BMP, bmp, "colorTex.bmp", 0);
-        FreeImage_Unload(bmp);
+        Image colorImg(Image::from_rgb(color, 1280, 720));
+        colorImg.save("colorTex.bmp", Image::Format::Bmp);
 
         fbo.attach(FBO::Draw, FBO::Color, normalTex);
         current_prog = &prog_normals;
@@ -236,13 +234,16 @@ int main(int argc, char** argv) {
         fbo.attach(FBO::Read, FBO::Color, normalTex);
         std::vector<unsigned char> normal(FBO::readPixels(FBO::Bgr, FBO::Ubyte, window.width(), window.height()));
 
-        bmp = FreeImage_ConvertFromRawBits(normal.data(), window.width(), window.height(), 3*1280, 24, 0xFF000000, 0x00FF0000, 0x0000FF00, FALSE);
-        FreeImage_Save(FIF_BMP, bmp, "normalTex.bmp", 0);
-        FreeImage_Unload(bmp);
+        Image normalImg(Image::from_rgb(normal, 1280, 720));
+        normalImg.save("normalTex.bmp", Image::Format::BmpRle);
         
         FBO::bind_default(FBO::Both);
         current_prog = &prog_phong;
         buddha->set_program(current_prog);
+
+        // And for fun, load back the textures we just saved
+        Image teximg1("colorTex.bmp"), teximg2("normalTex.bmp");
+        Texture tex1 = teximg1.to_texture(), tex2 = teximg2.to_texture();
 
         FreeImage_SetOutputMessage([] (FREE_IMAGE_FORMAT fif, const char *message) {
                 if(fif != FIF_UNKNOWN) {

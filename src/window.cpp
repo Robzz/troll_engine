@@ -108,10 +108,10 @@ namespace Engine {
         m_resize = f;
         glfwSetWindowSizeCallback(m_w, [] (GLFWwindow* w, int width, int height)
                                        { Window* win = Window::findWindowFromGlfwHandle(w);
-                                         if(win)
+                                         if(win) {
                                              win->m_width = width;
                                              win->m_height = height;
-                                             win->m_resize(width, height); });
+                                             win->m_resize(width, height); } });
     }
 
     void Window::showCursor(bool show) {
