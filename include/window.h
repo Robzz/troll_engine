@@ -67,6 +67,9 @@ namespace Engine {
             std::function<void(int, int)> m_resize;
             int m_width;
             int m_height;
+            bool m_trackFps;
+            int m_nFrame;
+            float m_fps;
 
             static std::map<GLFWwindow*, Window*> window_map;
             static Window* findWindowFromGlfwHandle(GLFWwindow*);

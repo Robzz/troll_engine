@@ -1,7 +1,6 @@
 %{
 #include <iostream>
 #include "obj_lexer.h"
-#include "debug.h"
 
 // Make return statements shorter...
 typedef yy::ObjParser::token_type token;

@@ -125,7 +125,7 @@ include_directories("${MCGYVER_SOURCE_DIR}/include"
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
-target_link_libraries(McGyver glfw ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY})
+target_link_libraries(McGyver ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY})
 
 add_dependencies(McGyver move_bison_files generate_gl_loader)
 

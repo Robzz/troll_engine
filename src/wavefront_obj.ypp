@@ -5,7 +5,11 @@
 
 %code requires{
     #include <glm/glm.hpp>
-    #include "debug.h"
+    #ifdef DEBUG_OBJ_PARSER
+    #define DBG(code) { code }
+    #else
+    #define DBG(code) { }
+    #endif
 
     class ObjLexer;
     class ObjReader;

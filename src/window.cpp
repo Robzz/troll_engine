@@ -17,7 +17,10 @@ namespace Engine {
         m_render(w.m_render),
         m_resize(w.m_resize),
         m_width(w.m_width),
-        m_height(w.m_height)
+        m_height(w.m_height),
+        m_trackFps(true),
+        m_nFrame(0),
+        m_fps(0)
     {
         w.m_w = NULL;
         m_im.invertY(false);
@@ -29,7 +32,10 @@ namespace Engine {
         m_render(),
         m_resize(),
         m_width(width),
-        m_height(height)
+        m_height(height),
+        m_trackFps(true),
+        m_nFrame(0),
+        m_fps(0)
     {
         // Use OpenGL 3.3 core profile
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -119,6 +125,7 @@ namespace Engine {
     }
 
     void Window::mainLoop() {
+        double time = glfwGetTime();
         while (!glfwWindowShouldClose(m_w))
         {
             /* Render here */
@@ -130,6 +137,16 @@ namespace Engine {
 
             /* Poll and process events */
             glfwPollEvents();
+            if(m_trackFps) {
+                ++m_nFrame;
+                double t = glfwGetTime();
+                if(t - time > 1) {
+                    m_fps = static_cast<float>(m_nFrame) / (t-time);
+                    m_nFrame = 0;
+                    time = t;
+                    std::cout << "\e[1A\e[2KFPS : " << m_fps << std::endl;
+                }
+            }
         }
     }
 
