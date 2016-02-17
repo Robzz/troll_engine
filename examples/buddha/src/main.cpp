@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        window.track_fps(false);
         std::cout << window.context_info() << std::endl;
         window.showCursor(false);
 

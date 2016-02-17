@@ -52,6 +52,9 @@ namespace Engine {
             // Request that the window closes
             void close();
 
+            // Enable or disable fps tracking
+            void track_fps(bool enable = true);
+
             // Check if the window is valid
             operator bool() const;
 

@@ -154,6 +154,10 @@ namespace Engine {
         glfwSetWindowShouldClose(m_w, GL_TRUE);
     }
 
+    void Window::track_fps(bool enable) {
+        m_trackFps = enable;
+    }
+
     Window::operator bool() const {
         return m_w;
     }
