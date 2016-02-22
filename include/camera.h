@@ -1,40 +1,44 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <iostream>
+#include "transform.h"
 
+template <class T>
 class Camera {
     public:
-    /* Default constructor */
+    /* Constructors */
     Camera();
+    Camera(Camera const& other);
+
     /* Destructor */
     virtual ~Camera();
 
-    /* Copy constructor */
-    Camera(Camera const& other);
     /* Assignment operator */
     Camera& operator=(Camera const& other);
 
-    enum Direction { Up, Down, Left, Right, Front, Back };
-    enum Axis { X, Y, Z };
+    //void look_at(glm::vec3 const& pos, glm::vec3 const& target, glm::vec3 const& up)
 
-    void translate(Direction dir, float distance);
-    void rotate(Axis a, float angle);
-    /* Return the camera position in world space */
-    glm::vec3 position() const;
-    /* Return the world to camera transformation matrix */
-    glm::mat4 mat() const;
+    void translate(glm::vec3 const& v);
+
+    void translate_local(Direction dir, float f);
+
+    void translate_local(Direction dir, glm::vec3 const& v);
+
+    void rotate(glm::vec3 const& axis, float angle);
+
+    void rotate_local(Axis axis, float angle);
+
+    glm::mat4 world_to_camera() const;
+
+    T const& transform() const;
 
     private:
-    glm::vec3 m_up;
-    glm::vec3 m_right;
-    glm::vec3 m_front;
-    glm::vec3 m_position;
-    glm::fquat m_orientation;
-
-    Camera(Camera&& other);
-    Camera& operator=(Camera&& other);
+    T m_camToWorld;
 };
+
+#include "camera.inl"
 
 #endif

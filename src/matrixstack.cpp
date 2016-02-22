@@ -32,7 +32,7 @@ void MatrixStack::push(glm::mat4 const& m) {
     m2[1] = glm::normalize(m_current[1]);
     m2[2] = glm::normalize(m_current[2]);
     m2[3] = m[3];
-    m_current = m2 * m;
+    m_current = m * m2;
     stack::push(m_current);
 }
 

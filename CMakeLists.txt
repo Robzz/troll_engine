@@ -42,7 +42,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
     add_definitions(-DDEBUG)
 else()
     # Silence some expected warnings
-    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w")
+    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w -Wno-old-style-cast")
     set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_SWIZZLE)
@@ -89,6 +89,8 @@ set(MCGYVER_SOURCES
     src/attribute.cpp
     src/fbo.cpp
     src/image.cpp
+    src/transform.cpp
+    src/utility.cpp
     ${FLEX_obj_lexer_INPUT}
     ${FLEX_obj_lexer_OUTPUTS}
     ${BISON_obj_parser_INPUT}
@@ -115,13 +117,14 @@ set(MCGYVER_HEADERS
     include/attribute.h
     include/fbo.h
     include/image.h
+    include/transform.h
+    include/utility.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
 include_directories("${MCGYVER_SOURCE_DIR}/include"
-                    ${GLFW_INCLUDE_DIRS}
-                    "${IMAGE_SOURCE_DIR}/include")
+                    ${GLFW_INCLUDE_DIRS})
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 

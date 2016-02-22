@@ -18,6 +18,7 @@
 #include "obj.h"
 #include "fbo.h"
 #include "image.h"
+#include "transform.h"
 
 // TODO : wrap this in the lib
 // Initialize GLEW and GLFW
@@ -60,23 +61,24 @@ Program buildShaderProgram(std::string const& vs_file, std::string const& fs_fil
     return p;
 }
 
-void bind_input_callbacks(Engine::Window& window, Camera& cam) {
+void bind_input_callbacks(Engine::Window& window, Camera<TransformEuler>& cam) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
-    window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate(Camera::Down, 1); });
-    window.registerKeyCallback(' ', [&cam] () { cam.translate(Camera::Up, 5); });
-    window.registerKeyCallback('W', [&cam] () { cam.translate(Camera::Front, 5); });
-    window.registerKeyCallback('A', [&cam] () { cam.translate(Camera::Left, 5); });
-    window.registerKeyCallback('S', [&cam] () { cam.translate(Camera::Back, 5); });
-    window.registerKeyCallback('D', [&cam] () { cam.translate(Camera::Right, 5); });
-    window.registerKeyCallback('Q', [&cam] () { cam.rotate(Camera::Z, 15); });
-    window.registerKeyCallback('E', [&cam] () { cam.rotate(Camera::Z, -15); });
+    window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate_local(Direction::Down, 1); });
+    window.registerKeyCallback(' ', [&cam] () { cam.translate_local(Direction::Up, 1); });
+    window.registerKeyCallback('W', [&cam] () { cam.translate_local(Direction::Front, 1); });
+    window.registerKeyCallback('A', [&cam] () { cam.translate_local(Direction::Left, 1); });
+    window.registerKeyCallback('S', [&cam] () { cam.translate_local(Direction::Back, 1); });
+    window.registerKeyCallback('D', [&cam] () { cam.translate_local(Direction::Right, 1); });
+    window.registerKeyCallback('Q', [&cam] () { cam.rotate_local(Axis::Z, -0.15); });
+    window.registerKeyCallback('E', [&cam] () { cam.rotate_local(Axis::Z, 0.15); });
 
     window.registerMouseCallback([&cam] (double x, double y) {
             static double prev_x = 0, prev_y = 0;
             double xoffset = x - prev_x, yoffset = y - prev_y;
             prev_x = x; prev_y = y;
-            cam.rotate(Camera::X, yoffset);
-            cam.rotate(Camera::Y, xoffset);
+            const float f = 0.01;
+            cam.rotate_local(Axis::X, yoffset * f);
+            cam.rotate_local(Axis::Y, xoffset * f);
         });
 }
 
@@ -164,10 +166,11 @@ int main(int argc, char** argv) {
         vao_normals.vertexAttribPointer(normals, normalIndex, 3, 0, 0);
 
         // Fill the scene
-        Camera camera;
-        camera.translate(Camera::Back, 10);
+        Camera<TransformEuler> camera;
+        //camera.look_at(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        camera.translate_local(Direction::Back, 1);
         SceneGraph scene;
-        IndexedObject* buddha = new IndexedObject(glm::rotate(glm::translate(glm::mat4(1), glm::vec3(0, 0, 0.5)), 180.f, glm::vec3(0,1,0)), &prog_phong, &indices, &vao_phong, mesh->get_attribute<unsigned int>("indices")->size(), Texture::noTexture(), GL_UNSIGNED_INT);
+        IndexedObject* buddha = new IndexedObject(glm::mat4(1), &prog_phong, &indices, &vao_phong, mesh->get_attribute<unsigned int>("indices")->size(), Texture::noTexture(), GL_UNSIGNED_INT);
         scene.addChild(buddha);
 
         Program* current_prog = &prog_phong;
@@ -208,9 +211,9 @@ int main(int argc, char** argv) {
         fbo.attach(FBO::Draw, FBO::Depth, depthTex);
         assert(FBO::is_complete(FBO::Draw));
 
-        glm::mat4 cameraMatrix = camera.mat();
+        
         current_prog->use();
-        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.mat());
+        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.world_to_camera());
         dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
         GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         scene.render();
@@ -225,7 +228,7 @@ int main(int argc, char** argv) {
         fbo.attach(FBO::Draw, FBO::Color, normalTex);
         current_prog = &prog_normals;
         current_prog->use();
-        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.mat());
+        dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.world_to_camera());
         dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
         buddha->set_program(current_prog);
         GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -254,7 +257,7 @@ int main(int argc, char** argv) {
 
         // Finally, the render function
         window.setRenderCallback([&] () {
-            glm::mat4 cameraMatrix = camera.mat();
+            glm::mat4 cameraMatrix = camera.world_to_camera();
             current_prog->use();
             dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(cameraMatrix);
             dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
