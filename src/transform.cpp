@@ -92,8 +92,6 @@ glm::mat4 TransformEuler::matrix() const {
     m = glm::rotate(m, m_orientation.x, glm::vec3(0, 1, 0));
     m = glm::rotate(m, m_orientation.y, glm::vec3(1, 0, 0));
     m = glm::rotate(m, m_orientation.z, glm::vec3(0, 0, 1));
-    std::cout << "euler matrix : " << std::endl
-              << m << std::endl;
     return m;
 }
 

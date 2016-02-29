@@ -61,7 +61,7 @@ Program buildShaderProgram(std::string const& vs_file, std::string const& fs_fil
     return p;
 }
 
-void bind_input_callbacks(Engine::Window& window, Camera<TransformEuler>& cam) {
+void bind_input_callbacks(Engine::Window& window, Camera<TransformEuler>& cam, TransformEuler& worldTransform) {
     window.registerKeyCallback(GLFW_KEY_ESCAPE, [&window] () { window.close(); });
     window.registerKeyCallback(GLFW_KEY_LEFT_CONTROL, [&cam] () { cam.translate_local(Direction::Down, 1); });
     window.registerKeyCallback(' ', [&cam] () { cam.translate_local(Direction::Up, 1); });
@@ -72,13 +72,15 @@ void bind_input_callbacks(Engine::Window& window, Camera<TransformEuler>& cam) {
     window.registerKeyCallback('Q', [&cam] () { cam.rotate_local(Axis::Z, -0.15); });
     window.registerKeyCallback('E', [&cam] () { cam.rotate_local(Axis::Z, 0.15); });
 
-    window.registerMouseCallback([&cam] (double x, double y) {
-            static double prev_x = 0, prev_y = 0;
-            double xoffset = x - prev_x, yoffset = y - prev_y;
+    window.registerMouseCallback([&cam, &worldTransform] (double x, double y) {
+            static float prev_x = 0, prev_y = 0;
+            float xoffset = x - prev_x, yoffset = y - prev_y;
             prev_x = x; prev_y = y;
             const float f = 0.01;
-            cam.rotate_local(Axis::X, yoffset * f);
-            cam.rotate_local(Axis::Y, xoffset * f);
+            xoffset *= f;
+            yoffset *= f;
+            worldTransform.rotate_local(Axis::Y, xoffset);
+            worldTransform.rotate_local(Axis::X, yoffset);
         });
 }
 
@@ -118,8 +120,8 @@ int main(int argc, char** argv) {
         indices.upload_data(mesh->get_attribute<unsigned int>("indices")->data());
         
         // Then, the shader programs
-        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000),
-                  worldMatrix = glm::mat4(1.f);
+        glm::mat4 projMatrix = glm::perspective<float>(glm::radians(45.f), 1280.f/720.f, 0.1, 1000);
+        TransformEuler worldTransform;
         glm::vec3 lightPosition(5, 15, -15);
 
         std::vector<UniformDescriptor> uniforms_p1, uniforms_p2;
@@ -132,7 +134,7 @@ int main(int argc, char** argv) {
         Program prog_phong(buildShaderProgram("shaders/per_fragment.vs", "shaders/per_fragment.fs", uniforms_p1));
         dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
         dynamic_cast<Uniform<float>*>(prog_phong.getUniform("ambient_intensity"))->set(0.2);
-        dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_world"))->set(worldMatrix);
+        //dynamic_cast<Uniform<glm::mat4>*>(prog_phong.getUniform("m_world"))->set(worldMatrix);
 
         uniforms_p2.push_back(UniformDescriptor("m_camera",ProgramBuilder::mat4));
         uniforms_p2.push_back(UniformDescriptor("m_world",ProgramBuilder::mat4));
@@ -140,7 +142,7 @@ int main(int argc, char** argv) {
         uniforms_p2.push_back(UniformDescriptor("m_normalTransform",ProgramBuilder::mat3));
         Program prog_normals(buildShaderProgram("shaders/normals.vs", "shaders/normals.fs", uniforms_p2));
         dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
-        dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_world"))->set(worldMatrix);
+        //dynamic_cast<Uniform<glm::mat4>*>(prog_normals.getUniform("m_world"))->set(worldMatrix);
 
         window.setResizeCallback([&] (int w, int h) {
             // TODO : wrap the GL call away
@@ -194,7 +196,9 @@ int main(int argc, char** argv) {
         glClearDepth(1.0f);
 
         // Install input callbacks
-        bind_input_callbacks(window, camera);
+        bind_input_callbacks(window, camera, worldTransform);
+
+        /*
 
         // Setup render to texture
         Texture colorTex, depthTex, normalTex;
@@ -211,6 +215,7 @@ int main(int argc, char** argv) {
         fbo.attach(FBO::Draw, FBO::Depth, depthTex);
         assert(FBO::is_complete(FBO::Draw));
 
+        // Do render to texture
         
         current_prog->use();
         dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.world_to_camera());
@@ -255,10 +260,14 @@ int main(int argc, char** argv) {
                 }
                 std::cerr << (message) << std::endl; });
 
+        */
+
         // Finally, the render function
         window.setRenderCallback([&] () {
-            glm::mat4 cameraMatrix = camera.world_to_camera();
+            glm::mat4 cameraMatrix = camera.world_to_camera(),
+                      worldMatrix  = worldTransform.matrix();
             current_prog->use();
+            buddha->set_transform(worldMatrix);
             dynamic_cast<Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(cameraMatrix);
             dynamic_cast<Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
 
