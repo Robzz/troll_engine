@@ -16,6 +16,20 @@ if(${LUA_EXECUTABLE} STREQUAL LUA_EXECUTABLE-NOTFOUND)
     message(FATAL_ERROR "Lua not found")
 endif()
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    option(GENERATE_DOCS "Generate Doxygen documentation" OFF)
+else()
+    set(GENERATE_DOCS OFF)
+endif()
+
+if(GENERATE_DOCS)
+    add_custom_target(doxygen_docs
+                      COMMAND doxygen Doxyfile)
+else()
+    add_custom_target(doxygen_docs)
+endif()
+
 # Teach the build system how to generate the gl loaders
 add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
@@ -120,14 +134,13 @@ set(MCGYVER_HEADERS
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
 include_directories("${MCGYVER_SOURCE_DIR}/include"
-                    ${GLFW_INCLUDE_DIRS}
-                    "${IMAGE_SOURCE_DIR}/include")
+                    ${GLFW_INCLUDE_DIRS})
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
 target_link_libraries(McGyver ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY})
 
-add_dependencies(McGyver move_bison_files generate_gl_loader)
+add_dependencies(McGyver move_bison_files generate_gl_loader doxygen_docs)
 
 # Enable C++11 and a proper metric fuckton of extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
