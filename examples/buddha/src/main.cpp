@@ -72,7 +72,7 @@ void bind_input_callbacks(Engine::Window& window, Engine::Camera<Engine::Transfo
     window.registerKeyCallback('Q', [&cam] () { cam.rotate_local(Engine::Axis::Z, -0.15); });
     window.registerKeyCallback('E', [&cam] () { cam.rotate_local(Engine::Axis::Z, 0.15); });
 
-    window.registerMouseCallback([&cam, &worldTransform] (double x, double y) {
+    window.registerMousePosCallback([&worldTransform] (double x, double y) {
             static float prev_x = 0, prev_y = 0;
             float xoffset = x - prev_x, yoffset = y - prev_y;
             prev_x = x; prev_y = y;
@@ -81,6 +81,12 @@ void bind_input_callbacks(Engine::Window& window, Engine::Camera<Engine::Transfo
             yoffset *= f;
             worldTransform.rotate_local(Engine::Axis::Y, xoffset);
             worldTransform.rotate_local(Engine::Axis::X, yoffset);
+        });
+
+    window.registerMouseButtonCallback([&cam] (int button, int action, int mods) {
+            std::cout << ((action == GLFW_PRESS) ? "Pressed " : "Released ") << ((button == GLFW_MOUSE_BUTTON_1) ? "left" :
+                                                                                 (button == GLFW_MOUSE_BUTTON_2) ? "right" : 
+                                                                                 (button == GLFW_MOUSE_BUTTON_3) ? "middle" : "unknown") << " mouse button." << std::endl;
         });
 }
 

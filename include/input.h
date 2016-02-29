@@ -6,6 +6,9 @@
 
 namespace Engine {
 
+typedef std::function<void(double,double)> MousePositionCallback;
+typedef std::function<void(int,int,int)>   MouseButtonCallback;
+
 class InputManager {
     public:
     /* Default constructor */
@@ -16,16 +19,19 @@ class InputManager {
     virtual ~InputManager();
 
     void setKeyCallback(int key_code, std::function<void()>);
-    void setMouseCallback(std::function<void(double, double)>);
+    void setMousePosCallback(MousePositionCallback f);
+    void setMouseButtonCallback(MouseButtonCallback f);
     void keyCallback(int keycode, int scancode, int action, int mods) const;
-    void mouseCallback(double x, double y);
+    void mousePosCallback(double x, double y);
+    void mouseButtonCallback(int button, int action, int mods);
 
     // Enable or disable Y axis inversion
     void invertY(bool invert = true);
 
     private:
     std::map<int, std::function<void()>> m_callbacks;    
-    std::function<void(double, double)> m_mousePosCallback;
+    MousePositionCallback m_mousePosCallback;
+    MouseButtonCallback m_mouseButtonCallback;
     int m_invertY;
     double m_mouseSensitivity;
 

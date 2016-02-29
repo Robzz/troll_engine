@@ -101,12 +101,21 @@ namespace Engine {
         m_im.setKeyCallback(key, f);
     }
 
-    void Window::registerMouseCallback(std::function<void(double, double)> f) {
-        m_im.setMouseCallback(f);
+    void Window::registerMousePosCallback(MousePositionCallback f) {
+        m_im.setMousePosCallback(f);
         glfwSetCursorPosCallback(m_w, [] (GLFWwindow* w, double x, double y) {
                                        Window* win = Window::findWindowFromGlfwHandle(w);
                                        if(win)
-                                           win->m_im.mouseCallback(x, y);
+                                           win->m_im.mousePosCallback(x, y);
+                                        });
+    }
+
+    void Window::registerMouseButtonCallback(MouseButtonCallback f) {
+        m_im.setMouseButtonCallback(f);
+        glfwSetMouseButtonCallback(m_w, [] (GLFWwindow* w, int button, int action, int mods) {
+                                       Window* win = Window::findWindowFromGlfwHandle(w);
+                                       if(win)
+                                           win->m_im.mouseButtonCallback(button, action, mods);
                                         });
     }
 
