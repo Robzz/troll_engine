@@ -12,6 +12,10 @@ enum class Axis { X, Y, Z };
 Direction operator-(Direction d);
 
 template <class O>
+/**
+  * \class TransformBase
+  * \brief Abstract base class for transforms.
+  */
 class TransformBase {
     public:
     /* Constructors */
@@ -42,8 +46,20 @@ class TransformBase {
 
     virtual void translate_local(glm::vec3 const& v);
 
+    /**
+      * \fn rotate
+      * \brief Rotate the transform.
+      * \param axis Axis to rotate around.
+      * \param angle Angle to rotate by, in radians.
+      */
     virtual void rotate(glm::vec3 const& axis, float angle) = 0;
 
+    /**
+      * \fn rotate_local
+      * \brief Rotate the transform in its local space.
+      * \param axis Axis to rotate around.
+      * \param angle Angle to rotate by, in radians.
+      */
     virtual void rotate_local(Axis axis, float angle);
 
     virtual glm::mat4 matrix() const = 0;

@@ -1,3 +1,13 @@
+/**
+ * \file scenegraph.h
+ * \brief Scenegraph related classes.
+ * \author R.Chavignat
+ *
+ * This files defines the Scenegraph class and the various node classes.
+ *
+ */
+
+
 #ifndef SCENEGRAPH_H
 #define SCENEGRAPH_H
 
@@ -8,20 +18,28 @@
 #include "matrixstack.h"
 #include "texture.h"
 
+namespace Engine {
+
 class Program;
 class VBO;
 class VAO;
 
-/* Base class for nodes in a SceneGraph 
-   These nodes don't contain geometry themselves, and drawing them
-   doesn't render anything unless they have children. They are used to
-   logically organize a scene in the SceneGraph. */
+/** \class Node
+ *  \brief Base class for nodes in a SceneGraph 
+           These nodes don't contain geometry themselves, and drawing them
+           doesn't render anything unless they have children. They are used to
+           logically organize a scene in the SceneGraph. */
 class Node {
     friend class SceneGraph;
     public:
-        Node(glm::mat4 const& position = glm::mat4(1.f), std::string const& name = "", bool enabled = true);
+        /** \fn Node
+          * \brief Default Node constructor.
+          * \param trans   Node transformation matrix.
+          * \param name    Node name.
+          * \param enabled Enable or disable the Node.
+          */
+        Node(glm::mat4 const& trans = glm::mat4(1.f), std::string const& name = "", bool enabled = true);
         virtual ~Node();
-
         /* Add a child node and return it's id */
         int addChild(Node* n);
         /* Remove a child with a particular id */
