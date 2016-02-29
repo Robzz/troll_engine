@@ -3,6 +3,8 @@
 
 #include "gl_core_3_3.h"
 
+namespace Engine {
+
 class VBO;
 
 // Class for vertex array objects (VAOs)
@@ -24,5 +26,7 @@ class VAO {
     private:
         GLuint m_id;
 };
+
+} // namespace Engine
 
 #endif

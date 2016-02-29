@@ -1,6 +1,8 @@
 #include "image.h"
 #include <stdexcept>
 
+namespace Engine {
+
 Image::Image(int width, int height, int bpp) :
     m_image(FreeImage_Allocate(width, height, bpp))
 { }
@@ -68,3 +70,5 @@ bool Image::save(std::string const& filename, Format f) const {
             return FreeImage_Save(FIF_BMP, m_image, filename.c_str(), BMP_SAVE_RLE);
     }
 }
+
+} // namespace Engine

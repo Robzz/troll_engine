@@ -2,6 +2,8 @@
 #include <iostream>
 #include "debug.h"
 
+namespace Engine {
+
 Direction operator-(Direction d) {
     switch(d) {
         case Direction::Up:
@@ -116,3 +118,5 @@ TransformEuler matrix_to_euler(TransformMat const& t) {
     }
     return TransformEuler(t.position(), glm::vec3(yaw, pitch, roll));
 }
+
+} // namespace Engine

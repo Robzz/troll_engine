@@ -1,6 +1,8 @@
 #include "planet.h"
 #include "glm/gtc/matrix_transform.hpp"
 
+namespace Engine {
+
 std::chrono::time_point<std::chrono::high_resolution_clock> Planet::s_start = std::chrono::high_resolution_clock::now();
 
 const float Planet::c_rotK = 2 * 3.141592 / 24;
@@ -31,3 +33,5 @@ void Planet::draw(glm::mat4 const& m) {
     updateWorldTransform(t.count());
     IndexedObject::draw(m);
 }
+
+} // namespace Engine

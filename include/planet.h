@@ -5,6 +5,8 @@
 #include "glm/glm.hpp"
 #include "scenegraph.h"
 
+namespace Engine {
+
 class Planet : public IndexedObject {
     public:
     /* Default constructor */
@@ -28,5 +30,7 @@ class Planet : public IndexedObject {
 
     static std::chrono::time_point<std::chrono::high_resolution_clock> s_start;
 };
+
+} // namespace Engine
 
 #endif

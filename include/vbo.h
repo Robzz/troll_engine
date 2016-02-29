@@ -6,6 +6,8 @@
 
 #include "debug.h"
 
+namespace Engine {
+
 // Class for vertex buffer objects (VBOs)
 class VBO {
     public:
@@ -28,5 +30,7 @@ class VBO {
     protected:
         GLuint m_id;
 };
+
+} // namespace Engine
 
 #endif

@@ -12,7 +12,7 @@
     #endif
 
     class ObjLexer;
-    class ObjReader;
+    namespace Engine { class ObjReader; }
 
     enum class Keyword;
 
@@ -50,7 +50,7 @@
 
 %debug
 %param { ObjLexer& lexer }
-%param { ObjReader& reader }
+%param { Engine::ObjReader& reader }
 
 %define api.token.prefix {TOK_}
 %token<Keyword>         MTLLIB OBJECT VERTEX NORMAL USEMTL SMOOTH FACE GROUP
@@ -74,7 +74,7 @@
 
 %code {
     #include "obj.h"
-    static int yylex(yy::ObjParser::semantic_type* lval, ObjLexer& lexer, ObjReader& reader);
+    static int yylex(yy::ObjParser::semantic_type* lval, ObjLexer& lexer, Engine::ObjReader& reader);
 
     #define TRANSLATE_VERTEX_INDEX(i) ( (i < 0) ? reader.m_currentGroup->vertices.size()  + i : i)
     #define TRANSLATE_NORMAL_INDEX(i) ( (i < 0) ? reader.m_currentGroup->normals.size()   + i : i)
@@ -198,6 +198,6 @@ void yy::ObjParser::error(std::string const& err) {
     std::cerr << "Bison error : " << err << std::endl;
 }
 
-static int yylex(yy::ObjParser::semantic_type* lval, ObjLexer& lexer, ObjReader& reader){
+static int yylex(yy::ObjParser::semantic_type* lval, ObjLexer& lexer, Engine::ObjReader& reader){
     return lexer.yylex(lval);
 }

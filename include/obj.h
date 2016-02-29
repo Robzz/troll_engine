@@ -10,6 +10,8 @@
 #include "obj_lexer.h"
 #include "obj_parser.h"
 
+namespace Engine {
+
 class Obj {
     friend class ObjReader;
 
@@ -84,5 +86,7 @@ class ObjReader {
     ObjReader(ObjReader const& other);
     ObjReader& operator=(ObjReader const& other);
 };
+
+} // namespace Engine
 
 #endif

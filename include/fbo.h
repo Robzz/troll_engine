@@ -4,6 +4,8 @@
 #include "gl_core_3_3.h"
 #include "texture.h"
 
+namespace Engine {
+
 class FBO {
     public:
     /* Default constructor */
@@ -49,5 +51,7 @@ class FBO {
 
     GLuint m_id;
 };
+
+} // namespace Engine
 
 #endif

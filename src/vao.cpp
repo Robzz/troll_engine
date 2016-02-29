@@ -2,6 +2,8 @@
 #include "vbo.h"
 #include "debug.h"
 
+namespace Engine {
+
 VAO::VAO() :
     m_id()
 {
@@ -33,3 +35,5 @@ void VAO::vertexAttribPointer(VBO& array, GLuint index, GLint size, GLsizei stri
     GLV(glVertexAttribPointer(index, size, type, normalize ? GL_TRUE : GL_FALSE, stride, offset));
     VBO::unbind();
 }
+
+} // namespace Engine

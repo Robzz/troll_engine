@@ -6,6 +6,8 @@
 #include <iostream>
 #include "transform.h"
 
+namespace Engine {
+
 template <class T>
 class Camera {
     public:
@@ -40,5 +42,7 @@ class Camera {
 };
 
 #include "camera.inl"
+
+} // namespace Engine
 
 #endif

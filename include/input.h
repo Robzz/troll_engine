@@ -4,6 +4,8 @@
 #include <functional>
 #include <map>
 
+namespace Engine {
+
 class InputManager {
     public:
     /* Default constructor */
@@ -31,5 +33,7 @@ class InputManager {
     InputManager(InputManager const& other);
     void operator=(InputManager const& other);
 };
+
+} // namespace Engine
 
 #endif

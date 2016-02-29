@@ -4,6 +4,8 @@
 #include <istream>
 #include "gl_core_3_3.h"
 
+namespace Engine {
+
 class Shader {
     friend class ProgramBuilder;
     public:
@@ -34,5 +36,7 @@ class GeometryShader : public Shader {
          explicit GeometryShader(std::istream& src_stream);
          virtual ~GeometryShader();
 };
+
+} // namespace Engine
 
 #endif

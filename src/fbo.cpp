@@ -1,6 +1,8 @@
 #include "fbo.h"
 #include "debug.h"
 
+namespace Engine {
+
 FBO::FBO() :
     m_id()
 {
@@ -58,3 +60,5 @@ std::vector<unsigned char> FBO::readPixels(Format f, Type t, GLsizei width, GLsi
     assert(vec.size() == (width * height * n_components * component_size));
     return vec;
 }
+
+} // namespace Engine

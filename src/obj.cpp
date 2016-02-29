@@ -5,6 +5,8 @@
 #include <functional>
 #include "obj_parser.h"
 
+namespace Engine {
+
 Obj::Obj() :
     m_objName(),
     m_groups()
@@ -188,3 +190,5 @@ void ObjReader::add_normal(glm::vec3 const& v) {
 void ObjReader::add_face(Face const& f) {
     m_currentGroup->faces.push_back(f);
 }
+
+} // namespace Engine

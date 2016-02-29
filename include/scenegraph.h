@@ -117,4 +117,6 @@ class IndexedObject : public DrawableNode {
         GLenum m_primitiveMode;
 };
 
+} // namespace Engine
+
 #endif

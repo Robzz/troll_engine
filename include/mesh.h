@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include "attribute.h"
 
+namespace Engine {
+
 typedef std::unordered_map<std::string, AttributeBase*> AttributeMap;
 
 /* This class contains mesh geometry and attributes. */
@@ -78,5 +80,7 @@ class MeshBuilder {
     
     AttributeMap m_attributes;
 };
+
+} // namespace Engine
 
 #endif

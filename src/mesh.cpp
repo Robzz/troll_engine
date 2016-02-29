@@ -1,6 +1,8 @@
 #include "mesh.h"
 #include "debug.h"
 
+namespace Engine {
+
 Mesh::Mesh(AttributeMap const& attrmap) :
     m_attributes(attrmap)
 {
@@ -53,3 +55,5 @@ Mesh* MeshBuilder::build_mesh() const {
     }
     return new Mesh(copy);
 }
+
+} // namespace Engine

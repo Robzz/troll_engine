@@ -2,6 +2,8 @@
 
 #include "input.h"
 
+namespace Engine {
+
 InputManager::InputManager() :
     m_callbacks(),
     m_mousePosCallback(),
@@ -44,3 +46,5 @@ void InputManager::mouseCallback(double x, double y) {
 void InputManager::invertY(bool invert) {
     m_invertY = invert ? -1 : 1;
 }
+
+} // namespace Engine

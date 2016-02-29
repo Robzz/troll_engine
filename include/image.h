@@ -7,6 +7,8 @@
 #include <FreeImage.h>
 #include "texture.h"
 
+namespace Engine {
+
 class Image {
     public:
     /* Default constructor */
@@ -34,5 +36,7 @@ class Image {
     explicit Image(FIBITMAP* other);
     FIBITMAP* m_image;
 };
+
+} // namespace Engine
 
 #endif

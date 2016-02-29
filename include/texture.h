@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+namespace Engine {
+
 class Texture {
     friend class FBO;
 
@@ -61,5 +63,7 @@ class Texture {
     Texture(Texture const& other);
     void operator=(Texture const& other);
 };
+
+} // namespace Engine
 
 #endif

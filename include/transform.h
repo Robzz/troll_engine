@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/orthonormalize.hpp>
 
+namespace Engine {
+
 // TODO : move this
 enum class Direction { Up, Down, Left, Right, Front, Back };
 enum class Axis { X, Y, Z };
@@ -95,5 +97,7 @@ TransformMat   euler_to_matrix(TransformEuler const& t);
 TransformEuler matrix_to_euler(TransformMat const& t);
 
 #include "transform.inl"
+
+} // namespace Engine
 
 #endif

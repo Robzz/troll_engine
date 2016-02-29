@@ -1,5 +1,7 @@
 #include "vbo.h"
 
+namespace Engine {
+
 VBO::VBO() :
     m_id()
 {
@@ -17,3 +19,5 @@ void VBO::bind(GLenum target) const {
 void VBO::unbind(GLenum target) {
     GLV(glBindBuffer(target, 0));
 }
+
+} // namespace Engine

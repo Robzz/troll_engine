@@ -3,6 +3,8 @@
 
 #include <algorithm>
 
+namespace Engine {
+
 const Program* Program::s_current = nullptr;
 
 Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
@@ -175,3 +177,5 @@ Program ProgramBuilder::link() {
 
     return Program(m_program, v);
 }
+
+} // namespace Engine

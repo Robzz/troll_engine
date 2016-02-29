@@ -4,6 +4,8 @@
 #include "program.h"
 #include "glm/gtc/matrix_inverse.hpp"
 
+namespace Engine {
+
 Node::Node(glm::mat4 const& position, std::string const& name, bool enabled) :
     m_enabled(enabled),
     m_position(position),
@@ -161,3 +163,5 @@ void IndexedObject::set_program(Program* prog) {
 void IndexedObject::set_vao(VAO* vao) {
     m_vao = vao;
 }
+
+} // namespace Engine

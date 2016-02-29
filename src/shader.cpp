@@ -4,6 +4,8 @@
 
 #include "debug.h"
 
+namespace Engine {
+
 Shader::Shader(std::istream& str_stream, GLenum shader_type) :
     m_id()
 {
@@ -62,3 +64,4 @@ GeometryShader::GeometryShader(std::istream& src_stream) :
 
 GeometryShader::~GeometryShader() { }
 
+} // namespace Engine

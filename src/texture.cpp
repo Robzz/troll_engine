@@ -2,6 +2,7 @@
 #include "debug.h"
 #include <vector>
 
+namespace Engine {
 
 Texture::Texture() :
     m_id()
@@ -78,3 +79,5 @@ void Texture::filtering(Filters filters, Filter f) {
             break;
     }
 }
+
+} // namespace Engine

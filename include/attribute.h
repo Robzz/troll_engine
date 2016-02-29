@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace Engine {
+
 class AttributeBase {
     public:
     /* Default constructor */
@@ -68,5 +70,6 @@ class Attribute : public AttributeBase {
     std::vector<T> m_attribData;
 };
 
+} // namespace Engine
 
 #endif

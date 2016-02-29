@@ -14,6 +14,8 @@
 
 #define TYPE(T) typeid(T).hash_code()
 
+namespace Engine {
+
 /* Base class for uniforms */
 class UniformBase {
     friend class Program;
@@ -201,6 +203,8 @@ class ProgramBuilder {
         std::vector<Shader*> m_attachedShaders;
         std::vector<std::pair<std::string, UniformType>> m_uniforms;
 };
+
+} // namespace Engine
 
 #undef TYPE
 
