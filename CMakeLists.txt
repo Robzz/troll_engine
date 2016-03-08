@@ -5,15 +5,14 @@ include(ExternalProject)
 ExternalProject_Add(
     glLoadGen
     PREFIX glLoadGen
-    HG_REPOSITORY https://bitbucket.org/alfonse/glloadgen
-    HG_TAG 2.0.5
+    DOWNLOAD_COMMAND hg clone https://bitbucket.org/alfonse/glloadgen
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
 )
-find_program(LUA_EXECUTABLE lua)
+find_program(LUA_EXECUTABLE lua5.1)
 if(${LUA_EXECUTABLE} STREQUAL LUA_EXECUTABLE-NOTFOUND)
-    message(FATAL_ERROR "Lua not found")
+    message(FATAL_ERROR "Lua 5.1 not found")
 endif()
 
 # Teach the build system how to generate the gl loaders
