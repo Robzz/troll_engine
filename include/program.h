@@ -54,7 +54,7 @@ class Program {
         std::string info_log() const;
 
         // Set as the program currently used for rendering
-        void use() const;
+        void use();
         // Disable programs for rendering
         static void noProgram();
 
@@ -66,7 +66,7 @@ class Program {
         void uploadUniforms();
 
         bool is_current() const;
-        static const Program* current();
+        static Program* current();
     
         ~Program();
 
@@ -81,7 +81,7 @@ class Program {
 
         GLuint m_id;
         std::vector<UniformBase*> m_uniforms;
-        static const Program* s_current;
+        static Program* s_current;
 };
 
 // Class for Uniform objects

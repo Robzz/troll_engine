@@ -5,7 +5,7 @@
 
 namespace Engine {
 
-const Program* Program::s_current = nullptr;
+Program* Program::s_current = nullptr;
 
 Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
     m_id(id),
@@ -58,7 +58,7 @@ std::string Program::info_log() const {
     return log;
 }
 
-void Program::use() const {
+void Program::use() {
     GLV(glUseProgram(m_id));
     s_current = this;
 }
@@ -78,7 +78,7 @@ UniformBase* Program::getUniform(std::string const& name) {
 }
 
 void Program::uploadUniforms() {
-    const Program* previous = s_current;
+    Program* previous = s_current;
     if(!is_current())
         use();
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
@@ -100,7 +100,7 @@ GLint Program::getUniformLocation(std::string uniformName) const {
     return loc;
 }
 
-const Program* Program::current() { return s_current; }
+Program* Program::current() { return s_current; }
 
 UniformBase::UniformBase(GLint location, std::string const& name) :
     m_location(location),
