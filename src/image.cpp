@@ -23,7 +23,10 @@ Image::Image(FIBITMAP* other) :
     m_image(other)
 { }
 
-Image::~Image() { }
+Image::~Image() {
+    if(m_image)
+        FreeImage_Unload(m_image);
+}
 
 Image::Image(Image const& other) :
     m_image(FreeImage_Clone(other.m_image))
