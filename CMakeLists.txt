@@ -19,7 +19,7 @@ endif()
 add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h
-                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glLoadGen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3
+                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glloadgen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.c ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
 
