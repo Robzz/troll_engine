@@ -28,6 +28,9 @@ class Image {
     int height() const;
 
     static Image from_rgb(std::vector<unsigned char> vec, int width, int height);
+
+    template <class T>
+    static Image from_greyscale(std::vector<T> vec, int width, int height);
     Texture to_texture() const;
 
     bool save(std::string const& filename, Format f) const;
