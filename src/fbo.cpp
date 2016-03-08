@@ -39,7 +39,7 @@ void FBO::attach(Target t, Attachment a, Texture& tex, GLint layer) {
 }
 
 void FBO::detach(FBO::Target t, FBO::Attachment a) {
-    GLV(glFramebufferTexture2D(t, a, GL_TEXTURE_2D, 0, 0));
+    GLV(glFramebufferTexture(t, a, 0, 0));
 }
 
 bool FBO::is_complete(Target t) {
@@ -48,17 +48,6 @@ bool FBO::is_complete(Target t) {
 
 GLenum FBO::status(Target t) {
     return GL(glCheckFramebufferStatus(t));
-}
-
-std::vector<unsigned char> FBO::readPixels(Format f, Type t, GLsizei width, GLsizei height, int x, int y) {
-    int n_components   = (f == Rgb)   ? 3 :
-                         (f == Bgr)   ? 3 :
-                         (f == Rgba)  ? 4 : 1,
-        component_size = (t == Ubyte) ? 1 : 4;
-    std::vector<unsigned char> vec(width * height * n_components * component_size, 0);
-    GLV(glReadPixels(x, y, width, height, f, t, vec.data()));
-    assert(vec.size() == (width * height * n_components * component_size));
-    return vec;
 }
 
 } // namespace Engine

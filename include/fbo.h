@@ -2,6 +2,7 @@
 #define FBO_H
 
 #include "gl_core_3_3.h"
+#include "utility.h"
 #include "texture.h"
 
 namespace Engine {
@@ -24,7 +25,7 @@ class FBO {
                            IncompleteLayerTargets = GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS,
                            Unsupported            = GL_FRAMEBUFFER_UNSUPPORTED };
     enum Format : GLenum { Rgb = GL_RGB, Bgr = GL_BGR, Rgba = GL_RGBA, DepthComponent = GL_DEPTH_COMPONENT };
-    enum Type : GLenum { Ubyte = GL_UNSIGNED_BYTE, Float = GL_FLOAT };
+    enum Type : GLenum { Ubyte = GL_UNSIGNED_BYTE, Float = GL_FLOAT, Ushort = GL_UNSIGNED_SHORT };
 
     /* Move constructor */
     FBO(FBO&& other);
@@ -42,7 +43,8 @@ class FBO {
     // TODO : dunno why Status won't work as return type
     static GLenum status(Target t);
 
-    static std::vector<unsigned char> readPixels(Format f, Type t, GLsizei width, GLsizei height, int x = 0, int y = 0);
+    template <class T>
+    static std::vector<T> readPixels(Format f, Type t, GLsizei width, GLsizei height, int x = 0, int y = 0);
 
     private:
     /* Not copyable. */
@@ -51,6 +53,8 @@ class FBO {
 
     GLuint m_id;
 };
+
+#include "fbo.inl"
 
 } // namespace Engine
 
