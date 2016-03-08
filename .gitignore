@@ -17,3 +17,4 @@ include/stack.hh
 include/gl_core_*.h
 src/gl_core*.cpp
 src/obj_*.cpp
+*.exe
