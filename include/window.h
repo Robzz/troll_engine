@@ -62,7 +62,7 @@ class Window {
         operator bool() const;
 
     private:
-        Window(int width, int height, std::string const& title, bool vsync);
+        Window(int width, int height, std::string const& title, bool vsync, bool debug);
         // No copy or assignment
         Window(Window const& other);
         Window& operator=(Window const& other);
@@ -94,6 +94,8 @@ class WindowBuilder {
         // Turn vsync on or off
         WindowBuilder& vsync(bool v);
 
+        WindowBuilder& debug(bool dbg);
+
         // Construct the Window
         Window build() const;
 
@@ -102,6 +104,7 @@ class WindowBuilder {
         int m_width;
         std::string m_title;
         bool m_vsync;
+        bool m_debug;
 };
 
 }

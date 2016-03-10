@@ -26,7 +26,7 @@ namespace Engine {
         m_im.invertY(false);
     }
 
-    Window::Window(int width, int height, std::string const& title, bool vsync) :
+    Window::Window(int width, int height, std::string const& title, bool vsync, bool debug) :
         m_w(),
         m_im(),
         m_render(),
@@ -42,6 +42,7 @@ namespace Engine {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug ? GL_TRUE : GL_FALSE);
 
         // Create the window and make the context current
         m_w = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
@@ -174,8 +175,9 @@ namespace Engine {
     WindowBuilder::WindowBuilder() :
         m_height(720),
         m_width(1280),
-        m_title("LMG"),
-        m_vsync(true)
+        m_title("Window"),
+        m_vsync(true),
+        m_debug()
     { }
 
     WindowBuilder::~WindowBuilder() {
@@ -198,7 +200,12 @@ namespace Engine {
         return *this;
     }
 
+    WindowBuilder& WindowBuilder::debug(bool dbg) {
+        m_debug = dbg;
+        return *this;
+    }
+
     Window WindowBuilder::build() const {
-        return Window(m_width, m_height, m_title, m_vsync);
+        return Window(m_width, m_height, m_title, m_vsync, m_debug);
     }
 }
