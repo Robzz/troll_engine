@@ -10,22 +10,22 @@ Shader::Shader(std::istream& str_stream, GLenum shader_type) :
     m_id()
 {
     // Read source and compile
-    m_id = GL(glCreateShader(shader_type));
+    m_id =glCreateShader(shader_type);
     std::string source((std::istreambuf_iterator<char>(str_stream)), (std::istreambuf_iterator<char>()));
     const char* source_ptr = source.c_str();
-    GLV(glShaderSource(m_id, 1, &source_ptr, NULL));
-    GLV(glCompileShader(m_id));
+    glShaderSource(m_id, 1, &source_ptr, NULL);
+    glCompileShader(m_id);
 
     // Check for errors
 }
 
 Shader::~Shader() {
-    GLV(glDeleteShader(m_id));
+    glDeleteShader(m_id);
 }
 
 Shader::operator bool() const {
     GLint compile_status = 0;
-    GLV(glGetShaderiv(m_id, GL_COMPILE_STATUS, &compile_status));
+    glGetShaderiv(m_id, GL_COMPILE_STATUS, &compile_status);
     return compile_status == GL_TRUE;
 }
 
@@ -35,10 +35,10 @@ bool Shader::operator !() const {
 
 std::string Shader::info_log() const {
     GLint log_length;
-    GLV(glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &log_length));
+    glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &log_length);
     if(log_length > 0) {
         GLchar* buf = new GLchar[log_length];
-        GLV(glGetShaderInfoLog(m_id, log_length, NULL, buf));
+        glGetShaderInfoLog(m_id, log_length, NULL, buf);
         std::string log(buf);
         delete[] buf;
         return log;

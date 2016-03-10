@@ -84,101 +84,28 @@ class Program {
         static Program* s_current;
 };
 
+template <class T>
+void upload_uniform(const GLint location, T const& value);
+
 // Class for Uniform objects
 template <class T>
 class Uniform : public UniformBase {
     friend class ProgramBuilder;
     public:
         /* Destructor */
-        virtual ~Uniform() {
-
-        }
+        virtual ~Uniform();
 
         /* Modify the uniform value. Does not upload to GPU. */
-        void set(T const& value) {
-            m_value = value;
-            m_clean = false;
-        }
+        void set(T const& value);
 
     private:
         T m_value;
 
         /* Default constructor */
-        Uniform(GLint location, std::string const& name) :
-            UniformBase(location, name),
-            m_value()
-        { }
+        Uniform(GLint location, std::string const& name);
 
         /* Upload uniform to GPU. Program must be in use. */
-        virtual void upload() {
-            if(!m_clean) {
-                if(TYPE(T) == TYPE(glm::vec3)) {
-                    GLV(glUniform3fv(m_location, 1, glm::value_ptr(m_value)));
-                }
-                else if(TYPE(T) == TYPE(glm::mat3)) {
-                    GLV(glUniformMatrix3fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value))) ;
-                }
-                else if(TYPE(T) == TYPE(glm::mat4)) {
-                    GLV(glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(m_value)));
-                }
-                
-                m_clean = true;
-            }
-        }
-};
-
-template <>
-class Uniform<int> : public UniformBase {
-    friend class ProgramBuilder;
-    public:
-        virtual ~Uniform() { }
-
-        void set(int value) {
-            m_value = value;
-            m_clean = false;
-        }
-
-    private:
-        int m_value;
-
-        Uniform(GLint location, std::string const& name) :
-            UniformBase(location, name),
-            m_value()
-        { }
-
-        virtual void upload() {
-            if(!m_clean) {
-                GLV(glUniform1i(m_location, m_value));
-                m_clean = true;
-            }
-        }
-};
-
-template <>
-class Uniform<float> : public UniformBase {
-    friend class ProgramBuilder;
-    public:
-        virtual ~Uniform() { }
-
-        void set(float value) {
-            m_value = value;
-            m_clean = false;
-        }
-
-    private:
-        float m_value;
-
-        Uniform(GLint location, std::string const& name) :
-            UniformBase(location, name),
-            m_value()
-        { }
-
-        virtual void upload() {
-            if(!m_clean) {
-                GLV(glUniform1f(m_location, m_value));
-                m_clean = true;
-            }
-        }
+        virtual void upload();
 };
 
 // Use this class to build Program objects
@@ -204,8 +131,10 @@ class ProgramBuilder {
         std::vector<std::pair<std::string, UniformType>> m_uniforms;
 };
 
+#include "program.inl"
+
 } // namespace Engine
 
 #undef TYPE
 
-#endif
+#endif // PROGRAM_H

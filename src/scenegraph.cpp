@@ -1,7 +1,4 @@
 #include "scenegraph.h"
-#include "vao.h"
-#include "vbo.h"
-#include "program.h"
 #include "glm/gtc/matrix_inverse.hpp"
 
 namespace Engine {
@@ -114,7 +111,7 @@ void Object::draw(glm::mat4 const& m) {
     m_program->uploadUniforms();
     m_vao->bind();
     m_tex.bind();
-    GLV(glDrawArrays(m_primitiveMode, 0, m_n_primitives));
+    glDrawArrays(m_primitiveMode, 0, m_n_primitives);
     Texture::unbind();
     VAO::unbind();
     Program::noProgram();
@@ -149,7 +146,7 @@ void IndexedObject::draw(glm::mat4 const& m) {
     m_vao->bind();
     m_ebo->bind(GL_ELEMENT_ARRAY_BUFFER);
     m_tex.bind();
-    GLV(glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);)
+    glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);
     Texture::unbind();
     VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
     VAO::unbind();

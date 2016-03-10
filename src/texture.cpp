@@ -7,7 +7,7 @@ namespace Engine {
 Texture::Texture() :
     m_id()
 {
-    GLV(glGenTextures(1, &m_id));
+    glGenTextures(1, &m_id);
 }
 
 Texture::Texture(Texture&& other):
@@ -36,7 +36,7 @@ Texture& Texture::operator=(Texture&& other) {
 
 Texture::~Texture() {
     if(m_id)
-        GLV(glDeleteTextures(1, &m_id));
+        glDeleteTextures(1, &m_id);
 }
 
 void Texture::bind(Target target) const {
@@ -60,10 +60,10 @@ Texture Texture::from_image(std::string const& filename) {
 }
 
 void Texture::texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data) {
-    GLV(glBindTexture(Tex2D, m_id));
-    GLV(glTexImage2D(Tex2D, 0, internalFormat, width, height, 0, format, type, data));
-    GLV(glGenerateMipmap(Tex2D));
-    GLV(glBindTexture(Tex2D, 0));
+    glBindTexture(Tex2D, m_id);
+    glTexImage2D(Tex2D, 0, internalFormat, width, height, 0, format, type, data);
+    glGenerateMipmap(Tex2D);
+    glBindTexture(Tex2D, 0);
 }
 
 void Texture::filtering(Filters filters, Filter f) {
@@ -71,11 +71,11 @@ void Texture::filtering(Filters filters, Filter f) {
     switch(filters) {
         case Magnification:
         case Minification:
-            GLV(glTexParameteri(Tex2D, filters, f));
+            glTexParameteri(Tex2D, filters, f);
             break;
         case Both:
-            GLV(glTexParameteri(Tex2D, Magnification, f));
-            GLV(glTexParameteri(Tex2D, Minification, f));
+            glTexParameteri(Tex2D, Magnification, f);
+            glTexParameteri(Tex2D, Minification, f);
             break;
     }
 }

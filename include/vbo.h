@@ -21,15 +21,13 @@ class VBO {
 
         // Upload data to the VBO
         template <class T>
-        void upload_data(std::vector<T> data, GLenum hint = GL_STATIC_DRAW) {
-            bind();
-            GLV(glBufferData(GL_ARRAY_BUFFER, data.size()*sizeof(T), data.data(), hint));
-            unbind();
-        }
+        void upload_data(std::vector<T> data, GLenum hint = GL_STATIC_DRAW);
         
     protected:
         GLuint m_id;
 };
+
+#include "vbo.inl"
 
 } // namespace Engine
 

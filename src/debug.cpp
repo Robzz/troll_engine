@@ -1,36 +1,16 @@
 #include "debug.h"
+#include <iostream>
 
-void check_gl_errors() {
-    GLenum e;
-    while((e = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "GL error : " << parse_error(e) << std::endl;
-    }
+/*void register_gl_debug_callback(glDebugCallback const& cb) {
+    glDebugMessageCallback(cb.target<GLDEBUGPROC>(), nullptr);
+}*/
+
+void APIENTRY gl_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    std::cout << message << std::endl;
 }
 
-const char* parse_error(GLenum err) {
-    return \
-    err == 0x500 ? "GL_INVALID_ENUM" :
-    err == 0x501 ? "GL_INVALID_VALUE" :
-    err == 0x502 ? "GL_INVALID_OPERATION" :
-    err == 0x503 ? "GL_STACK_OVERFLOW" :
-    err == 0x504 ? "GL_STACK_UNDERFLOW" :
-    err == 0x505 ? "GL_OUT_OF_MEMORY" :
-    err == 0x506 ? "GL_INVALID_FRAMEBUFFER_OPERATION" :
-    err == 0x507 ? "GL_CONTEXT_LOST" :
-    err == 0x8031 ? "GL_TABLE_TOO_LARGE" :
-                    "unknown error code";
-}
-
-void wrap_gl_call(const char* call_str, const char* filename, int lineno) {
-#ifdef GL_TRACE
-    std::cout << call_str << std::endl;
-#endif
-#ifdef DEBUG
-    GLenum e;
-    if((e = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "GL Error!\n\tCall : " << call_str << "\n\tAt : " << filename << ':' << lineno << "\n\tCause : " << parse_error(e) << std::endl;
-    }
-#endif
+void clear_gl_debug_callback() {
+    glDebugMessageCallback(nullptr, nullptr);
 }
 
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m) {

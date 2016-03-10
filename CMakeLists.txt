@@ -19,7 +19,7 @@ endif()
 add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h
-                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glloadgen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3
+                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glloadgen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3 -extfile=exts.txt
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.c ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h)
 
@@ -71,6 +71,7 @@ set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_
 # Engine sources
 set(MCGYVER_SOURCES
     src/gl_core_3_3.cpp
+    src/mcgyver.cpp
     src/window.cpp
     src/shader.cpp
     src/program.cpp
@@ -98,6 +99,7 @@ set(MCGYVER_SOURCES
 
 set(MCGYVER_HEADERS
     include/gl_core_3_3.h
+    include/mcgyver.h
     include/window.h
     include/shader.h
     include/program.h

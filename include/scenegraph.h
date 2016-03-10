@@ -12,17 +12,16 @@
 #define SCENEGRAPH_H
 
 #include <map>
-#include "glm/glm.hpp"
 #include "gl_core_3_3.h"
+#include "glm/glm.hpp"
 
+#include "program.h"
+#include "vao.h"
+#include "vbo.h"
 #include "matrixstack.h"
 #include "texture.h"
 
 namespace Engine {
-
-class Program;
-class VBO;
-class VAO;
 
 /** \class Node
  *  \brief Base class for nodes in a SceneGraph 

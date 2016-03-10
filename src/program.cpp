@@ -31,7 +31,7 @@ Program& Program::operator=(Program&& other) {
 
 Program::~Program() {
     if(m_id)
-        GLV(glDeleteProgram(m_id));
+        glDeleteProgram(m_id);
     for(auto& it : m_uniforms) {
         delete it;
     }
@@ -39,7 +39,7 @@ Program::~Program() {
 
 Program::operator bool() const {
     GLint link_status = 1;
-    GLV(glGetProgramiv(m_id, GL_LINK_STATUS, &link_status));
+    glGetProgramiv(m_id, GL_LINK_STATUS, &link_status);
     return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
 }
 
@@ -50,21 +50,21 @@ bool Program::operator !() const {
 
 std::string Program::info_log() const {
     GLint log_length;
-    GLV(glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length));
+    glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length);
     GLchar* buf = new GLchar[log_length];
-    GLV(glGetProgramInfoLog(m_id, log_length, NULL, buf));
+    glGetProgramInfoLog(m_id, log_length, NULL, buf);
     std::string log(buf);
     delete[] buf;
     return log;
 }
 
 void Program::use() {
-    GLV(glUseProgram(m_id));
+    glUseProgram(m_id);
     s_current = this;
 }
 
 void Program::noProgram() {
-    GLV(glUseProgram(0));
+    glUseProgram(0);
     s_current = nullptr;
 }
 
@@ -91,12 +91,12 @@ void Program::uploadUniforms() {
 bool Program::is_current() const { return this == s_current; }
 
 GLint Program::getAttributeLocation(std::string attribName) const {
-    GLint loc = GL(glGetAttribLocation(m_id, attribName.c_str()));
+    GLint loc = glGetAttribLocation(m_id, attribName.c_str());
     return loc;
 }
 
 GLint Program::getUniformLocation(std::string uniformName) const {
-    GLint loc = GL(glGetUniformLocation(m_id, uniformName.c_str()));
+    GLint loc = glGetUniformLocation(m_id, uniformName.c_str());
     return loc;
 }
 
@@ -125,13 +125,13 @@ ProgramBuilder::ProgramBuilder() :
     m_attachedShaders(),
     m_uniforms()
 {
-    m_program = GL(glCreateProgram());
+    m_program = glCreateProgram();
 }
 
 ProgramBuilder::~ProgramBuilder() { }
 
 ProgramBuilder& ProgramBuilder::attach_shader(Shader& s) {
-    GLV(glAttachShader(m_program, s.m_id));
+    glAttachShader(m_program, s.m_id);
     m_attachedShaders.push_back(&s);
     return *this;
 }
@@ -142,17 +142,17 @@ ProgramBuilder& ProgramBuilder::with_uniform(std::string const& name, UniformTyp
 }
 
 Program ProgramBuilder::link() {
-    GLV(glLinkProgram(m_program));
+    glLinkProgram(m_program);
     
     for(auto it = m_attachedShaders.begin() ; it != m_attachedShaders.end() ; ++it)
-        GLV(glDetachShader(m_program, (*it)->m_id));
+        glDetachShader(m_program, (*it)->m_id);
 
     std::vector<UniformBase*> v;
     #define TYPE(T) std::type_index(typeid(T)).hash_code
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
         UniformType t = (*it).second;
         std::string const& name = (*it).first;
-        GLint loc = GL(glGetUniformLocation(m_program, name.c_str()));
+        GLint loc = glGetUniformLocation(m_program, name.c_str());
         if(t == UniformType::vec3) {            
 
             v.push_back(new Uniform<glm::vec3>(loc, name));
@@ -176,6 +176,31 @@ Program ProgramBuilder::link() {
     #undef TYPE
 
     return Program(m_program, v);
+}
+
+template <>
+void upload_uniform<int>(const GLint location, int const& value) {
+    glUniform1i(location, value);
+}
+
+template <>
+void upload_uniform<float>(const GLint location, float const& value) {
+    glUniform1f(location, value);
+}
+
+template <>
+void upload_uniform<glm::vec3>(const GLint location, glm::vec3 const& value) {
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
+template <>
+void upload_uniform<glm::mat3>(const GLint location, glm::mat3 const& value) {
+    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+template <>
+void upload_uniform<glm::mat4>(const GLint location, glm::mat4 const& value) {
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 } // namespace Engine

@@ -42,17 +42,7 @@ class Texture {
     void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
 
     template <class T>
-    std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0) {
-        unsigned char* buf = new unsigned char[size*sizeof(T)];
-        std::vector<T> vec;
-        vec.reserve(size);
-        bind(Tex2D);
-        GLV(glGetTexImage(Tex2D, level, format, type, buf));
-        for(int i = 0 ; i != size ; ++i) {
-            
-        }
-        return vec;
-    }
+    std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0);
 
     private:
     GLuint m_id;
@@ -63,6 +53,8 @@ class Texture {
     Texture(Texture const& other);
     void operator=(Texture const& other);
 };
+
+#include "texture.inl"
 
 } // namespace Engine
 

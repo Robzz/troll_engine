@@ -4,19 +4,23 @@
 
 #include <iostream>
 #include <vector>
+#include <functional>
+#include "gl_core_3_3.h"
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
 
-void check_gl_errors();
-const char* parse_error(GLenum err);
+typedef std::function<void(GLenum source,
+                           GLenum type,
+                           GLuint id,
+                           GLenum severity,
+                           GLsizei length,
+                           const GLchar* message,
+                           const void* userParam)> glDebugCallback;
 
-void wrap_gl_call(const char* call_str, const char* filename, int lineno);
+void APIENTRY gl_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 
-template <class T>
-T wrap_gl_call(T val, const char* call_str, const char* filename, int lineno) {
-    wrap_gl_call(call_str, filename, lineno);
-    return val;
-}
+void register_gl_debug_callback(glDebugCallback const& cb);
+void clear_gl_debug_callback();
 
 // Some debug pretty-print functions
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m);
@@ -30,12 +34,6 @@ std::ostream& operator<<(std::ostream& s, std::vector<T> const& v) {
     }
     return s;
 }
-
-/* These two macros are designed to wrap calls to OpenGL functions.
- * If GL_TRACE is defined, they will log the OpenGL calls to the standard error stream.
- * If DEBUG is defined, they will check for OpenGL errors after each call. */
-#define GL(c) (wrap_gl_call(c, #c, __FILE__, __LINE__))
-#define GLV(c) { c; wrap_gl_call(#c, __FILE__, __LINE__); }
 
 /* This macro enables conditional compilation based on debug mode. The inner code will only be
  * executed on debug builds. */

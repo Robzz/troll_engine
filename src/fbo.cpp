@@ -6,12 +6,12 @@ namespace Engine {
 FBO::FBO() :
     m_id()
 {
-    GLV(glGenFramebuffers(1, &m_id));
+    glGenFramebuffers(1, &m_id);
 }
 
 FBO::~FBO() {
     if(m_id)
-        GLV(glDeleteFramebuffers(1, &m_id));
+        glDeleteFramebuffers(1, &m_id);
 }
 
 FBO::FBO(FBO&& other) :
@@ -27,27 +27,27 @@ FBO& FBO::operator=(FBO&& other) {
 }
 
 void FBO::bind(FBO::Target const& t) {
-    GLV(glBindFramebuffer(t, m_id));
+    glBindFramebuffer(t, m_id);
 }
 
 void FBO::bind_default(FBO::Target const& t) {
-    GLV(glBindFramebuffer(t, 0));
+    glBindFramebuffer(t, 0);
 }
 
 void FBO::attach(Target t, Attachment a, Texture& tex, GLint layer) {
-    GLV(glFramebufferTexture(t, a, tex.m_id, layer));
+    glFramebufferTexture(t, a, tex.m_id, layer);
 }
 
 void FBO::detach(FBO::Target t, FBO::Attachment a) {
-    GLV(glFramebufferTexture(t, a, 0, 0));
+    glFramebufferTexture(t, a, 0, 0);
 }
 
 bool FBO::is_complete(Target t) {
-    return GL(glCheckFramebufferStatus(t)) == Complete;
+    return glCheckFramebufferStatus(t) == Complete;
 }
 
 GLenum FBO::status(Target t) {
-    return GL(glCheckFramebufferStatus(t));
+    return glCheckFramebufferStatus(t);
 }
 
 } // namespace Engine

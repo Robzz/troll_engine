@@ -6,30 +6,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include "gl_core_3_3.h"
+#include "debug.h"
+#include "mcgyver.h"
 #include "window.h"
-#include "program.h"
 #include "vbo.h"
 #include "vao.h"
+#include "program.h"
 #include "scenegraph.h"
 #include "camera.h"
 #include "texture.h"
 #include "planet.h"
-#include "debug.h"
 #include "obj.h"
 #include "fbo.h"
 #include "image.h"
 #include "transform.h"
-
-// TODO : wrap this in the lib
-// Initialize GLEW and GLFW
-void init_libs(int argc, char** argv) {
-    if (!glfwInit()) {
-        std::cerr << "Error : cannot initialize GLFW" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    glfwSetErrorCallback([] (int error, const char* description) { std::cerr << description << std::endl; });
-}
 
 // Build the shader program used in the project
 typedef std::pair<std::string, Engine::ProgramBuilder::UniformType> UniformDescriptor;
@@ -91,7 +81,7 @@ void bind_input_callbacks(Engine::Window& window, Engine::Camera<Engine::Transfo
 }
 
 int main(int argc, char** argv) {
-    init_libs(argc, argv);
+    Engine::mcgyver_init(argc, argv);
     Engine::Obj obj = Engine::ObjReader().file("assets/buddha_11k.obj").read();
     Engine::Mesh* mesh = obj.get_group("default");
 
@@ -116,6 +106,11 @@ int main(int argc, char** argv) {
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        #ifdef DEBUG
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback(&gl_cb, nullptr);
+        #endif
+
         window.track_fps(false);
         std::cout << window.context_info() << std::endl;
         window.showCursor(false);
@@ -152,7 +147,7 @@ int main(int argc, char** argv) {
 
         window.setResizeCallback([&] (int w, int h) {
             // TODO : wrap the GL call away
-            GLV(glViewport(0, 0, w, h));
+            glViewport(0, 0, w, h);
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
@@ -280,7 +275,7 @@ int main(int argc, char** argv) {
             dynamic_cast<Engine::Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(worldMatrix)));
 
             // TODO : this too
-            GLV(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             scene.render(); });
 
