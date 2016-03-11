@@ -21,8 +21,6 @@
 #include "image.h"
 #include "transform.h"
 
-<<<<<<< HEAD
-=======
 #include "pov.h"
 
 typedef std::pair<std::string, Engine::ProgramBuilder::UniformType> UniformDescriptor;
@@ -42,7 +40,6 @@ void init_libs(int argc, char** argv) {
     glfwSetErrorCallback([] (int error, const char* description) { std::cerr << description << std::endl; });
 }
 
->>>>>>> 87c0fe3... Some progress on image serialization
 // Build the shader program used in the project
 Engine::Program buildShaderProgram(std::string const& vs_file, std::string const& fs_file, std::vector<UniformDescriptor> const& uniforms) {
     std::ifstream fvs(vs_file);
@@ -172,13 +169,8 @@ int main(int argc, char** argv) {
 
         window.setResizeCallback([&] (int w, int h) {
             // TODO : wrap the GL call away
-<<<<<<< HEAD
             glViewport(0, 0, w, h);
             projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
-=======
-            GLV(glViewport(0, 0, w, h));
-            projMatrix = glm::perspective<float>(45, static_cast<float>(w)/static_cast<float>(h), 0.1, 1000);
->>>>>>> 87c0fe3... Some progress on image serialization
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
         });
