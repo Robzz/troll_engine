@@ -6,6 +6,7 @@
 }*/
 
 void APIENTRY gl_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    std::cout << "Got debug message!" << std::endl;
     std::cout << message << std::endl;
 }
 

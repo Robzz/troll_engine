@@ -67,6 +67,10 @@ namespace Engine {
         }
     }
 
+    int Window::get_attribute(int attrib) const {
+        return glfwGetWindowAttrib(m_w, attrib);
+    }
+
     void Window::makeCurrent() {
         glfwMakeContextCurrent(m_w);
     }

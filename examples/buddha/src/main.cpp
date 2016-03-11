@@ -100,16 +100,26 @@ int main(int argc, char** argv) {
         Engine::Window window = wb.size(1280, 720)
                                 .title("Buddha")
                                 .vsync(false)
+                                .debug()
                                 .build();
         if (!window) {
             std::cerr << "Error : cannot create window" << std::endl;
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        if (window.get_attribute(GLFW_OPENGL_DEBUG_CONTEXT))
+        {
+            std::cout << "Debug mode is set" << std::endl;
+        }
+
+        //ogl_CheckExtensions();
         #ifdef DEBUG
+            std::cout << "Enabling debug callback" << std::endl;
             glEnable(GL_DEBUG_OUTPUT);
             glDebugMessageCallback(&gl_cb, nullptr);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
         #endif
+
 
         window.track_fps(false);
         std::cout << window.context_info() << std::endl;

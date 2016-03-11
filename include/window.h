@@ -30,6 +30,8 @@ class Window {
         int width() const;
         int height() const;
 
+        int get_attribute(int attrib) const;
+
         // Register the render loop.
         void setRenderCallback(std::function<void()> f);
 
@@ -94,7 +96,7 @@ class WindowBuilder {
         // Turn vsync on or off
         WindowBuilder& vsync(bool v);
 
-        WindowBuilder& debug(bool dbg);
+        WindowBuilder& debug(bool dbg = true);
 
         // Construct the Window
         Window build() const;
