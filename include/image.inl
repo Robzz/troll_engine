@@ -24,8 +24,8 @@ void Image::save(Archive& ar, const unsigned int version) const {
     std::vector<unsigned char> vec;
     vec.reserve(height * pitch);
     BYTE* bits = FreeImage_GetBits(m_image);
-    int n_bits = height * pitch;
-    for(int i = 0 ; i != n_bits ; ++i) {
+    unsigned int n_bits = height * pitch;
+    for(unsigned int i = 0 ; i != n_bits ; ++i) {
         vec.push_back(bits[i]);
     }
 
@@ -38,5 +38,5 @@ void Image::load(Archive& ar, const unsigned int version) {
     unsigned int width, height, pitch, bpp, red_mask, green_mask, blue_mask;
     std::vector<unsigned char> vec;
     ar & type & width & height & pitch & bpp & red_mask & green_mask & blue_mask & vec;
-    m_image = FreeImage_ConvertFromRawBitsEx(true, vec.data(), type, width, height, pitch, bpp, red_mask, green_mask, blue_mask);
+    m_image = FreeImage_ConvertFromRawBitsEx(true, vec.data(), type, static_cast<int>(width), static_cast<int>(height), static_cast<int>(pitch), bpp, red_mask, green_mask, blue_mask);
 }

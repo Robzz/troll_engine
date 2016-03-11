@@ -1,6 +1,7 @@
 #include "transform.h"
 #include <iostream>
 #include "debug.h"
+#include "utility.h"
 
 namespace Engine {
 
@@ -19,6 +20,7 @@ Direction operator-(Direction d) {
         case Direction::Back:
             return Direction::Front;
     }
+    return UNREACHABLE(Direction::Down);
 }
 
 TransformMat::TransformMat() :

@@ -40,12 +40,7 @@ find_package(Boost 1.58 REQUIRED
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-    #add_definitions(-DGL_TRACE)
     add_definitions(-DDEBUG)
-else()
-    # Silence some expected warnings
-    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w -Wno-old-style-cast")
-    set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_SWIZZLE)
 
@@ -73,27 +68,27 @@ set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_
 
 # Engine sources
 set(MCGYVER_SOURCES
-    src/gl_core_3_3.cpp
-    src/mcgyver.cpp
-    src/window.cpp
-    src/shader.cpp
-    src/program.cpp
-    src/debug.cpp
-    src/vbo.cpp
-    src/vao.cpp
-    src/matrixstack.cpp
-    src/scenegraph.cpp
-    src/input.cpp
-    src/camera.cpp
-    src/texture.cpp
-    src/planet.cpp
-    src/mesh.cpp
-    src/obj.cpp
-    src/attribute.cpp
-    src/fbo.cpp
-    src/image.cpp
-    src/transform.cpp
-    src/utility.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mcgyver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/program.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vbo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vao.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/matrixstack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/scenegraph.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/input.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/planet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/obj.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/attribute.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/fbo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/transform.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utility.cpp
     ${FLEX_obj_lexer_INPUT}
     ${FLEX_obj_lexer_OUTPUTS}
     ${BISON_obj_parser_INPUT}
@@ -101,28 +96,28 @@ set(MCGYVER_SOURCES
 )
 
 set(MCGYVER_HEADERS
-    include/gl_core_3_3.h
-    include/mcgyver.h
-    include/window.h
-    include/shader.h
-    include/program.h
-    include/debug.h
-    include/vbo.h
-    include/vao.h
-    include/matrixstack.h
-    include/scenegraph.h
-    include/input.h
-    include/camera.h
-    include/texture.h
-    include/planet.h
-    include/mesh.h
-    include/obj.h
-    include/obj_lexer.h
-    include/attribute.h
-    include/fbo.h
-    include/image.h
-    include/transform.h
-    include/utility.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mcgyver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/window.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/shader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/program.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/debug.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/vbo.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/vao.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/matrixstack.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/scenegraph.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/input.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/camera.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/texture.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/planet.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mesh.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/obj.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/obj_lexer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/attribute.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/fbo.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/image.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/transform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/utility.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 
@@ -140,6 +135,9 @@ add_dependencies(McGyver move_bison_files generate_gl_loader)
 # Enable C++11 and a proper metric fuckton of extra warnings
 set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
 target_compile_options(McGyver PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
+# Silence some expected warnings
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-sign-conversion -Wno-missing-declarations")
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
 if(MCGYVER_BUILD_EXAMPLES)
     add_subdirectory(examples)

@@ -7,8 +7,9 @@ std::vector<T> FBO::readPixels(Format f, Type t, GLsizei width, GLsizei height, 
         component_size = (t == Ubyte)  ? 1 : 
                          (t == Ushort) ? 2 :
                          (t == Float)  ? 4 : UNREACHABLE(0);
-    std::vector<T> vec(width * height * n_components * component_size, 0);
+    size_t vec_size = static_cast<size_t>(width * height * n_components * component_size);
+    std::vector<T> vec(vec_size, 0);
     glReadPixels(x, y, width, height, f, t, vec.data());
-    assert(vec.size() == (width * height * n_components * component_size));
+    assert(vec.size() == (vec_size));
     return vec;
 }

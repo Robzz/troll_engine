@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
         window.setResizeCallback([&] (int w, int h) {
             // TODO : wrap the GL call away
             glViewport(0, 0, w, h);
-            projMatrix = glm::perspective<float>(45, (float)(w)/(float)(h), 0.1, 1000);
+            projMatrix = glm::perspective<float>(45, static_cast<float>(w)/static_cast<float>(h), 0.1, 1000);
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_phong.getUniform("m_proj"))->set(projMatrix);
             dynamic_cast<Engine::Uniform<glm::mat4>*>(prog_normals.getUniform("m_proj"))->set(projMatrix);
         });

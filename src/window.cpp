@@ -158,7 +158,7 @@ namespace Engine {
                     m_fps = static_cast<float>(m_nFrame) / (t-time);
                     m_nFrame = 0;
                     time = t;
-                    std::cout << "\e[1A\e[2KFPS : " << m_fps << std::endl;
+                    std::cout << "\x1B[1A\x1B[2KFPS : " << m_fps << std::endl;
                 }
             }
         }
