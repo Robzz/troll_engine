@@ -1,19 +1,26 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include "texture.h"
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
 #include <FreeImage.h>
-#include "texture.h"
+
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 namespace Engine {
 
 class Image {
-    public:
+public:
+    friend boost::serialization::access;
+
     /* Default constructor */
-    Image(int width, int height, int bpp);
+    Image(unsigned int width, unsigned int height, unsigned int bpp);
     explicit Image(std::string const& filename);
+    Image();
     /* Destructor */
     virtual ~Image();
 
@@ -24,22 +31,33 @@ class Image {
     /* Assignment operator */
     Image& operator=(Image const& other);
 
-    int width() const;
-    int height() const;
+    unsigned int width() const;
+    unsigned int height() const;
 
     static Image from_rgb(std::vector<unsigned char> vec, int width, int height);
 
     template <class T>
-    static Image from_greyscale(std::vector<T> vec, int width, int height);
+    static Image from_greyscale(std::vector<T> vec, unsigned int width, unsigned int height);
     Texture to_texture() const;
 
     bool save(std::string const& filename, Format f) const;
 
-    private:
+protected:
     explicit Image(FIBITMAP* other);
     FIBITMAP* m_image;
+
+private:
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const;
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
+#include "image.inl"
+
 } // namespace Engine
+
 
 #endif
