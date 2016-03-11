@@ -42,7 +42,7 @@ class Texture {
     void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
 
     template <class T>
-    std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0);
+    std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0) const;
 
     private:
     GLuint m_id;

@@ -35,7 +35,7 @@ void Image::save(Archive& ar, const unsigned int version) const {
 template <class Archive>
 void Image::load(Archive& ar, const unsigned int version) {
     FREE_IMAGE_TYPE type;
-    unsigned int width, height, pitch, bpp, red_mask, green_mask, blue_mask;
+    unsigned int width = 0, height = 0, pitch = 0, bpp = 0, red_mask = 0, green_mask = 0, blue_mask = 0;
     std::vector<unsigned char> vec;
     ar & type & width & height & pitch & bpp & red_mask & green_mask & blue_mask & vec;
     m_image = FreeImage_ConvertFromRawBitsEx(true, vec.data(), type, static_cast<int>(width), static_cast<int>(height), static_cast<int>(pitch), bpp, red_mask, green_mask, blue_mask);

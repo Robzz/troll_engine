@@ -12,7 +12,7 @@
 
 class ObjLexer : public yyFlexLexer {
     public:
-        ObjLexer(std::istream *in) :
+        explicit ObjLexer(std::istream *in) :
             yyFlexLexer(in),
             yylval(nullptr)
         { }
