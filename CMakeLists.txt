@@ -49,10 +49,10 @@ option(MCGYVER_BUILD_EXAMPLES "Build examples" ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Generate parsers and lexers
-flex_target(obj_lexer src/wavefront_obj.l src/obj_lexer.cpp)
-bison_target(obj_parser src/wavefront_obj.ypp src/obj_parser.cpp
+flex_target(obj_lexer ${CMAKE_CURRENT_SOURCE_DIR}/src/wavefront_obj.l ${CMAKE_CURRENT_SOURCE_DIR}/src/obj_lexer.cpp)
+bison_target(obj_parser ${CMAKE_CURRENT_SOURCE_DIR}/src/wavefront_obj.ypp ${CMAKE_CURRENT_SOURCE_DIR}/src/obj_parser.cpp
                 COMPILE_FLAGS "-b include"
-                DEFINES_FILE include/obj_parser.h)
+                DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/obj_parser.h)
 add_flex_bison_dependency(obj_lexer obj_parser)
 
 # Place generated header files in the appropriate dir and clean them correctly
