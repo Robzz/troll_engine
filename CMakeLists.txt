@@ -148,6 +148,8 @@ if(MCGYVER_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
+export(TARGETS McGyver FILE mcgyver-exports.cmake)
+
 # Archive target
 set(ARCHIVE_FILES
     include
