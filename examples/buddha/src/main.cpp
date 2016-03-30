@@ -254,11 +254,11 @@ int main(int argc, char** argv) {
         fbo.attach(Engine::FBO::Read, Engine::FBO::Color, colorTex);
         std::vector<unsigned char> color(Engine::FBO::readPixels<unsigned char>(Engine::FBO::Bgr, Engine::FBO::Ubyte, window.width(), window.height()));
 
-        Engine::Image colorImg(Engine::Image::from_rgb(color, window.height(), window.width()));
+        Engine::Image colorImg(Engine::Image::from_rgb(color, window.width(), window.height()));
         Engine::Image depthImg(Engine::Image::from_greyscale<unsigned char>(Engine::FBO::readPixels<unsigned char>(Engine::FBO::DepthComponent, Engine::FBO::Ubyte, window.width(), window.height()),
-                               window.height(), window.width()));
-        colorImg.save("colorTex.bmp", Engine::Image::Format::Bmp);
-        depthImg.save("depthTex.bmp", Engine::Image::Format::Bmp);
+                               window.width(), window.height()));
+        colorImg.save("colorTex.bmp", Engine::Image::Format::BmpRle);
+        depthImg.save("depthTex.bmp", Engine::Image::Format::BmpRle);
 
         fbo.attach(Engine::FBO::Draw, Engine::FBO::Color, normalTex);
         current_prog = &prog_normals;
@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
         fbo.attach(Engine::FBO::Read, Engine::FBO::Color, normalTex);
         std::vector<unsigned char> normal(Engine::FBO::readPixels<unsigned char>(Engine::FBO::Bgr, Engine::FBO::Ubyte, window.width(), window.height()));
 
-        Engine::Image normalImg(Engine::Image::from_rgb(normal, 1280, 720));
+        Engine::Image normalImg(Engine::Image::from_rgb(normal, window.width(), window.height()));
         normalImg.save("normalTex.bmp", Engine::Image::Format::BmpRle);
 
         Viewpoint pov(colorImg, depthImg, normalImg);
