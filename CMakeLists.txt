@@ -61,7 +61,9 @@ add_custom_target(move_bison_files
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/stack.hh
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/src/stack.hh ${CMAKE_CURRENT_SOURCE_DIR}/include)
 get_directory_property(TEMP DIRECTORY ${CMAKE_HOME_DIRECTORY} ADDITIONAL_MAKE_CLEAN_FILES)
-set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES ${TEMP} include/stack.hh glloadgen)
+set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP}\
+                                                               include/stack.hh\
+                                                               glloadgen")
 
 # Silence warnings in Flex and Bison files
 set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
