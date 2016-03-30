@@ -44,7 +44,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
 endif()
 add_definitions(-DGLM_SWIZZLE)
 
-option(MCGYVER_BUILD_EXAMPLES "Build examples" ON)
+option(MCGYVER_BUILD_EXAMPLES "Build examples" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -97,35 +97,38 @@ set(MCGYVER_SOURCES
     ${BISON_obj_parser_OUTPUT_SOURCE}
 )
 
+set(mcgyver_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 set(MCGYVER_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/gl_core_3_3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/mcgyver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/window.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/shader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/program.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/debug.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/vbo.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/vao.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/matrixstack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/scenegraph.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/input.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/camera.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/texture.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/planet.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/mesh.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/obj.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/obj_lexer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/attribute.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/fbo.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/image.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/transform.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/utility.h
+    ${mcgyver_include_dir}/gl_core_3_3.h
+    ${mcgyver_include_dir}/mcgyver.h
+    ${mcgyver_include_dir}/window.h
+    ${mcgyver_include_dir}/shader.h
+    ${mcgyver_include_dir}/program.h
+    ${mcgyver_include_dir}/debug.h
+    ${mcgyver_include_dir}/vbo.h
+    ${mcgyver_include_dir}/vao.h
+    ${mcgyver_include_dir}/matrixstack.h
+    ${mcgyver_include_dir}/scenegraph.h
+    ${mcgyver_include_dir}/input.h
+    ${mcgyver_include_dir}/camera.h
+    ${mcgyver_include_dir}/texture.h
+    ${mcgyver_include_dir}/planet.h
+    ${mcgyver_include_dir}/mesh.h
+    ${mcgyver_include_dir}/obj.h
+    ${mcgyver_include_dir}/obj_lexer.h
+    ${mcgyver_include_dir}/attribute.h
+    ${mcgyver_include_dir}/fbo.h
+    ${mcgyver_include_dir}/image.h
+    ${mcgyver_include_dir}/transform.h
+    ${mcgyver_include_dir}/utility.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
 include_directories("${MCGYVER_SOURCE_DIR}/include"
-                    ${GLFW_INCLUDE_DIRS})
+                    "${Boost_INCLUDE_DIRS}"
+                    "${GLFW_INCLUDE_DIRS}")
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
 
