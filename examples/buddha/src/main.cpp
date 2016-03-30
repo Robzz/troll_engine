@@ -132,6 +132,11 @@ int main(int argc, char** argv) {
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
         #endif
 
+        FreeImage_SetOutputMessage([] (FREE_IMAGE_FORMAT fif, const char *message) {
+                if(fif != FIF_UNKNOWN) {
+                std::cerr << "Format : " << FreeImage_GetFormatFromFIF(fif) << std::endl;
+                }
+                std::cerr << (message) << std::endl; });
 
         window.track_fps(false);
         std::cout << window.context_info() << std::endl;
@@ -223,8 +228,6 @@ int main(int argc, char** argv) {
         // Install input callbacks
         bind_input_callbacks(window, camera, worldTransform);
 
-        
-
         // Setup render to texture
         Engine::Texture colorTex, depthTex, normalTex;
         colorTex.texData (GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, window.width(), window.height(), nullptr);
@@ -241,7 +244,6 @@ int main(int argc, char** argv) {
         assert(Engine::FBO::is_complete(Engine::FBO::Draw));
 
         // Do render to texture
-        
         current_prog->use();
         dynamic_cast<Engine::Uniform<glm::mat4>*>(current_prog->getUniform("m_camera"))->set(camera.world_to_camera());
         dynamic_cast<Engine::Uniform<glm::mat3>*>(current_prog->getUniform("m_normalTransform"))->set(glm::inverseTranspose(glm::mat3(1)));
@@ -252,8 +254,11 @@ int main(int argc, char** argv) {
         fbo.attach(Engine::FBO::Read, Engine::FBO::Color, colorTex);
         std::vector<unsigned char> color(Engine::FBO::readPixels<unsigned char>(Engine::FBO::Bgr, Engine::FBO::Ubyte, window.width(), window.height()));
 
-        Engine::Image colorImg(Engine::Image::from_rgb(color, 1280, 720));
+        Engine::Image colorImg(Engine::Image::from_rgb(color, window.height(), window.width()));
+        Engine::Image depthImg(Engine::Image::from_greyscale<unsigned char>(Engine::FBO::readPixels<unsigned char>(Engine::FBO::DepthComponent, Engine::FBO::Ubyte, window.width(), window.height()),
+                               window.height(), window.width()));
         colorImg.save("colorTex.bmp", Engine::Image::Format::Bmp);
+        depthImg.save("depthTex.bmp", Engine::Image::Format::Bmp);
 
         fbo.attach(Engine::FBO::Draw, Engine::FBO::Color, normalTex);
         current_prog = &prog_normals;
@@ -270,6 +275,8 @@ int main(int argc, char** argv) {
 
         Engine::Image normalImg(Engine::Image::from_rgb(normal, 1280, 720));
         normalImg.save("normalTex.bmp", Engine::Image::Format::BmpRle);
+
+        Viewpoint pov(colorImg, depthImg, normalImg);
         
         Engine::FBO::bind_default(Engine::FBO::Both);
         current_prog = &prog_phong;
@@ -283,25 +290,19 @@ int main(int argc, char** argv) {
             std::ofstream outFile;
             outFile.open("img_archive", std::ios::out | std::ios::trunc | std::ios::binary);
             boost::archive::binary_oarchive ar(outFile);
-            ar << teximg1;
+            ar & pov;
         }
         {
             std::ifstream inFile;
             inFile.open("img_archive", std::ios::in | std::ios::binary);
             boost::archive::binary_iarchive ar(inFile);
-            Engine::Image loaded_archive_img;
-            ar >> loaded_archive_img;
-            loaded_archive_img.save("colorTex-serialized.bmp", Engine::Image::Format::BmpRle);
+            Viewpoint loaded_archive_img;
+            ar & loaded_archive_img;
         }
 
-
-
-        FreeImage_SetOutputMessage([] (FREE_IMAGE_FORMAT fif, const char *message) {
-                if(fif != FIF_UNKNOWN) {
-                std::cerr << "Format : " << FreeImage_GetFormatFromFIF(fif) << std::endl;
-                }
-                std::cerr << (message) << std::endl; });
-
+        pov.color() .save("colorTex-serialized.bmp",  Engine::Image::Format::BmpRle);
+        pov.depth() .save("depthTex-serialized.bmp",  Engine::Image::Format::BmpRle);
+        pov.normal().save("normalTex-serialized.bmp", Engine::Image::Format::BmpRle);
 
         // Finally, the render function
         window.setRenderCallback([&] () {
