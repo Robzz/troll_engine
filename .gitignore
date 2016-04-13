@@ -2,7 +2,7 @@
 .vimrc
 CMakeCache.txt
 CMakeFiles
-cmake_install.cmake
+*.cmake
 Makefile
 doc/
 bin/
