@@ -35,9 +35,6 @@ find_library(FREEIMAGE_LIBRARY freeimage)
 if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
     message(FATAL_ERROR "libfreeimage not found.")
 endif()
-find_package(Boost 1.58 REQUIRED
-             COMPONENTS serialization
-)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     add_definitions(-DDEBUG)
@@ -98,7 +95,6 @@ set(MCGYVER_SOURCES
 )
 
 set(mcgyver_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 set(MCGYVER_HEADERS
     ${mcgyver_include_dir}/gl_core_3_3.h
     ${mcgyver_include_dir}/mcgyver.h
@@ -126,8 +122,7 @@ set(MCGYVER_HEADERS
 )
 
 add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
-include_directories("${MCGYVER_SOURCE_DIR}/include"
-                    "${Boost_INCLUDE_DIRS}"
+include_directories("${mcgyver_include_dir}"
                     "${GLFW_INCLUDE_DIRS}")
 
 set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
