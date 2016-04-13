@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(MCGYVER CXX)
+project(TROLL CXX)
 include(ExternalProject)
 
 ExternalProject_Add(
@@ -41,7 +41,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
 endif()
 add_definitions(-DGLM_SWIZZLE)
 
-option(MCGYVER_BUILD_EXAMPLES "Build examples" OFF)
+option(TROLL_BUILD_EXAMPLES "Build examples" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -66,9 +66,9 @@ set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP}\
 set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
 
 # Engine sources
-set(MCGYVER_SOURCES
+set(TROLL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mcgyver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/troll_engine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/program.cpp
@@ -94,56 +94,56 @@ set(MCGYVER_SOURCES
     ${BISON_obj_parser_OUTPUT_SOURCE}
 )
 
-set(mcgyver_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(MCGYVER_HEADERS
-    ${mcgyver_include_dir}/gl_core_3_3.h
-    ${mcgyver_include_dir}/mcgyver.h
-    ${mcgyver_include_dir}/window.h
-    ${mcgyver_include_dir}/shader.h
-    ${mcgyver_include_dir}/program.h
-    ${mcgyver_include_dir}/debug.h
-    ${mcgyver_include_dir}/vbo.h
-    ${mcgyver_include_dir}/vao.h
-    ${mcgyver_include_dir}/matrixstack.h
-    ${mcgyver_include_dir}/scenegraph.h
-    ${mcgyver_include_dir}/input.h
-    ${mcgyver_include_dir}/camera.h
-    ${mcgyver_include_dir}/texture.h
-    ${mcgyver_include_dir}/planet.h
-    ${mcgyver_include_dir}/mesh.h
-    ${mcgyver_include_dir}/obj.h
-    ${mcgyver_include_dir}/obj_lexer.h
-    ${mcgyver_include_dir}/attribute.h
-    ${mcgyver_include_dir}/fbo.h
-    ${mcgyver_include_dir}/image.h
-    ${mcgyver_include_dir}/transform.h
-    ${mcgyver_include_dir}/utility.h
+set(troll_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(TROLL_HEADERS
+    ${troll_include_dir}/gl_core_3_3.h
+    ${troll_include_dir}/troll_engine.h
+    ${troll_include_dir}/window.h
+    ${troll_include_dir}/shader.h
+    ${troll_include_dir}/program.h
+    ${troll_include_dir}/debug.h
+    ${troll_include_dir}/vbo.h
+    ${troll_include_dir}/vao.h
+    ${troll_include_dir}/matrixstack.h
+    ${troll_include_dir}/scenegraph.h
+    ${troll_include_dir}/input.h
+    ${troll_include_dir}/camera.h
+    ${troll_include_dir}/texture.h
+    ${troll_include_dir}/planet.h
+    ${troll_include_dir}/mesh.h
+    ${troll_include_dir}/obj.h
+    ${troll_include_dir}/obj_lexer.h
+    ${troll_include_dir}/attribute.h
+    ${troll_include_dir}/fbo.h
+    ${troll_include_dir}/image.h
+    ${troll_include_dir}/transform.h
+    ${troll_include_dir}/utility.h
     ${BISON_obj_parser_OUTPUT_HEADER}
 )
 
-add_library(McGyver STATIC ${MCGYVER_SOURCES} ${MCGYVER_HEADERS})
-include_directories("${mcgyver_include_dir}"
+add_library(TrollEngine STATIC ${TROLL_SOURCES} ${TROLL_HEADERS})
+include_directories("${troll_include_dir}"
                     "${GLFW_INCLUDE_DIRS}")
 
-set_target_properties(McGyver PROPERTIES OUTPUT_NAME mcgyver)
+set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(MCGYVER_LIBRARIES ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES})
-target_link_libraries(McGyver ${MCGYVER_LIBRARIES})
+set(TROLL_LIBRARIES ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
-add_dependencies(McGyver move_bison_files generate_gl_loader)
+add_dependencies(TrollEngine move_bison_files generate_gl_loader)
 
 # Enable C++11 and a proper metric fuckton of extra warnings
-set_property(TARGET McGyver PROPERTY CXX_STANDARD 11)
-target_compile_options(McGyver PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
+set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 11)
+target_compile_options(TrollEngine PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
 # Silence some expected warnings
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-sign-conversion -Wno-missing-declarations")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
-if(MCGYVER_BUILD_EXAMPLES)
+if(TROLL_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-export(TARGETS McGyver FILE mcgyver-exports.cmake)
+export(TARGETS TrollEngine FILE troll-exports.cmake)
 
 # Archive target
 set(ARCHIVE_FILES
@@ -156,6 +156,6 @@ set(ARCHIVE_FILES
     CMakeLists.txt
 )
 
-add_custom_command(OUTPUT mcgyver.tar.xz
-    COMMAND tar -acf mcgyver.tar.xz ${ARCHIVE_FILES})
-add_custom_target(archive DEPENDS mcgyver.tar.xz)
+add_custom_command(OUTPUT troll_engine.tar.xz
+    COMMAND tar -acf troll_engine.tar.xz ${ARCHIVE_FILES})
+add_custom_target(archive DEPENDS troll_engine.tar.xz)

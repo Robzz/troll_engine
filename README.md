@@ -20,6 +20,7 @@ The build system is based on CMake.
   soon)
 * Mercurial (used by the build system to fetch other dependencies not usually bundled
   in distributions)
+* Lua 5.1
 
 ## Hardware requirements
 
