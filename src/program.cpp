@@ -2,6 +2,7 @@
 #include "debug.h"
 
 #include <algorithm>
+#include <sstream>
 
 namespace Engine {
 
@@ -49,13 +50,22 @@ bool Program::operator !() const {
 
 
 std::string Program::info_log() const {
+    std::ostringstream oss;
     GLint log_length;
     glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length);
-    GLchar* buf = new GLchar[log_length];
-    glGetProgramInfoLog(m_id, log_length, NULL, buf);
-    std::string log(buf);
-    delete[] buf;
-    return log;
+    if(log_length > 0) {
+        GLchar* buf = new GLchar[log_length];
+        glGetProgramInfoLog(m_id, log_length, NULL, buf);
+        delete[] buf;
+    }
+    else {
+        for(auto& it: m_uniforms) {
+            if(!(*it)) {
+                oss << "Uniform " << it->name() << " not found." << std::endl;
+            }
+        }
+    }
+    return oss.str();
 }
 
 void Program::use() {
