@@ -3,7 +3,7 @@
 
 namespace Engine {
 
-void mcgyver_init(int argc, char** argv);
+void engine_init(int argc, char** argv);
 
 }
 

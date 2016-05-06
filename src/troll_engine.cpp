@@ -6,10 +6,9 @@
 
 namespace Engine {
 
-void mcgyver_init(int argc, char** argv) {
-	if (!glfwInit()) {
-        std::cerr << "Error : cannot initialize GLFW" << std::endl;
-        exit(EXIT_FAILURE);
+void engine_init(int argc, char** argv) {
+    if (!glfwInit()) {
+        throw std::runtime_error("Cannot initialize GLFW");
     }
     glfwSetErrorCallback([] (int error, const char* description) { std::cerr << description << std::endl; });
 }

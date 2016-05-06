@@ -38,6 +38,7 @@ class Texture {
 
     static Texture from_image(std::string const& filename);
 
+    // TODO : should that be const?
     void filtering(Filters filters, Filter f);
     void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
 
