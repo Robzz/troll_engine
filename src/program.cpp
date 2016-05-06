@@ -58,13 +58,11 @@ std::string Program::info_log() const {
         glGetProgramInfoLog(m_id, log_length, NULL, buf);
         delete[] buf;
     }
-    else {
-        for(auto& it: m_uniforms) {
-            if(!(*it)) {
-                oss << "Uniform " << it->name() << " not found." << std::endl;
-            }
+    for(auto& it: m_uniforms) {
+        if(!(*it)) {
+            oss << "Uniform " << it->name() << " not found." << std::endl;
         }
-    }
+        }
     return oss.str();
 }
 
