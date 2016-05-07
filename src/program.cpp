@@ -41,7 +41,9 @@ Program::~Program() {
 Program::operator bool() const {
     GLint link_status = 1;
     glGetProgramiv(m_id, GL_LINK_STATUS, &link_status);
-    return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
+    return link_status;
+    // TODO : find a less ass busting way to check this sh*t (driver optimizations and other crap)
+    //return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
 }
 
 bool Program::operator !() const {
