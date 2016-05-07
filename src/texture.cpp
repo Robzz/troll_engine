@@ -51,14 +51,6 @@ Texture Texture::noTexture() {
     return Texture(0);
 }
 
-Texture Texture::from_image(std::string const& filename) {
-    Texture tex;
-    tex.bind(Tex2D);
-    //image::Bitmap img(image::Bitmap::readFile(filename));
-    //tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, img.width(), img.height(), img.data().data());
-    return tex;
-}
-
 void Texture::texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data) {
     glBindTexture(Tex2D, m_id);
     glTexImage2D(Tex2D, 0, internalFormat, width, height, 0, format, type, data);

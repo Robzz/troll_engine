@@ -8,6 +8,9 @@
 
 namespace Engine {
 
+// TODO : solve "ownership" issues (i.e. what Texture object owns the texture?)
+// Passing pointers around is always error prone, find a better way
+
 class Texture {
     friend class FBO;
 
@@ -35,8 +38,6 @@ class Texture {
     void bind(Target target = Tex2D) const;
     static void unbind(Target target = Tex2D);
     static Texture noTexture();
-
-    static Texture from_image(std::string const& filename);
 
     // TODO : should that be const?
     void filtering(Filters filters, Filter f);
