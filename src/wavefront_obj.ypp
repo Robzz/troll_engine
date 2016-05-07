@@ -89,7 +89,7 @@ index: INT {
         $$ = ($1 <= 0) ? $1 : $1 - 1;
 }
 
-coord: FLOAT { DBG(std::cout << "Bison : float coord " << $1 << std::endl;) $$ = $1; }
+coord: FLOAT { $$ = $1; }
        | INT { $$ = static_cast<float>($1); }
 
 obj_line: mtllib_spec
@@ -111,16 +111,13 @@ file_list: IDENT
            | file_list IDENT 
 
 normal_spec: NORMAL coord coord coord {
-        DBG(std::cout << "Bison : normal vec3" << std::endl;)
         reader.add_normal(glm::vec3($2, $3, $4));
 }
 
 vertex_spec: VERTEX coord coord coord { 
-        DBG(std::cout << "Bison : vec3" << std::endl;)
         reader.add_vertex(glm::vec3($2, $3, $4));
  }
              | VERTEX coord coord coord coord {
-        DBG(std::cout << "Bison : vec4" << std::endl;)
         reader.add_vertex(glm::vec4($2, $3, $4, $5));
  }
 
@@ -133,7 +130,6 @@ face_spec: FACE vertex_index vertex_index vertex_index {
         reader.add_face(f);
 }
            | FACE vertex_index_uv vertex_index_uv vertex_index_uv {
-        DBG(std::cout << "Bison : face (vertex indices and uvs)" << std::endl;)
         Face f;
         f.v1 = IndexUvNormal($2.index, $2.uv, 0);
         f.v2 = IndexUvNormal($3.index, $3.uv, 0);
@@ -141,7 +137,6 @@ face_spec: FACE vertex_index vertex_index vertex_index {
         reader.add_face(f);
 }
            | FACE vertex_index_uv_normal vertex_index_uv_normal vertex_index_uv_normal {
-        DBG(std::cout << "Bison : face (vertex indices, uvs and normals)" << std::endl;)
         Face f;
         f.v1 = IndexUvNormal($2.index, $2.uv, $2.normal);
         f.v2 = IndexUvNormal($3.index, $3.uv, $3.normal);
@@ -149,7 +144,6 @@ face_spec: FACE vertex_index vertex_index vertex_index {
         reader.add_face(f);
 }
            | FACE vertex_index_normal vertex_index_normal vertex_index_normal {
-        DBG(std::cout << "Bison : face (vertex indices ans normals)" << std::endl;)
         Face f;
         f.v1 = IndexUvNormal($2.index, 0, $2.normal);
         f.v2 = IndexUvNormal($3.index, 0, $3.normal);
@@ -183,8 +177,8 @@ vertex_index_normal: vertex_index SLASH SLASH index {
 
 group_spec: GROUP IDENT { DBG(std::cout << "Bison : group" << std::endl;) }
 
-smoothing_spec: SMOOTH index { DBG(std::cout << "Bison : smoothing" << std::endl;) }
-                | SMOOTH IDENT { DBG(std::cout << "Bison : smoothing off?" << std::endl;) }
+smoothing_spec: SMOOTH index { }
+                | SMOOTH IDENT { }
 
 %%
 
