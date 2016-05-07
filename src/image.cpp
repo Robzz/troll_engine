@@ -62,12 +62,16 @@ Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height) {
 
 Texture Image::to_texture() const {
     Texture tex;
+    unsigned char* buf = nullptr;
     switch(FreeImage_GetBPP(m_image)) {
         case 24:
-            unsigned char* buf = new unsigned char[width() * height() * 3];
+            buf = new unsigned char[width() * height() * 3];
             FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width()) * 3, 24u, 0xFF000000, 0x00FF0000, 0x0000FF00);
             tex.texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(width()), static_cast<int>(height()), buf);
             delete[] buf;
+            break;
+        default:
+            std::abort();
             break;
     }
     return tex;
