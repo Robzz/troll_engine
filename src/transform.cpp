@@ -87,7 +87,6 @@ void TransformEuler::rotate_local(Axis axis, float angle) {
             m_orientation.z += angle;
             break;
     }
-    std::cout << "Euler angles : " << m_orientation << std::endl;
 }
 
 glm::mat4 TransformEuler::matrix() const {
