@@ -39,6 +39,7 @@ public:
     template <class T>
     static Image from_greyscale(std::vector<T> vec, unsigned int width, unsigned int height);
     Texture to_texture() const;
+    Texture to_depth_texture() const;
 
     bool save(std::string const& filename, Format f) const;
 

@@ -71,9 +71,19 @@ Texture Image::to_texture() const {
             delete[] buf;
             break;
         default:
-            std::abort();
+            throw std::runtime_error("Image bpp is not 24 bits");
             break;
     }
+    return tex;
+}
+
+Texture Image::to_depth_texture() const {
+    Texture tex;
+    unsigned char* buf = new unsigned char[width() * height()];
+    unsigned int bpp = FreeImage_GetBPP(m_image);
+    FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width() * bpp / 8), bpp, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
+    tex.texData(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, (bpp == 8) ? 8 : (bpp == 16) ? 16 : UNREACHABLE(0u), static_cast<int>(width()), static_cast<int>(height()), buf);
+    delete[] buf;
     return tex;
 }
 
