@@ -82,7 +82,7 @@ Texture Image::to_depth_texture() const {
     unsigned char* buf = new unsigned char[width() * height()];
     unsigned int bpp = FreeImage_GetBPP(m_image);
     FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width() * bpp / 8), bpp, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
-    tex.texData(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, (bpp == 8) ? 8 : (bpp == 16) ? 16 : UNREACHABLE(0u), static_cast<int>(width()), static_cast<int>(height()), buf);
+    tex.texData(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, (bpp == 8) ? GL_UNSIGNED_BYTE : (bpp == 16) ? GL_UNSIGNED_SHORT : UNREACHABLE(0u), static_cast<int>(width()), static_cast<int>(height()), buf);
     delete[] buf;
     return tex;
 }
