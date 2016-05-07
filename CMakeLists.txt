@@ -80,7 +80,6 @@ set(TROLL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/input.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/texture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/planet.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mesh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/obj.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/attribute.cpp
@@ -109,7 +108,6 @@ set(TROLL_HEADERS
     ${troll_include_dir}/input.h
     ${troll_include_dir}/camera.h
     ${troll_include_dir}/texture.h
-    ${troll_include_dir}/planet.h
     ${troll_include_dir}/mesh.h
     ${troll_include_dir}/obj.h
     ${troll_include_dir}/obj_lexer.h

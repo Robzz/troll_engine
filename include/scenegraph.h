@@ -86,20 +86,21 @@ class SceneGraph : public Node {
 class DrawableNode : public Node {
     public:
     /* Default constructor */
-    DrawableNode(glm::mat4 const& position, Texture const& tex);
+    DrawableNode(glm::mat4 const& position, Texture const* tex = nullptr);
     
     /* Render the node */
     virtual void draw(glm::mat4 const& m) = 0;
+    void set_texture(Texture const* tex = nullptr);
 
     protected:
-    Texture const& m_tex;
+    Texture const* m_tex;
 };
 
 /* Drawable object with its own geometry, rendered with array rendering. */
 class Object : public DrawableNode {
     public:
         Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
-               Texture const& tex = Texture::noTexture(), GLenum primitiveMode = GL_TRIANGLES);
+               Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
@@ -117,7 +118,7 @@ class Object : public DrawableNode {
 class IndexedObject : public DrawableNode {
     public:
         IndexedObject(glm::mat4 const& position, Program* p, VBO* ebo, VAO* vao, int nVertices,
-                      Texture const& tex = Texture::noTexture(), GLenum indexType = GL_UNSIGNED_SHORT,
+                      Texture const* tex = nullptr, GLenum indexType = GL_UNSIGNED_SHORT,
                       GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
         virtual void draw(glm::mat4 const& m);
