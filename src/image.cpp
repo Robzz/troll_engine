@@ -92,14 +92,14 @@ Texture* Image::to_texture() const {
 Texture* Image::to_depth_texture() const {
     Texture* tex = new Texture();
     unsigned int bpp = FreeImage_GetBPP(m_image);
-    if(bpp != 8 && bpp != 16 && bpp != 24 && bpp != 32) {
-        throw std::runtime_error("Unknown bit depth");
+    if(bpp != 16 || FreeImage_GetImageType(m_image) != FIT_UINT16) {
+        throw std::runtime_error("Incompatible bit depth (must be 16bit greyscale)");
     }
     std::vector<unsigned short> v;
     for(unsigned int i = 0 ; i != height() ; ++i) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(m_image, i));
         for(unsigned int j = 0 ; j != width() ; ++j)
-            v.push_back(scanline[i*width() + j]);
+            v.push_back(scanline[j]);
     }
     tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, static_cast<int>(width()), static_cast<int>(height()), v.data());
     return tex;
