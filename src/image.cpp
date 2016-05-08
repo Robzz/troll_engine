@@ -60,13 +60,12 @@ Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height) {
     return img;
 }
 
-Texture* Image::to_texture(bool flip) const {
+Texture* Image::to_texture() const {
     Texture* tex = new Texture();
     unsigned char* buf = nullptr;
     switch(FreeImage_GetBPP(m_image)) {
         case 24:
-            buf = new unsigned char[width() * height() * 3];
-            FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width()) * 3, 24u, 0xFF000000, 0x00FF0000, 0x0000FF00, flip);
+            buf = reinterpret_cast<unsigned char*>(FreeImage_GetBits(m_image));
             tex->texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(width()), static_cast<int>(height()), buf);
             delete[] buf;
             break;
@@ -77,11 +76,11 @@ Texture* Image::to_texture(bool flip) const {
     return tex;
 }
 
-Texture* Image::to_depth_texture(bool flip) const {
+Texture* Image::to_depth_texture() const {
     Texture* tex = new Texture();
     unsigned int bpp = FreeImage_GetBPP(m_image);
     unsigned char* buf = new unsigned char[width() * height() * bpp/8];
-    FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width() * bpp / 8), bpp, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, flip);
+    FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width() * bpp / 8), bpp, 0, 0, 0);
     tex->texData(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, (bpp == 8) ? GL_UNSIGNED_BYTE : (bpp == 16) ? GL_UNSIGNED_SHORT : UNREACHABLE(0u), static_cast<int>(width()), static_cast<int>(height()), buf);
     delete[] buf;
     return tex;
