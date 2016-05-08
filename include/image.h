@@ -34,9 +34,9 @@ public:
     unsigned int width() const;
     unsigned int height() const;
 
-    static Image from_rgb(std::vector<unsigned char> vec, int width, int height);
+    static Image from_rgb(std::vector<unsigned char> vec, int width, int height, bool flip = false);
+    static Image from_greyscale(std::vector<unsigned short> vec, int width, int height, bool flip = false);
 
-    static Image from_greyscale(std::vector<unsigned short> vec, unsigned int width, unsigned int height);
     Texture* to_texture() const;
     Texture* to_depth_texture() const;
 

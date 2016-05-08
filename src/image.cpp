@@ -55,19 +55,21 @@ unsigned int Image::height() const {
     return FreeImage_GetHeight(m_image);
 }
 
-Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height) {
+Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height, bool flip) {
     assert(vec.size() == (static_cast<unsigned int>(width * height) * 3u));
-    Image img(FreeImage_ConvertFromRawBits(vec.data(), width, height, width * 3, 24u, 0xFF000000, 0x00FF0000, 0x0000FF00));
+    Image img(FreeImage_ConvertFromRawBits(vec.data(), width, height, width * 3, 24u, 0xFF000000, 0x00FF0000, 0x0000FF00, flip));
     return img;
 }
 
-Image Image::from_greyscale(std::vector<unsigned short> vec, unsigned int width, unsigned int height) {
-    assert(vec.size() == width * height * 2);
+Image Image::from_greyscale(std::vector<unsigned short> vec, int width, int height, bool flip) {
+    assert(vec.size() == static_cast<size_t>(width * height * 2));
     FIBITMAP* img = FreeImage_AllocateT(FIT_UINT16, width, height, 16);
-    for(unsigned int i = 0 ; i != height ; ++i) {
+    int scanline_iter = flip? height-1 : 0,
+        scanline_iter_incr = flip? -1 : 1;
+    for(int i = 0 ; i != height ; ++i, scanline_iter += scanline_iter_incr) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(img, i));
-        for(unsigned int j = 0 ; j != width ; ++j)
-            scanline[j] = vec[i*width + j];
+        for(int j = 0 ; j != width ; ++j)
+            scanline[j] = vec[static_cast<size_t>(scanline_iter*width + j)];
     }
 
     Image i(img);
