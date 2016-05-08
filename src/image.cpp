@@ -67,7 +67,6 @@ Texture* Image::to_texture() const {
         case 24:
             buf = reinterpret_cast<unsigned char*>(FreeImage_GetBits(m_image));
             tex->texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(width()), static_cast<int>(height()), buf);
-            delete[] buf;
             break;
         default:
             throw std::runtime_error("Image bpp is not 24 bits");
