@@ -78,10 +78,19 @@ Texture* Image::to_texture() const {
 Texture* Image::to_depth_texture() const {
     Texture* tex = new Texture();
     unsigned int bpp = FreeImage_GetBPP(m_image);
-    unsigned char* buf = new unsigned char[width() * height() * bpp/8];
-    FreeImage_ConvertToRawBits(buf, m_image, static_cast<int>(width() * bpp / 8), bpp, 0, 0, 0);
-    tex->texData(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, (bpp == 8) ? GL_UNSIGNED_BYTE : (bpp == 16) ? GL_UNSIGNED_SHORT : UNREACHABLE(0u), static_cast<int>(width()), static_cast<int>(height()), buf);
-    delete[] buf;
+    if(bpp != 8 && bpp != 16 && bpp != 24 && bpp != 32) {
+        throw std::runtime_error("Unknown bit depth");
+    }
+    unsigned char* buf = reinterpret_cast<unsigned char*>(FreeImage_GetBits(m_image));
+    GLint internal_format = (bpp == 8 ) ? GL_DEPTH_COMPONENT :
+                            (bpp == 16) ? GL_DEPTH_COMPONENT16 :
+                            (bpp == 24) ? GL_DEPTH_COMPONENT24 :
+                            (bpp == 32) ? GL_DEPTH_COMPONENT32 : UNREACHABLE(0);
+    GLenum type = (bpp == 8 ) ? GL_UNSIGNED_BYTE :
+                  (bpp == 16) ? GL_UNSIGNED_SHORT :
+                  //(bpp == 24) ? GL_DEPTH_COMPONENT24 : What to do here?
+                  (bpp == 32) ? GL_UNSIGNED_INT : UNREACHABLE(0u);
+    tex->texData(internal_format, GL_DEPTH_COMPONENT, type, static_cast<int>(width()), static_cast<int>(height()), buf);
     return tex;
 }
 
