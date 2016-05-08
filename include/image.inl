@@ -1,15 +1,3 @@
-template <class T>
-Image Image::from_greyscale(std::vector<T> vec, unsigned int width, unsigned int height) {
-    assert(vec.size() == (width * height * sizeof(T)));
-    Image img(FreeImage_ConvertFromRawBits(reinterpret_cast<unsigned char*>(vec.data()), width, height, width*sizeof(T), sizeof(T)*8, 0, 0, 0));
-
-    FIBITMAP* img8 = FreeImage_ConvertToGreyscale(img.m_image);
-    FreeImage_Unload(img.m_image);
-    img.m_image = img8;
-
-    return img;
-}
-
 template <class Archive>
 void Image::save(Archive& ar, const unsigned int version) const {
     FREE_IMAGE_TYPE type = FreeImage_GetImageType(m_image);

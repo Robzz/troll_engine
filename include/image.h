@@ -36,8 +36,7 @@ public:
 
     static Image from_rgb(std::vector<unsigned char> vec, int width, int height);
 
-    template <class T>
-    static Image from_greyscale(std::vector<T> vec, unsigned int width, unsigned int height);
+    static Image from_greyscale(std::vector<unsigned short> vec, unsigned int width, unsigned int height);
     Texture* to_texture() const;
     Texture* to_depth_texture() const;
 

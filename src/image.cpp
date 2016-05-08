@@ -60,6 +60,20 @@ Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height) {
     return img;
 }
 
+Image Image::from_greyscale(std::vector<unsigned short> vec, unsigned int width, unsigned int height) {
+    assert(vec.size() == width * height * 2);
+    FIBITMAP* img = FreeImage_AllocateT(FIT_UINT16, width, height, 16);
+    for(unsigned int i = 0 ; i != height ; ++i) {
+        unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(img, i));
+        for(unsigned int j = 0 ; j != width ; ++j)
+            scanline[j] = vec[i*width + j];
+    }
+
+    Image i(img);
+
+    return i;
+}
+
 Texture* Image::to_texture() const {
     Texture* tex = new Texture();
     unsigned char* buf = nullptr;
