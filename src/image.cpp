@@ -91,8 +91,7 @@ Texture* Image::to_texture() const {
 
 Texture* Image::to_depth_texture() const {
     Texture* tex = new Texture();
-    unsigned int bpp = FreeImage_GetBPP(m_image);
-    if(bpp != 16 || FreeImage_GetImageType(m_image) != FIT_UINT16) {
+    if(FreeImage_GetBPP(m_image) != 16 || FreeImage_GetImageType(m_image) != FIT_UINT16) {
         throw std::runtime_error("Incompatible bit depth (must be 16bit greyscale)");
     }
     std::vector<unsigned short> v;
@@ -101,7 +100,11 @@ Texture* Image::to_depth_texture() const {
         for(unsigned int j = 0 ; j != width() ; ++j)
             v.push_back(scanline[j]);
     }
+    GLint align;
+    glGetIntegerv(GL_UNPACK_ALIGNMENT, &align);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
     tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, static_cast<int>(width()), static_cast<int>(height()), v.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, align);
     return tex;
 }
 
