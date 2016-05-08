@@ -100,6 +100,8 @@ bool Image::save(std::string const& filename, Format f) const {
             return FreeImage_Save(FIF_BMP, m_image, filename.c_str(), BMP_DEFAULT);
         case Format::BmpRle:
             return FreeImage_Save(FIF_BMP, m_image, filename.c_str(), BMP_SAVE_RLE);
+        case Format::Png:
+            return FreeImage_Save(FIF_PNG, m_image, filename.c_str(), PNG_DEFAULT);
     }
     return UNREACHABLE(false);
 }

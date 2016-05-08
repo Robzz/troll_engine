@@ -24,7 +24,7 @@ public:
     /* Destructor */
     virtual ~Image();
 
-    enum class Format { Bmp, BmpRle };
+    enum class Format { Bmp, BmpRle, Png };
 
     /* Copy constructor */
     Image(Image const& other);
