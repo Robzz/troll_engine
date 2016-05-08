@@ -100,10 +100,8 @@ Texture* Image::to_depth_texture() const {
     for(int i = 0 ; i != static_cast<int>(height()) ; ++i) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(m_image, i));
         for(unsigned int j = 0 ; j != width() ; ++j) {
-            unsigned short n = scanline[j];
-            float f = static_cast<float>(n) / std::numeric_limits<unsigned short>::max();
+            float f = static_cast<float>(scanline[j]) / std::numeric_limits<unsigned short>::max();
             v.push_back(f);
-            std::cout << f << " ";
         }
     }
     GLint alignment, swap_bytes;
