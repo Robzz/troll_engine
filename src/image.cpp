@@ -3,6 +3,7 @@
 #include "utility.h"
 #include <stdexcept>
 #include <fstream>
+#include <limits>
 
 namespace Engine {
 
@@ -98,7 +99,7 @@ Texture* Image::to_depth_texture() const {
     for(unsigned int i = 0 ; i != height() ; ++i) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(m_image, i));
         for(unsigned int j = 0 ; j != width() ; ++j)
-            v.push_back(1.f);
+            v.push_back(static_cast<float>(scanline[j]) / static_cast<float>(std::numeric_limits<unsigned short>::max()));
     }
     tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(width()), static_cast<int>(height()), v.data());
     return tex;
