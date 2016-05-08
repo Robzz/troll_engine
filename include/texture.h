@@ -39,6 +39,8 @@ class Texture {
     static void unbind(Target target = Tex2D);
     static Texture noTexture();
 
+    void generateMipmap();
+
     // TODO : should that be const?
     void filtering(Filters filters, Filter f);
     void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);

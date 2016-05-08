@@ -87,6 +87,7 @@ Texture* Image::to_texture() const {
             throw std::runtime_error("Image bpp is not 24 bits");
             break;
     }
+    tex->generateMipmap();
     return tex;
 }
 
@@ -96,12 +97,23 @@ Texture* Image::to_depth_texture() const {
         throw std::runtime_error("Incompatible bit depth (must be 16bit greyscale)");
     }
     std::vector<float> v;
-    for(unsigned int i = 0 ; i != height() ; ++i) {
+    for(int i = 0 ; i != static_cast<int>(height()) ; ++i) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(m_image, i));
-        for(unsigned int j = 0 ; j != width() ; ++j)
-            v.push_back(static_cast<float>(scanline[j]) / static_cast<float>(std::numeric_limits<unsigned short>::max()));
+        for(unsigned int j = 0 ; j != width() ; ++j) {
+            unsigned short n = scanline[j];
+            float f = static_cast<float>(n) / std::numeric_limits<unsigned short>::max();
+            v.push_back(f);
+            std::cout << f << " ";
+        }
     }
+    GLint alignment, swap_bytes;
+    glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+    glGetIntegerv(GL_UNPACK_SWAP_BYTES, &swap_bytes);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+    //glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
     tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(width()), static_cast<int>(height()), v.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+    glPixelStorei(GL_UNPACK_SWAP_BYTES, swap_bytes);
     return tex;
 }
 
