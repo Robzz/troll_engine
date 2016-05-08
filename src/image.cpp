@@ -94,17 +94,13 @@ Texture* Image::to_depth_texture() const {
     if(FreeImage_GetBPP(m_image) != 16 || FreeImage_GetImageType(m_image) != FIT_UINT16) {
         throw std::runtime_error("Incompatible bit depth (must be 16bit greyscale)");
     }
-    std::vector<unsigned short> v;
+    std::vector<float> v;
     for(unsigned int i = 0 ; i != height() ; ++i) {
         unsigned short* scanline = reinterpret_cast<unsigned short*>(FreeImage_GetScanLine(m_image, i));
         for(unsigned int j = 0 ; j != width() ; ++j)
-            v.push_back(scanline[j]);
+            v.push_back(1.f);
     }
-    GLint align;
-    glGetIntegerv(GL_UNPACK_ALIGNMENT, &align);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-    tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, static_cast<int>(width()), static_cast<int>(height()), v.data());
-    glPixelStorei(GL_UNPACK_ALIGNMENT, align);
+    tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(width()), static_cast<int>(height()), v.data());
     return tex;
 }
 
