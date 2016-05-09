@@ -130,8 +130,8 @@ target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
 add_dependencies(TrollEngine move_bison_files generate_gl_loader)
 
-# Enable C++11 and a proper metric fuckton of extra warnings
-set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 11)
+# Enable C++14 and a proper metric fuckton of extra warnings
+set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 14)
 target_compile_options(TrollEngine PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
 # Silence some expected warnings
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-sign-conversion -Wno-missing-declarations")
