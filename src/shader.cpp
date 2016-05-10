@@ -1,22 +1,25 @@
 #include "shader.h"
 
-#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "debug.h"
 
 namespace Engine {
 
-Shader::Shader(std::istream& str_stream, GLenum shader_type) :
+Shader::Shader(std::string const& file, Shader::Type t) :
     m_id()
 {
     // Read source and compile
-    m_id =glCreateShader(shader_type);
-    std::string source((std::istreambuf_iterator<char>(str_stream)), (std::istreambuf_iterator<char>()));
-    const char* source_ptr = source.c_str();
-    glShaderSource(m_id, 1, &source_ptr, NULL);
+    m_id = glCreateShader(static_cast<GLuint>(t));
+    std::ifstream in_file(file);
+    std::stringstream ss;
+    ss << in_file.rdbuf();
+    std::string shader_code = ss.str();
+    in_file >> shader_code;
+    const char* code_ptr = shader_code.c_str();
+    glShaderSource(m_id, 1, &code_ptr, NULL);
     glCompileShader(m_id);
-
-    // Check for errors
 }
 
 Shader::~Shader() {
@@ -37,7 +40,7 @@ std::string Shader::info_log() const {
     GLint log_length;
     glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &log_length);
     if(log_length > 0) {
-        GLchar* buf = new GLchar[log_length];
+        GLchar* buf = new GLchar[static_cast<size_t>(log_length)];
         glGetShaderInfoLog(m_id, log_length, NULL, buf);
         std::string log(buf);
         delete[] buf;
@@ -45,23 +48,5 @@ std::string Shader::info_log() const {
     }
     return "";
 }
-
-VertexShader::VertexShader(std::istream& src_stream) :
-    Shader(src_stream, GL_VERTEX_SHADER)
-{ }
-
-VertexShader::~VertexShader() { }
-
-FragmentShader::FragmentShader(std::istream& src_stream) :
-    Shader(src_stream, GL_FRAGMENT_SHADER)
-{ }
-
-FragmentShader::~FragmentShader() { }
-
-GeometryShader::GeometryShader(std::istream& src_stream) :
-    Shader(src_stream, GL_GEOMETRY_SHADER)
-{ }
-
-GeometryShader::~GeometryShader() { }
 
 } // namespace Engine

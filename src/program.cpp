@@ -1,4 +1,5 @@
 #include "program.h"
+#include "utility.h"
 #include "debug.h"
 
 #include <algorithm>
@@ -8,7 +9,33 @@ namespace Engine {
 
 Program* Program::s_current = nullptr;
 
-Program::Program(GLuint id, std::vector<UniformBase*> uniforms) :
+ProgramHandle::ProgramHandle(GLuint handle) :
+    m_handle(handle)
+{ }
+
+ProgramHandle::~ProgramHandle() {
+    glDeleteShader(m_handle);
+}
+
+GLuint ProgramHandle::value() const {
+    return m_handle;
+}
+
+ShaderManager::ShaderManager(bool cache) :
+    m_cache(cache),
+    m_shaderCache(),
+    m_programCache()
+{ }
+
+ShaderManager::~ShaderManager() {
+    for(auto& p: m_shaderCache) {
+        delete p.second;
+    }
+}
+
+ProgramBuilder ShaderManager::buildProgram() { return ProgramBuilder(*this); }
+
+Program::Program(std::shared_ptr<ProgramHandle> id, std::vector<UniformBase*> uniforms) :
     m_id(id),
     m_uniforms(uniforms)
 { }
@@ -31,8 +58,6 @@ Program& Program::operator=(Program&& other) {
 }
 
 Program::~Program() {
-    if(m_id)
-        glDeleteProgram(m_id);
     for(auto& it : m_uniforms) {
         delete it;
     }
@@ -40,7 +65,7 @@ Program::~Program() {
 
 Program::operator bool() const {
     GLint link_status = 1;
-    glGetProgramiv(m_id, GL_LINK_STATUS, &link_status);
+    glGetProgramiv(m_id->value(), GL_LINK_STATUS, &link_status);
     return link_status;
     // TODO : find a less ass busting way to check this sh*t (driver optimizations and other crap)
     //return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
@@ -54,10 +79,10 @@ bool Program::operator !() const {
 std::string Program::info_log() const {
     std::ostringstream oss;
     GLint log_length;
-    glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &log_length);
+    glGetProgramiv(m_id->value(), GL_INFO_LOG_LENGTH, &log_length);
     if(log_length > 0) {
-        GLchar* buf = new GLchar[log_length];
-        glGetProgramInfoLog(m_id, log_length, NULL, buf);
+        GLchar* buf = new GLchar[static_cast<size_t>(log_length)];
+        glGetProgramInfoLog(m_id->value(), log_length, NULL, buf);
         delete[] buf;
     }
     for(auto& it: m_uniforms) {
@@ -69,7 +94,7 @@ std::string Program::info_log() const {
 }
 
 void Program::use() {
-    glUseProgram(m_id);
+    glUseProgram(m_id->value());
     s_current = this;
 }
 
@@ -101,12 +126,12 @@ void Program::uploadUniforms() {
 bool Program::is_current() const { return this == s_current; }
 
 GLint Program::getAttributeLocation(std::string attribName) const {
-    GLint loc = glGetAttribLocation(m_id, attribName.c_str());
+    GLint loc = glGetAttribLocation(m_id->value(), attribName.c_str());
     return loc;
 }
 
 GLint Program::getUniformLocation(std::string uniformName) const {
-    GLint loc = glGetUniformLocation(m_id, uniformName.c_str());
+    GLint loc = glGetUniformLocation(m_id->value(), uniformName.c_str());
     return loc;
 }
 
@@ -130,62 +155,82 @@ std::string const& UniformBase::name() const {
     return m_name;
 }
 
-ProgramBuilder::ProgramBuilder() :
-    m_program(),
-    m_attachedShaders(),
+ProgramBuilder::ProgramBuilder(ShaderManager& manager) :
+    m_manager(manager),
+    m_shaders(),
     m_uniforms()
-{
-    m_program = glCreateProgram();
-}
+{ }
 
 ProgramBuilder::~ProgramBuilder() { }
 
-ProgramBuilder& ProgramBuilder::attach_shader(Shader& s) {
-    glAttachShader(m_program, s.m_id);
-    m_attachedShaders.push_back(&s);
+ProgramBuilder& ProgramBuilder::vertexShader(std::string const& file) {
+    Shader* s = compileShader<Shader::Type::VertexShader>(file);
     return *this;
 }
 
-ProgramBuilder& ProgramBuilder::with_uniform(std::string const& name, UniformType t) {
+ProgramBuilder& ProgramBuilder::fragmentShader(std::string const& file) {
+    Shader* s = compileShader<Shader::Type::FragmentShader>(file);
+    return *this;
+}
+
+ProgramBuilder& ProgramBuilder::geometryShader(std::string const& file) {
+    Shader* s = compileShader<Shader::Type::GeometryShader>(file);
+    return *this;
+}
+
+ProgramBuilder& ProgramBuilder::uniform(std::string const& name, UniformType t) {
     m_uniforms.push_back(std::pair<std::string, UniformType>(name, t));
     return *this;
 }
 
-Program ProgramBuilder::link() {
-    glLinkProgram(m_program);
-    
-    for(auto it = m_attachedShaders.begin() ; it != m_attachedShaders.end() ; ++it)
-        glDetachShader(m_program, (*it)->m_id);
+Program ProgramBuilder::build() {
+    auto h = std::make_shared<ProgramHandle>(glCreateProgram());
+    std::set<Shader*> shaders;
+    for(auto shader: m_shaders) {
+        shaders.insert(shader);
+        glAttachShader(h->value(), shader->m_id);
+    }
 
+    glLinkProgram(h->value());
+    for(auto shader: shaders)
+        glDetachShader(h->value(), shader->m_id);
     std::vector<UniformBase*> v;
     #define TYPE(T) std::type_index(typeid(T)).hash_code
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
         UniformType t = (*it).second;
         std::string const& name = (*it).first;
-        GLint loc = glGetUniformLocation(m_program, name.c_str());
-        if(t == UniformType::vec3) {            
-
+        GLint loc = glGetUniformLocation(h->value(), name.c_str());
+        if(t == UniformType::Vec3) {            
             v.push_back(new Uniform<glm::vec3>(loc, name));
         }
-        else if(t == UniformType::mat3) {
+        else if(t == UniformType::Mat3) {
             v.push_back(new Uniform<glm::mat3>(loc, name));
         }
-        else if(t == UniformType::mat4) {
+        else if(t == UniformType::Mat4) {
             v.push_back(new Uniform<glm::mat4>(loc, name));
         }
-        else if(t == UniformType::int_) {
+        else if(t == UniformType::Int) {
             v.push_back(new Uniform<int>(loc, name));
         } 
-        else if(t == UniformType::float_) {
+        else if(t == UniformType::Float) {
             v.push_back(new Uniform<float>(loc, name));
         } 
         else {
-            throw std::runtime_error("SHIT");
+            UNREACHABLE(0);
         }
     }
     #undef TYPE
+    Program p(h, v);
+    if(!p) {
+        std::ostringstream ss;
+        ss << "Shader program link error." << std::endl
+           << "Info:" << std::endl << p.info_log();
+        throw std::runtime_error(ss.str());
+    }
+    if(m_manager.m_cache)
+        m_manager.m_programCache.insert(std::pair<std::set<Shader*>, std::shared_ptr<ProgramHandle>>(shaders, h));
 
-    return Program(m_program, v);
+    return p;
 }
 
 template <>

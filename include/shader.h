@@ -9,32 +9,21 @@ namespace Engine {
 class Shader {
     friend class ProgramBuilder;
     public:
+        enum class Type { VertexShader = GL_VERTEX_SHADER, FragmentShader = GL_FRAGMENT_SHADER,
+                          GeometryShader = GL_GEOMETRY_SHADER };
         virtual ~Shader();
         operator bool() const;
         bool operator !() const;
         std::string info_log() const;
 
+        Shader(Shader const& other) = delete;
+        Shader(Shader&& other) = delete;
+        Shader& operator=(Shader const& other) = delete;
+        Shader& operator=(Shader&& other) = delete;
+
     protected:
-        Shader(std::istream& src_stream, GLenum shader_type);
+        Shader(std::string const& file, Type t);
         GLuint m_id;
-};
-
-class VertexShader : public Shader {
-    public:
-         explicit VertexShader(std::istream& src_stream);
-         virtual ~VertexShader();
-};
-
-class FragmentShader : public Shader {
-    public:
-         explicit FragmentShader(std::istream& src_stream);
-         virtual ~FragmentShader();
-};
-
-class GeometryShader : public Shader {
-    public:
-         explicit GeometryShader(std::istream& src_stream);
-         virtual ~GeometryShader();
 };
 
 } // namespace Engine
