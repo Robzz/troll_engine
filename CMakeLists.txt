@@ -32,8 +32,6 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir
 
 find_package(PkgConfig REQUIRED)
 find_package(Boost 1.58 REQUIRED)
-#find_package(BISON REQUIRED)
-#find_package(FLEX REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
@@ -49,26 +47,6 @@ add_definitions(-DGLM_SWIZZLE)
 option(TROLL_BUILD_EXAMPLES "Build examples" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# Generate parsers and lexers
-#flex_target(obj_lexer ${troll_src_dir}/wavefront_obj.l ${troll_src_dir}/obj_lexer.cpp)
-#bison_target(obj_parser ${troll_src_dir}/wavefront_obj.ypp ${troll_src_dir}/obj_parser.cpp
-#                COMPILE_FLAGS "-b include"
-#                DEFINES_FILE ${troll_include_dir}/obj_parser.h)
-#add_flex_bison_dependency(obj_lexer obj_parser)
-
-# Place generated header files in the appropriate dir and clean them correctly
-#add_custom_target(move_bison_files
-#                  DEPENDS ${troll_src_dir}/obj_parser.cpp ${troll_include_dir}/stack.hh)
-#add_custom_command(OUTPUT ${troll_include_dir}/stack.hh
-#                   COMMAND mv ${troll_src_dir}/stack.hh ${troll_include_dir})
-#get_directory_property(TEMP DIRECTORY ${CMAKE_HOME_DIRECTORY} ADDITIONAL_MAKE_CLEAN_FILES)
-#set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP}\
-#                                                              ${troll_include_dir}/stack.hh\
-#                                                              ${CMAKE_CURRENT_SOURCE_DIR}/glloadgen")
-
-# Silence warnings in Flex and Bison files
-#set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
 
 # Engine sources
 set(TROLL_SOURCES
@@ -86,17 +64,12 @@ set(TROLL_SOURCES
     ${troll_src_dir}/camera.cpp
     ${troll_src_dir}/texture.cpp
     ${troll_src_dir}/mesh.cpp
-    #${troll_src_dir}/obj.cpp
     ${troll_src_dir}/attribute.cpp
     ${troll_src_dir}/fbo.cpp
     ${troll_src_dir}/image.cpp
     ${troll_src_dir}/transform.cpp
     ${troll_src_dir}/utility.cpp
     ${troll_src_dir}/sceneimporter.cpp
-    #${FLEX_obj_lexer_INPUT}
-    #${FLEX_obj_lexer_OUTPUTS}
-    #${BISON_obj_parser_INPUT}
-    #${BISON_obj_parser_OUTPUT_SOURCE}
 )
 
 set(TROLL_HEADERS
@@ -114,15 +87,12 @@ set(TROLL_HEADERS
     ${troll_include_dir}/camera.h
     ${troll_include_dir}/texture.h
     ${troll_include_dir}/mesh.h
-    #${troll_include_dir}/obj.h
-    #${troll_include_dir}/obj_lexer.h
     ${troll_include_dir}/attribute.h
     ${troll_include_dir}/fbo.h
     ${troll_include_dir}/image.h
     ${troll_include_dir}/transform.h
     ${troll_include_dir}/utility.h
     ${troll_include_dir}/sceneimporter.h
-    #${BISON_obj_parser_OUTPUT_HEADER}
 )
 
 add_library(TrollEngine STATIC ${TROLL_SOURCES} ${TROLL_HEADERS})
