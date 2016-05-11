@@ -1,5 +1,7 @@
 #include "sceneimporter.h"
 
+#include <limits>
+
 namespace Engine {
 
 SceneImporter::SceneImporter() : 
@@ -9,7 +11,7 @@ SceneImporter::SceneImporter() :
 SceneImporter::~SceneImporter() { }
 
 void SceneImporter::readFile(std::string const& file, SceneImporter::PostProcess pp) {
-    m_assimp.ReadFile(file, static_cast<unsigned int>(pp) & aiProcess_Triangulate);
+    m_assimp.ReadFile(file, static_cast<unsigned int>(pp) | aiProcess_Triangulate);
 }
 
 std::vector<const aiMesh*> SceneImporter::meshes() const {
@@ -31,8 +33,10 @@ std::unique_ptr<Mesh> SceneImporter::instantiateMesh(aiMesh const& mesh) const {
     std::vector<unsigned int> index_int;
     bool hasNormals = mesh.HasNormals(), hasUVs = mesh.HasTextureCoords(0),
          hasColors = mesh.HasVertexColors(0), hasIndices = (mesh.mNumFaces != mesh.mNumVertices*3);
-    size_t index_size = hasNormals ? (((mesh.mNumFaces*3) <= 255) ? 1 :
-                                      ((mesh.mNumFaces*3) <= 65535) ? 2 : 4) : 0;
+    auto nIndices = mesh.mNumFaces * 3;
+    size_t index_size = hasIndices ? ((nIndices <= std::numeric_limits<unsigned char>::max()) ? sizeof(unsigned char) :
+                                      (nIndices <= std::numeric_limits<unsigned short>::max()) ? sizeof(unsigned short) :
+                                      sizeof(unsigned int)) : 0;
     for(unsigned int i = 0 ; i != mesh.mNumVertices ; ++i) {
         aiVector3D* v = mesh.mVertices + i;
         vertices.push_back(glm::vec3(v->x, v->y, v->z));
