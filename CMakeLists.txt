@@ -5,7 +5,7 @@ include(ExternalProject)
 ExternalProject_Add(
     glLoadGen
     PREFIX glLoadGen
-    DOWNLOAD_COMMAND hg clone https://bitbucket.org/alfonse/glloadgen
+    HG_REPOSITORY https://bitbucket.org/alfonse/glloadgen
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
@@ -22,17 +22,18 @@ set(troll_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h)
 add_custom_command(OUTPUT ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h
-                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glloadgen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3 -extfile=exts.txt
+                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glLoadGen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3 -extfile=exts.txt
                    COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.c ${troll_src_dir}/gl_core_3_3.cpp
-                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${troll_src_dir}/gl_core_3_3.h)
+                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${troll_include_dir}/gl_core_3_3.h)
 
 # Remove the loader files on clean
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir}/gl_core_3_3.cpp\
                                                                  ${troll_include_dir}/gl_core_3_3.h")
 
 find_package(PkgConfig REQUIRED)
-find_package(BISON REQUIRED)
-find_package(FLEX REQUIRED)
+find_package(Boost 1.58 REQUIRED)
+#find_package(BISON REQUIRED)
+#find_package(FLEX REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
@@ -50,24 +51,24 @@ option(TROLL_BUILD_EXAMPLES "Build examples" OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Generate parsers and lexers
-flex_target(obj_lexer ${troll_src_dir}/wavefront_obj.l ${troll_src_dir}/obj_lexer.cpp)
-bison_target(obj_parser ${troll_src_dir}/wavefront_obj.ypp ${troll_src_dir}/obj_parser.cpp
-                COMPILE_FLAGS "-b include"
-                DEFINES_FILE ${troll_include_dir}/obj_parser.h)
-add_flex_bison_dependency(obj_lexer obj_parser)
+#flex_target(obj_lexer ${troll_src_dir}/wavefront_obj.l ${troll_src_dir}/obj_lexer.cpp)
+#bison_target(obj_parser ${troll_src_dir}/wavefront_obj.ypp ${troll_src_dir}/obj_parser.cpp
+#                COMPILE_FLAGS "-b include"
+#                DEFINES_FILE ${troll_include_dir}/obj_parser.h)
+#add_flex_bison_dependency(obj_lexer obj_parser)
 
 # Place generated header files in the appropriate dir and clean them correctly
-add_custom_target(move_bison_files
-                  DEPENDS ${troll_src_dir}/obj_parser.cpp ${troll_include_dir}/stack.hh)
-add_custom_command(OUTPUT ${troll_include_dir}/stack.hh
-                   COMMAND mv ${troll_src_dir}/stack.hh ${troll_include_dir})
-get_directory_property(TEMP DIRECTORY ${CMAKE_HOME_DIRECTORY} ADDITIONAL_MAKE_CLEAN_FILES)
-set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP}\
-                                                               ${troll_include_dir}/stack.hh\
-                                                               ${CMAKE_CURRENT_SOURCE_DIR}/glloadgen")
+#add_custom_target(move_bison_files
+#                  DEPENDS ${troll_src_dir}/obj_parser.cpp ${troll_include_dir}/stack.hh)
+#add_custom_command(OUTPUT ${troll_include_dir}/stack.hh
+#                   COMMAND mv ${troll_src_dir}/stack.hh ${troll_include_dir})
+#get_directory_property(TEMP DIRECTORY ${CMAKE_HOME_DIRECTORY} ADDITIONAL_MAKE_CLEAN_FILES)
+#set_directory_properties(PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${TEMP}\
+#                                                              ${troll_include_dir}/stack.hh\
+#                                                              ${CMAKE_CURRENT_SOURCE_DIR}/glloadgen")
 
 # Silence warnings in Flex and Bison files
-set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
+#set_source_files_properties(${FLEX_obj_lexer_OUTPUTS} ${BISON_obj_parser_OUTPUT_SOURCE} PROPERTIES COMPILE_FLAGS "-w")
 
 # Engine sources
 set(TROLL_SOURCES
@@ -85,17 +86,17 @@ set(TROLL_SOURCES
     ${troll_src_dir}/camera.cpp
     ${troll_src_dir}/texture.cpp
     ${troll_src_dir}/mesh.cpp
-    ${troll_src_dir}/obj.cpp
+    #${troll_src_dir}/obj.cpp
     ${troll_src_dir}/attribute.cpp
     ${troll_src_dir}/fbo.cpp
     ${troll_src_dir}/image.cpp
     ${troll_src_dir}/transform.cpp
     ${troll_src_dir}/utility.cpp
     ${troll_src_dir}/sceneimporter.cpp
-    ${FLEX_obj_lexer_INPUT}
-    ${FLEX_obj_lexer_OUTPUTS}
-    ${BISON_obj_parser_INPUT}
-    ${BISON_obj_parser_OUTPUT_SOURCE}
+    #${FLEX_obj_lexer_INPUT}
+    #${FLEX_obj_lexer_OUTPUTS}
+    #${BISON_obj_parser_INPUT}
+    #${BISON_obj_parser_OUTPUT_SOURCE}
 )
 
 set(TROLL_HEADERS
@@ -113,27 +114,28 @@ set(TROLL_HEADERS
     ${troll_include_dir}/camera.h
     ${troll_include_dir}/texture.h
     ${troll_include_dir}/mesh.h
-    ${troll_include_dir}/obj.h
-    ${troll_include_dir}/obj_lexer.h
+    #${troll_include_dir}/obj.h
+    #${troll_include_dir}/obj_lexer.h
     ${troll_include_dir}/attribute.h
     ${troll_include_dir}/fbo.h
     ${troll_include_dir}/image.h
     ${troll_include_dir}/transform.h
     ${troll_include_dir}/utility.h
     ${troll_include_dir}/sceneimporter.h
-    ${BISON_obj_parser_OUTPUT_HEADER}
+    #${BISON_obj_parser_OUTPUT_HEADER}
 )
 
 add_library(TrollEngine STATIC ${TROLL_SOURCES} ${TROLL_HEADERS})
 include_directories("${troll_include_dir}"
-                    "${GLFW_INCLUDE_DIRS}")
+                    "${GLFW_INCLUDE_DIRS}"
+                    "${Boost_INCLUDE_DIRS}")
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
 set(TROLL_LIBRARIES ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY})
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
-add_dependencies(TrollEngine move_bison_files generate_gl_loader)
+add_dependencies(TrollEngine generate_gl_loader)
 
 # Enable C++14 and a proper metric fuckton of extra warnings
 set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 14)

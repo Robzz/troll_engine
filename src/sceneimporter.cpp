@@ -1,5 +1,7 @@
 #include "sceneimporter.h"
 
+#include <assimp/scene.h>
+
 namespace Engine {
 
 SceneImporter::SceneImporter() : 

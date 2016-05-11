@@ -5,81 +5,78 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include "attribute.h"
 
 namespace Engine {
 
-typedef std::unordered_map<std::string, AttributeBase*> AttributeMap;
-
 /* This class contains mesh geometry and attributes. */
 class Mesh {
     public:
-    /* Destructor */
-    virtual ~Mesh();
+        /* Destructor */
+        virtual ~Mesh();
 
-    /* Copy constructor */
-    Mesh(Mesh const& other);
-    /* Move constructor */
-    Mesh(Mesh&& other);
-    /* Assignment operator */
-    Mesh& operator=(Mesh const& other);
-    /* Move-assignment operator */
-    Mesh& operator=(Mesh&& other);
+        /* Move constructor */
+        Mesh(Mesh&& other);
+        /* Move-assignment operator */
+        Mesh& operator=(Mesh&& other);
 
-    template <class T>
-    Attribute<T>* get_attribute(std::string const& name) {
-        Attribute<T>* ptr = dynamic_cast<Attribute<T>*>(m_attributes[name]);
-        if(ptr)
-            return ptr;
-        else {
-            throw std::runtime_error("Invalid attribute type");
-        }
-    }
+        bool hasNormals() const;
+        bool hasColors() const;
+        bool hasUVs() const;
+        bool isIndexed() const;
+        const char* name() const;
 
-    template <class T>
-    Attribute<T> const* get_attribute(std::string const& name) const {
-        Attribute<T>* ptr = dynamic_cast<Attribute<T>*>(m_attributes.at(name));
-        if(ptr)
-            return ptr;
-        else {
-            throw std::runtime_error("Invalid attribute type");
-        }
-    }
+        unsigned int numVertices() const;
+        unsigned int numFaces() const;
 
     protected:
         friend class MeshBuilder;
-        explicit Mesh(AttributeMap const& attrmap);
+        Mesh(std::string const& name);
 
-        AttributeMap m_attributes;
+        std::string m_name;
+        std::unique_ptr<AttributeArrayInstance<glm::vec3>> m_vertices;
+        std::unique_ptr<AttributeArrayInstance<glm::vec3>> m_normals;
+        std::unique_ptr<AttributeArrayInstance<glm::vec4>> m_colors;
+        std::unique_ptr<AttributeArray> m_uvs;
+        std::unique_ptr<AttributeArray> m_faces;
+
+        /* No copy */
+        Mesh(Mesh const& other) = delete;
+        Mesh& operator=(Mesh const& other) = delete;
 };
 
 class MeshBuilder {
     public:
-    /* Default constructor */
-    MeshBuilder();
-    /* Destructor */
-    virtual ~MeshBuilder();
+        /* Default constructor */
+        MeshBuilder(std::string const& meshName = "default");
+        /* Destructor */
+        virtual ~MeshBuilder();
 
-    template<class T>
-    MeshBuilder& with_attribute(std::string const& name) {
-        if(m_attributes.count(name)) {
-            throw std::runtime_error("Attribute already present");
-        }
-        else {
-            m_attributes.insert(std::pair<std::string, AttributeBase*>(name, new Attribute<T>()));
-            return *this;
-        }
-    }
+        MeshBuilder& vertices(std::vector<glm::vec3>&& verts);
+        MeshBuilder& normals(std::vector<glm::vec3>&& norms);
+        MeshBuilder& colors(std::vector<glm::vec4>&& cols);
+        MeshBuilder& faces(std::vector<glm::vec4>&& cols);
 
-    Mesh* build_mesh() const;
+        std::unique_ptr<Mesh> build_mesh();
+
+        /* No copy or move */
+        MeshBuilder(MeshBuilder const& other) = delete;
+        MeshBuilder& operator=(MeshBuilder const& other) = delete;
+        MeshBuilder(MeshBuilder&& other) = delete;
+        MeshBuilder& operator=(MeshBuilder&& other) = delete;
 
     private:
-    /* This class is not copyable. */
-    MeshBuilder(MeshBuilder const& other);
-    MeshBuilder& operator=(MeshBuilder const& other);
-    
-    AttributeMap m_attributes;
+        std::unique_ptr<Mesh> m_mesh;
+
+        void validateMesh() const;
+
+        template <typename T>
+        MeshBuilder& _initAttribArray(std::vector<T> vec, std::unique_ptr<AttributeArrayInstance<T>>& ptr,
+                                      std::string const& errMsg);
 };
+
+#include "mesh.inl"
 
 } // namespace Engine
 
