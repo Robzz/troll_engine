@@ -145,11 +145,11 @@ std::unique_ptr<Mesh> MeshBuilder::build_mesh() {
 void MeshBuilder::validateMesh() const {
     if(!m_nVertices)
         throw std::runtime_error("Mesh has no geometry");
-    if(!(m_nVertices == m_nNormals))
+    if(m_nNormals && !(m_nVertices == m_nNormals))
         throw std::runtime_error("Mesh doesn't have the same number of vertices and normals");
-    if(!(m_nVertices == m_nColors))
+    if(m_nColors && !(m_nVertices == m_nColors))
         throw std::runtime_error("Mesh doesn't have the same number of vertices and colors");
-    if(!(m_nVertices == m_nUVs))
+    if(m_nUVs && !(m_nVertices == m_nUVs))
         throw std::runtime_error("Mesh doesn't have the same number of vertices and UVs");
     if(m_nIndices && m_nIndices % 3)
         throw std::runtime_error("Mesh number of vertex indices is not a multiple of 3");
