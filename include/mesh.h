@@ -33,14 +33,13 @@ class Mesh {
 
     protected:
         friend class MeshBuilder;
-        Mesh(std::string const& name);
+        Mesh(std::string const& name, AttributeMap attribs, std::vector<std::unique_ptr<VBO>>&& resources,
+             unsigned int nVerts, unsigned int nIndices);
 
         std::string m_name;
-        std::unique_ptr<AttributeArrayInstance<glm::vec3>> m_vertices;
-        std::unique_ptr<AttributeArrayInstance<glm::vec3>> m_normals;
-        std::unique_ptr<AttributeArrayInstance<glm::vec4>> m_colors;
-        std::unique_ptr<AttributeArray> m_uvs;
-        std::unique_ptr<AttributeArray> m_faces;
+        AttributeMap m_attribs;
+        std::vector<std::unique_ptr<VBO>> m_resources;
+        const unsigned int m_nVertices, m_nIndices;
 
         /* No copy */
         Mesh(Mesh const& other) = delete;
@@ -54,14 +53,14 @@ class MeshBuilder {
         /* Destructor */
         virtual ~MeshBuilder();
 
-        MeshBuilder& vertices(std::vector<glm::vec3>&& verts);
-        MeshBuilder& normals(std::vector<glm::vec3>&& norms);
-        MeshBuilder& colors(std::vector<glm::vec4>&& cols);
-        MeshBuilder& uvs(std::vector<glm::vec2>&& uvs);
-        MeshBuilder& uvs(std::vector<glm::vec3>&& uvs);
-
-        template <typename T>
-        MeshBuilder& faces(std::vector<T>&& indices);
+        MeshBuilder& vertices(std::vector<glm::vec3> const& verts);
+        MeshBuilder& normals(std::vector<glm::vec3> const& norms);
+        MeshBuilder& colors(std::vector<glm::vec4> const& cols);
+        MeshBuilder& uvs(std::vector<glm::vec2> const& uvs);
+        MeshBuilder& uvs(std::vector<glm::vec3> const& uvs);
+        MeshBuilder& faces(std::vector<unsigned char>&& indices);
+        MeshBuilder& faces(std::vector<unsigned short>&& indices);
+        MeshBuilder& faces(std::vector<unsigned int>&& indices);
 
         std::unique_ptr<Mesh> build_mesh();
 
@@ -72,13 +71,12 @@ class MeshBuilder {
         MeshBuilder& operator=(MeshBuilder&& other) = delete;
 
     private:
-        std::unique_ptr<Mesh> m_mesh;
+        std::string m_meshName;
+        AttributeMap m_meshAttribs;
+        std::vector<std::unique_ptr<VBO>> m_resources;
+        unsigned int m_nVertices, m_nNormals, m_nColors, m_nUVs, m_nIndices;
 
         void validateMesh() const;
-
-        template <typename T>
-        MeshBuilder& _initAttribArray(std::vector<T> vec, std::unique_ptr<AttributeArrayInstance<T>>& ptr,
-                                      std::string const& errMsg);
 };
 
 #include "mesh.inl"

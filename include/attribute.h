@@ -3,65 +3,71 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/vec1.hpp>
 #include <boost/mpl/size_t.hpp>
 
+#include "vbo.h"
+
 namespace Engine {
 
-template <typename T>
-class AttributeArrayInstance;
+class MeshBuilder;
 
 class AttributeArray {
     public:
         enum class Type { Int, Float, Double, Uchar, Ushort, Uint };
-        /* Default constructor */
-        AttributeArray(Type t);
-        /* Destructor */
+        enum class Kind { Positions, Normals, Colors, UVs, Indices };
+
+        class Layout {
+            public:
+                Layout();
+                Layout(int nComponents, Type type, size_t stride=0, bool normalize=false, std::intptr_t offset=0);
+                Layout(Layout const& other);
+                Layout& operator=(Layout const& other);
+
+                int nComponents() const;
+                Type type() const;
+                size_t stride() const;
+                bool normalize() const;
+                std::intptr_t offset() const;
+
+            private:
+                int m_nComponents;
+                Type m_type;
+                size_t m_stride;
+                bool m_normalize;
+                std::intptr_t m_offset;
+        };
+
+        AttributeArray();
+        AttributeArray(VBO const& vbo, Kind k, Layout const& l);
+        AttributeArray(AttributeArray&& other);
+
         virtual ~AttributeArray();
 
-        template <typename T>
-        const AttributeArrayInstance<T>* downcast() const;
-        template <typename T>
-        AttributeArrayInstance<T>* downcast();
+        AttributeArray& operator=(AttributeArray&& other);
 
-        virtual size_t size() const = 0;
-        virtual size_t dimension() const = 0;
-        virtual AttributeArray* clone() const = 0;
+        AttributeArray* clone() const;
 
     protected:
-        const Type m_type;
+
+        const VBO* m_vbo;
+        Kind m_kind;
+        Layout m_layout;
 };
 
-template <class T>
-class AttributeArrayInstance : public AttributeArray {
-    public:
-        /* Default constructor */
-        AttributeArrayInstance();
-        /* Destructor */
-        virtual ~AttributeArrayInstance();
+struct AttributeMap {
+    AttributeArray positions;
+    std::unique_ptr<AttributeArray> normals;
+    std::unique_ptr<AttributeArray> colors;
+    std::unique_ptr<AttributeArray> indices;
+    std::unique_ptr<AttributeArray> uvs;
 
-        /* Copy constructor */
-        AttributeArrayInstance(AttributeArrayInstance const& other);
-        /* Move constructor */
-        AttributeArrayInstance(AttributeArrayInstance&& other);
-
-        /* Assignment operator */
-        AttributeArrayInstance& operator=(AttributeArrayInstance const& other);
-        /* Move-assignment operator */
-        AttributeArrayInstance& operator=(AttributeArrayInstance&& other);
-
-        virtual size_t size() const;
-
-        virtual AttributeArray* clone() const;
-        constexpr size_t dimension() const;
-
-        std::vector<T>& data();
-        std::vector<T> const& data() const;
-
-    private:
-        std::vector<T> m_attribData;
+    AttributeMap();
+    AttributeMap(AttributeMap&& other);
+    AttributeMap& operator=(AttributeMap&& other);
 };
 
 namespace traits {
@@ -157,19 +163,6 @@ namespace traits {
                                         std::is_same<T, unsigned int>::value, T> type; 
     };
 } // namespace traits
-
-template <class T>
-class ElementArray : public AttributeArrayInstance<T>{
-    public:
-        /* Default constructor */
-        ElementArray();
-        /* Destructor */
-        virtual ~ElementArray();
-
-    private:
-        typedef typename traits::vertex_index_type<T>::type __enforceType;
-};
-
 
 #include "attribute.inl"
 

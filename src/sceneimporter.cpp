@@ -67,9 +67,9 @@ std::unique_ptr<Mesh> SceneImporter::instantiateMesh(aiMesh const& mesh) const {
     if(hasColors)
         b.colors(std::move(colors));
     if(hasIndices) {
-        ((index_size) == 1) ? b.faces<unsigned char>(std::move(index_byte)) :
-        ((index_size) == 2) ? b.faces<unsigned short>(std::move(index_short)) :
-                              b.faces<unsigned int>(std::move(index_int));
+        ((index_size) == 1) ? b.faces(std::move(index_byte)) :
+        ((index_size) == 2) ? b.faces(std::move(index_short)) :
+                              b.faces(std::move(index_int));
     }
     if(hasUVs)
         b.uvs(std::move(uvs));
