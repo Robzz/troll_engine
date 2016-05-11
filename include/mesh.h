@@ -2,10 +2,11 @@
 #define MESH_H
 
 #include <vector>
-#include <glm/glm.hpp>
 #include <string>
-#include <unordered_map>
 #include <memory>
+
+#include <glm/glm.hpp>
+
 #include "attribute.h"
 
 namespace Engine {
@@ -56,7 +57,11 @@ class MeshBuilder {
         MeshBuilder& vertices(std::vector<glm::vec3>&& verts);
         MeshBuilder& normals(std::vector<glm::vec3>&& norms);
         MeshBuilder& colors(std::vector<glm::vec4>&& cols);
-        MeshBuilder& faces(std::vector<glm::vec4>&& cols);
+        MeshBuilder& uvs(std::vector<glm::vec2>&& uvs);
+        MeshBuilder& uvs(std::vector<glm::vec3>&& uvs);
+
+        template <typename T>
+        MeshBuilder& faces(std::vector<T>&& indices);
 
         std::unique_ptr<Mesh> build_mesh();
 

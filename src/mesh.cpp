@@ -50,12 +50,28 @@ MeshBuilder& MeshBuilder::vertices(std::vector<glm::vec3>&& verts) {
 }
 
 MeshBuilder& MeshBuilder::normals(std::vector<glm::vec3>&& norms) {
-    _initAttribArray<glm::vec3>(norms, m_mesh->m_normals, "Mesh already has normals");
-    return *this;
+    return _initAttribArray<glm::vec3>(norms, m_mesh->m_normals, "Mesh already has normals");
 }
 
 MeshBuilder& MeshBuilder::colors(std::vector<glm::vec4>&& cols) {
-    _initAttribArray<glm::vec4>(cols, m_mesh->m_colors, "Mesh already has colors");
+    return _initAttribArray<glm::vec4>(cols, m_mesh->m_colors, "Mesh already has colors");
+}
+
+MeshBuilder& MeshBuilder::uvs(std::vector<glm::vec2>&& uvs) {
+    if(m_mesh->m_uvs)
+        throw std::runtime_error("Mesh already has UVs");
+    auto u = std::make_unique<AttributeArrayInstance<glm::vec2>>();
+    u->data() = std::move(uvs);
+    m_mesh->m_uvs = std::move(u);
+    return *this;
+}
+
+MeshBuilder& MeshBuilder::uvs(std::vector<glm::vec3>&& uvs) {
+    if(m_mesh->m_uvs)
+        throw std::runtime_error("Mesh already has UVs");
+    auto u = std::make_unique<AttributeArrayInstance<glm::vec3>>();
+    u->data() = std::move(uvs);
+    m_mesh->m_uvs = std::move(u);
     return *this;
 }
 

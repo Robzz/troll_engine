@@ -15,7 +15,7 @@ class AttributeArrayInstance;
 
 class AttributeArray {
     public:
-        enum class Type { Int, Float, Double };
+        enum class Type { Int, Float, Double, Uchar, Ushort, Uint };
         /* Default constructor */
         AttributeArray(Type t);
         /* Destructor */
@@ -66,7 +66,7 @@ class AttributeArrayInstance : public AttributeArray {
 
 namespace traits {
     template <typename T>
-    struct dimension { };
+    struct dimension : boost::mpl::size_t<1> { };
 
     template <>
     struct dimension<glm::vec1> : boost::mpl::size_t<1> { } ;
@@ -94,6 +94,18 @@ namespace traits {
     template <>
     struct attribute_type_enumerator<glm::vec4> {
         static constexpr AttributeArray::Type value = AttributeArray::Type::Float;
+    };
+    template <>
+    struct attribute_type_enumerator<unsigned char> {
+        static constexpr AttributeArray::Type value = AttributeArray::Type::Uchar;
+    };
+    template <>
+    struct attribute_type_enumerator<unsigned short> {
+        static constexpr AttributeArray::Type value = AttributeArray::Type::Ushort;
+    };
+    template <>
+    struct attribute_type_enumerator<unsigned int> {
+        static constexpr AttributeArray::Type value = AttributeArray::Type::Uint;
     };
 
     template <size_t dim>
@@ -147,12 +159,15 @@ namespace traits {
 } // namespace traits
 
 template <class T>
-class ElementArray : public AttributeArrayInstance<typename traits::vertex_index_type<T>::type>{
+class ElementArray : public AttributeArrayInstance<T>{
     public:
         /* Default constructor */
         ElementArray();
         /* Destructor */
         virtual ~ElementArray();
+
+    private:
+        typedef typename traits::vertex_index_type<T>::type __enforceType;
 };
 
 
