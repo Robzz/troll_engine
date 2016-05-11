@@ -2,6 +2,13 @@
 
 namespace Engine {
 
+AttributeArray::Layout::Layout() :
+    m_nComponents(0),
+    m_type(AttributeArray::Type::Float),
+    m_stride(0),
+    m_normalize(false),
+    m_offset(0) { }
+
 AttributeArray::Layout::Layout(int n, AttributeArray::Type t, size_t s, bool norm, std::intptr_t o) :
     m_nComponents(n),
     m_type(t),
@@ -51,6 +58,13 @@ AttributeArray::AttributeArray(AttributeArray&& other) :
 { }
 
 AttributeArray::~AttributeArray() { }
+
+AttributeArray& AttributeArray::operator=(AttributeArray&& other) {
+    m_vbo = other.m_vbo;
+    m_kind = other.m_kind;
+    m_layout = other.m_layout;
+    return *this;
+}
 
 AttributeMap::AttributeMap() :
     positions(),
