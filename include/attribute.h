@@ -164,8 +164,6 @@ namespace traits {
     };
 } // namespace traits
 
-#include "attribute.inl"
-
 } // namespace Engine
 
 #endif

@@ -79,8 +79,6 @@ class MeshBuilder {
         void validateMesh() const;
 };
 
-#include "mesh.inl"
-
 } // namespace Engine
 
 #endif
