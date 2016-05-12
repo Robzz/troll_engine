@@ -48,89 +48,97 @@ MeshBuilder::MeshBuilder(std::string const& name) :
 MeshBuilder::~MeshBuilder() { }
 
 MeshBuilder& MeshBuilder::vertices(std::vector<glm::vec3> const& verts) {
-    VBO vbo;
-    vbo.upload_data(verts);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(verts);
     m_nVertices = verts.size();
-    m_meshAttribs.positions = AttributeArray(vbo,
-                                         AttributeArray::Kind::Positions,
-                                         AttributeArray::Layout(3, AttributeArray::Type::Float));
+    m_meshAttribs.positions = AttributeArray(*vbo,
+                                             AttributeArray::Kind::Positions,
+                                             AttributeArray::Layout(3, AttributeArray::Type::Float));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::normals(std::vector<glm::vec3> const& norms) {
-    VBO vbo;
-    vbo.upload_data(norms);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(norms);
     m_nNormals = norms.size();
     m_meshAttribs.normals =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::Normals,
                                          AttributeArray::Layout(3, AttributeArray::Type::Float));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::colors(std::vector<glm::vec4> const& cols) {
-    VBO vbo;
-    vbo.upload_data(cols);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(cols);
     m_nColors = cols.size();
     m_meshAttribs.colors =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::Colors,
                                          AttributeArray::Layout(4, AttributeArray::Type::Float));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::uvs(std::vector<glm::vec2> const& uvs) {
-    VBO vbo;
-    vbo.upload_data(uvs);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(uvs);
     m_nUVs = uvs.size();
     m_meshAttribs.uvs =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::UVs,
                                          AttributeArray::Layout(2, AttributeArray::Type::Float));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::uvs(std::vector<glm::vec3> const& uvs) {
-    VBO vbo;
-    vbo.upload_data(uvs);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(uvs);
     m_nUVs = uvs.size();
     m_meshAttribs.uvs =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::UVs,
                                          AttributeArray::Layout(3, AttributeArray::Type::Float));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::faces(std::vector<unsigned char>&& indices) {
-    VBO vbo;
-    vbo.upload_data(indices);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(indices);
     m_nIndices = indices.size();
     m_meshAttribs.indices =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::Indices,
                                          AttributeArray::Layout(0, AttributeArray::Type::Uchar));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::faces(std::vector<unsigned short>&& indices) {
-    VBO vbo;
-    vbo.upload_data(indices);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(indices);
     m_nIndices = indices.size();
     m_meshAttribs.indices =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::Indices,
                                          AttributeArray::Layout(0, AttributeArray::Type::Ushort));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
 MeshBuilder& MeshBuilder::faces(std::vector<unsigned int>&& indices) {
-    VBO vbo;
-    vbo.upload_data(indices);
+    auto vbo = std::make_unique<VBO>();
+    vbo->upload_data(indices);
     m_nIndices = indices.size();
     m_meshAttribs.indices =
-        std::make_unique<AttributeArray>(vbo,
+        std::make_unique<AttributeArray>(*vbo,
                                          AttributeArray::Kind::Indices,
                                          AttributeArray::Layout(0, AttributeArray::Type::Uint));
+    m_resources.push_back(std::move(vbo));
     return *this;
 }
 
