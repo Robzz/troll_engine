@@ -24,7 +24,7 @@ namespace Engine {
 class ProgramHandle {
     public:
         /* Default constructor */
-        ProgramHandle(GLuint handle);
+        explicit ProgramHandle(GLuint handle);
         /* Destructor */
         virtual ~ProgramHandle();
 
@@ -51,7 +51,7 @@ class ShaderManager {
     friend class ProgramBuilder;
     public:
         /* Default constructor */
-        ShaderManager(bool cache = true);
+        explicit ShaderManager(bool cache = true);
         /* Destructor */
         virtual ~ShaderManager();
 
@@ -182,7 +182,7 @@ class ProgramBuilder {
         Program build();
 
     private:
-        ProgramBuilder(ShaderManager& manager);
+        explicit ProgramBuilder(ShaderManager& manager);
         ShaderManager& m_manager;
         std::vector<Shader*> m_shaders;
         std::vector<std::pair<std::string, UniformType>> m_uniforms;

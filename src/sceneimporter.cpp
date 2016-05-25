@@ -49,6 +49,7 @@ std::unique_ptr<Mesh> SceneImporter::instantiateMesh(aiMesh const& mesh) const {
             colors.push_back(glm::vec4(c->r, c->g, c->b, c->a));
         }
         if(hasUVs) {
+            // TODO : support 3D UVs
             v = mesh.mTextureCoords[0] + i;
             uvs.push_back(glm::vec2(v->x, v->y));
         }

@@ -164,17 +164,17 @@ ProgramBuilder::ProgramBuilder(ShaderManager& manager) :
 ProgramBuilder::~ProgramBuilder() { }
 
 ProgramBuilder& ProgramBuilder::vertexShader(std::string const& file) {
-    Shader* s = compileShader<Shader::Type::VertexShader>(file);
+    compileShader<Shader::Type::VertexShader>(file);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::fragmentShader(std::string const& file) {
-    Shader* s = compileShader<Shader::Type::FragmentShader>(file);
+    compileShader<Shader::Type::FragmentShader>(file);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::geometryShader(std::string const& file) {
-    Shader* s = compileShader<Shader::Type::GeometryShader>(file);
+    compileShader<Shader::Type::GeometryShader>(file);
     return *this;
 }
 

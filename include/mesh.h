@@ -56,7 +56,7 @@ class Mesh {
 class MeshBuilder {
     public:
         /* Default constructor */
-        MeshBuilder(std::string const& meshName = "default");
+        explicit MeshBuilder(std::string const& meshName = "default");
         /* Destructor */
         virtual ~MeshBuilder();
 
