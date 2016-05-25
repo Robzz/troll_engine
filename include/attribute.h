@@ -179,6 +179,7 @@ namespace traits {
                 case AttributeArray::Type::Int:
                     return GL_INT;
             }
+            UNREACHABLE(0);
         }
     };
 } // namespace traits

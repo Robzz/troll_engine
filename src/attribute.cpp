@@ -45,8 +45,8 @@ AttributeArray::AttributeArray() :
     layout()
 { }
 
-AttributeArray::AttributeArray(VBO const& vbo, AttributeArray::Kind k, AttributeArray::Layout const& l) :
-    vbo(&vbo),
+AttributeArray::AttributeArray(VBO const& _vbo, AttributeArray::Kind k, AttributeArray::Layout const& l) :
+    vbo(&_vbo),
     kind(k),
     layout(l)
 { }
