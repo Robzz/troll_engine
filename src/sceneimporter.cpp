@@ -77,6 +77,10 @@ std::unique_ptr<Mesh> SceneImporter::instantiateMesh(aiMesh const& mesh) const {
     return b.build_mesh();
 }
 
+void SceneImporter::dropComponents(int flags) {
+    m_assimp.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, flags);
+}
+
 template<>
 void SceneImporter::readIndex<1>(std::vector<unsigned char>& v1, std::vector<unsigned short>& v2,
                                 std::vector<unsigned int>& v3, aiFace* f) {

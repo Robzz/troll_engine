@@ -40,6 +40,8 @@ class SceneImporter {
         std::vector<const aiMesh*> meshes() const;
         std::unique_ptr<Mesh> instantiateMesh(aiMesh const& mesh) const;
 
+        void dropComponents(int flags);
+
         /* No copy or move */
         SceneImporter(SceneImporter const& other) = delete;
         SceneImporter& operator=(SceneImporter const& other) = delete;
