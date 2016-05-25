@@ -70,6 +70,7 @@ DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture c
     }
     if(isIndexed()) {
         return new IndexedObject(position, p, (*m_attribs.indices).vbo, vao, m_nIndices, tex,
+                                 traits::gl_value<AttributeArray::Type>::value((*m_attribs.indices).layout.type()),
                                  primitiveMode);
     }
     else {
