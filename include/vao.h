@@ -21,7 +21,7 @@ class VAO {
         // Enable/disable the specified vertex attribute array
         void enableVertexAttribArray(GLuint index, bool enable = true);
         // GLVertexAttribPointer wrapper
-        void vertexAttribPointer(VBO& array, GLuint index, GLint size, GLsizei stride = 0, const GLvoid* offset = NULL, GLenum type = GL_FLOAT, bool normalize = false);
+        void vertexAttribPointer(VBO const& array, GLuint index, GLint size, GLsizei stride = 0, const GLvoid* offset = NULL, GLenum type = GL_FLOAT, bool normalize = false);
 
     private:
         GLuint m_id;

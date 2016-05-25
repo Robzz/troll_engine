@@ -5,11 +5,11 @@
 #include <fstream>
 #include <cassert>
 #include <type_traits>
+#include "gl_core_3_3.h"
 
 #define UNREACHABLE(t) ( (std::cerr << "Reached unreachable code at __FILE__:__LINE__" << std::endl, std::terminate(), t) )
 
 namespace Engine {
-
 
 float deg_to_rad(float angle);
 
@@ -23,6 +23,9 @@ namespace traits {
     struct enable_bitmask_operators {
         static constexpr bool enable = false;
     };
+
+    template <class T>
+    struct gl_value { };
 }
 
 template <class E>

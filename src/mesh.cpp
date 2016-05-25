@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "debug.h"
+#include "scenegraph.h"
 
 namespace Engine {
 
@@ -31,6 +32,52 @@ bool Mesh::hasNormals() const { return m_attribs.normals.get(); }
 bool Mesh::hasColors() const { return m_attribs.colors.get(); }
 bool Mesh::hasUVs() const { return m_attribs.uvs.get(); }
 bool Mesh::isIndexed() const { return m_nIndices; }
+const char* Mesh::name() const { return m_name.c_str(); }
+
+DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture const* tex,
+                                GLenum primitiveMode) const {
+    VAO* vao = new VAO();
+    GLuint normalIndex = static_cast<unsigned int>(p->getAttributeLocation("v_normal"));
+    GLuint attrIndex;
+    attrIndex = static_cast<unsigned int>(p->getAttributeLocation("v_position"));
+    const AttributeArray::Layout* l = &m_attribs.positions.layout;
+    vao->enableVertexAttribArray(attrIndex);
+    vao->vertexAttribPointer(*m_attribs.positions.vbo, attrIndex, l->nComponents(),
+                             l->stride(), reinterpret_cast<void*>(l->offset()),
+                             traits::gl_value<AttributeArray::Type>::value(l->type()), l->normalize());
+    if(m_attribs.normals) {
+        l = &(*m_attribs.normals).layout;
+        attrIndex = static_cast<unsigned int>(p->getAttributeLocation("v_normal"));
+        vao->enableVertexAttribArray(attrIndex);
+        vao->vertexAttribPointer(*(*m_attribs.normals).vbo, attrIndex, l->nComponents(),
+                                 l->stride(), reinterpret_cast<void*>(l->offset()),
+                                 traits::gl_value<AttributeArray::Type>::value(l->type()), l->normalize());
+    }
+    if(m_attribs.colors) {
+        l = &(*m_attribs.colors).layout;
+        attrIndex = static_cast<unsigned int>(p->getAttributeLocation("v_color"));
+        vao->enableVertexAttribArray(attrIndex);
+        vao->vertexAttribPointer(*(*m_attribs.colors).vbo, attrIndex, l->nComponents(),
+                                 l->stride(), reinterpret_cast<void*>(l->offset()),
+                                 traits::gl_value<AttributeArray::Type>::value(l->type()), l->normalize());
+    }
+    if(m_attribs.uvs) {
+        l = &(*m_attribs.uvs).layout;
+        attrIndex = static_cast<unsigned int>(p->getAttributeLocation("v_texCoord"));
+        vao->enableVertexAttribArray(attrIndex);
+        vao->vertexAttribPointer(*(*m_attribs.uvs).vbo, attrIndex, l->nComponents(),
+                                 l->stride(), reinterpret_cast<void*>(l->offset()),
+                                 traits::gl_value<AttributeArray::Type>::value(l->type()), l->normalize());
+    }
+    // TODO : assuming triangles for now
+    if(isIndexed()) {
+        return new Object(position, p, vao, m_nVertices / 3, tex, primitiveMode);
+    }
+    else {
+        return new IndexedObject(position, p, (*m_attribs.indices).vbo, vao, m_nVertices / 3, tex,
+                                 primitiveMode);
+    }
+}
 
 unsigned int Mesh::numVertices() const { return m_nVertices; }
 unsigned int Mesh::numFaces() const { return m_nIndices; }

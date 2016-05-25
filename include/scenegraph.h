@@ -20,6 +20,7 @@
 #include "vbo.h"
 #include "matrixstack.h"
 #include "texture.h"
+#include "mesh.h"
 
 namespace Engine {
 
@@ -98,7 +99,10 @@ class DrawableNode : public Node {
 
 /* Drawable object with its own geometry, rendered with array rendering. */
 class Object : public DrawableNode {
+    friend DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture const* tex,
+                                           GLenum primitiveMode) const;
     public:
+        // Takes ownership of the VAO
         Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
                Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
@@ -117,7 +121,7 @@ class Object : public DrawableNode {
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 const& position, Program* p, VBO* ebo, VAO* vao, int nVertices,
+        IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, int nVertices,
                       Texture const* tex = nullptr, GLenum indexType = GL_UNSIGNED_SHORT,
                       GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
@@ -128,7 +132,7 @@ class IndexedObject : public DrawableNode {
 
     private:
         Program* m_program;
-        VBO* m_ebo;
+        const VBO* m_ebo;
         VAO* m_vao;
         int m_nVertices;
         GLenum m_indexType;

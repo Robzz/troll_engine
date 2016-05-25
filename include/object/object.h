@@ -2,6 +2,8 @@
 #define _OBJECT_H
 
 #include "component.h"
+#include "program.h"
+#include "mesh.h"
 
 namespace Engine {
 
@@ -12,7 +14,7 @@ namespace Engine {
 class Object {
     public:
         /* Default constructor */
-        Object();
+        Object(Mesh const& m, Program const& p);
         /* Destructor */
         virtual ~Object();
 
@@ -26,6 +28,8 @@ class Object {
         Object& operator=(Object&& other);
 
     private:
+        Program const& m_program;
+        VAO const& m_vao;
 };
 
 } // namespace Engine

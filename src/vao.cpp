@@ -30,7 +30,7 @@ void VAO::enableVertexAttribArray(GLuint index, bool enable) {
         glDisableVertexAttribArray(index);
 }
 
-void VAO::vertexAttribPointer(VBO& array, GLuint index, GLint size, GLsizei stride, const GLvoid* offset, GLenum type, bool normalize) {
+void VAO::vertexAttribPointer(VBO const& array, GLuint index, GLint size, GLsizei stride, const GLvoid* offset, GLenum type, bool normalize) {
     array.bind();
     glVertexAttribPointer(index, size, type, normalize ? GL_TRUE : GL_FALSE, stride, offset);
     VBO::unbind();

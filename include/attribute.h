@@ -10,6 +10,7 @@
 #include <boost/mpl/size_t.hpp>
 
 #include "vbo.h"
+#include "utility.h"
 
 namespace Engine {
 
@@ -51,11 +52,9 @@ class AttributeArray {
 
         AttributeArray* clone() const;
 
-    protected:
-
-        const VBO* m_vbo;
-        Kind m_kind;
-        Layout m_layout;
+        const VBO* vbo;
+        Kind kind;
+        Layout layout;
 };
 
 struct AttributeMap {
@@ -161,6 +160,26 @@ namespace traits {
         typedef typename std::enable_if<std::is_same<T, unsigned char>::value ||
                                         std::is_same<T, unsigned short>::value ||
                                         std::is_same<T, unsigned int>::value, T> type; 
+    };
+
+    template <>
+    struct gl_value<AttributeArray::Type> {
+        static GLenum value(AttributeArray::Type t) {
+            switch(t) {
+                case AttributeArray::Type::Float:
+                    return GL_FLOAT;
+                case AttributeArray::Type::Double:
+                    return GL_DOUBLE;
+                case AttributeArray::Type::Uint:
+                    return GL_UNSIGNED_INT;
+                case AttributeArray::Type::Uchar:
+                    return GL_UNSIGNED_BYTE;
+                case AttributeArray::Type::Ushort:
+                    return GL_UNSIGNED_SHORT;
+                case AttributeArray::Type::Int:
+                    return GL_INT;
+            }
+        }
     };
 } // namespace traits
 

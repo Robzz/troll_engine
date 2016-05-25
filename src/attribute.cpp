@@ -40,29 +40,29 @@ bool AttributeArray::Layout::normalize() const { return m_normalize; }
 std::intptr_t AttributeArray::Layout::offset() const { return m_offset; }
 
 AttributeArray::AttributeArray() :
-    m_vbo(nullptr),
-    m_kind(),
-    m_layout()
+    vbo(nullptr),
+    kind(),
+    layout()
 { }
 
 AttributeArray::AttributeArray(VBO const& vbo, AttributeArray::Kind k, AttributeArray::Layout const& l) :
-    m_vbo(&vbo),
-    m_kind(k),
-    m_layout(l)
+    vbo(&vbo),
+    kind(k),
+    layout(l)
 { }
 
 AttributeArray::AttributeArray(AttributeArray&& other) :
-    m_vbo(other.m_vbo),
-    m_kind(other.m_kind),
-    m_layout(other.m_layout)
+    vbo(other.vbo),
+    kind(other.kind),
+    layout(other.layout)
 { }
 
 AttributeArray::~AttributeArray() { }
 
 AttributeArray& AttributeArray::operator=(AttributeArray&& other) {
-    m_vbo = other.m_vbo;
-    m_kind = other.m_kind;
-    m_layout = other.m_layout;
+    vbo = other.vbo;
+    kind = other.kind;
+    layout = other.layout;
     return *this;
 }
 

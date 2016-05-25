@@ -105,7 +105,9 @@ Object::Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives
     m_vao(vao)
 { }
 
-Object::~Object() { }
+Object::~Object() {
+    delete m_vao;
+}
 
 void Object::draw(glm::mat4 const& m) {
     m_program->use();
@@ -129,7 +131,7 @@ void Object::set_program(Program* prog) {
     m_program = prog;
 }
 
-IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, VBO* ebo, VAO* vao, int nVertices,
+IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, int nVertices,
                              Texture const* tex, GLenum indexType, GLenum primitiveMode) :
     DrawableNode(position, tex),
     m_program(p),

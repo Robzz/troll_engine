@@ -8,8 +8,12 @@
 #include <glm/glm.hpp>
 
 #include "attribute.h"
+#include "program.h"
 
 namespace Engine {
+
+class DrawableNode;
+class Texture;
 
 /* This class contains mesh geometry and attributes. */
 class Mesh {
@@ -27,6 +31,9 @@ class Mesh {
         bool hasUVs() const;
         bool isIndexed() const;
         const char* name() const;
+
+        DrawableNode* instantiate(glm::mat4 const& position, Program* p, Texture const* tex = nullptr,
+                                  GLenum primitiveMode = GL_TRIANGLES) const;
 
         unsigned int numVertices() const;
         unsigned int numFaces() const;
