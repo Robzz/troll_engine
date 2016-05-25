@@ -24,13 +24,9 @@ class Camera {
     //void look_at(glm::vec3 const& pos, glm::vec3 const& target, glm::vec3 const& up)
 
     void translate(glm::vec3 const& v);
-
     void translate_local(Direction dir, float f);
-
     void translate_local(Direction dir, glm::vec3 const& v);
-
     void rotate(glm::vec3 const& axis, float angle);
-
     void rotate_local(Axis axis, float angle);
 
     glm::mat4 world_to_camera() const;
