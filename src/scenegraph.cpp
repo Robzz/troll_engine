@@ -87,22 +87,30 @@ void SceneGraph::render(Node* n) {
     m_matrixStack.pop();
 }
 
-DrawableNode::DrawableNode(glm::mat4 const& position, Texture const* tex) :
+DrawableNode::DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, Texture const* tex) :
     Node(position),
-    m_tex(tex)
+    m_tex(tex),
+    m_program(prog),
+    m_vao(vao)
 { }
 
 void DrawableNode::set_texture(Texture const* tex) {
     m_tex = tex;
 }
 
+void DrawableNode::set_program(Program* prog) {
+    m_program = prog;
+}
+
+void DrawableNode::set_vao(VAO* vao) {
+    m_vao = vao;
+}
+
 Object::Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
                Texture const* tex, GLenum primitiveMode) :
-    DrawableNode(position, tex),
+    DrawableNode(position, p, vao, tex),
     m_n_primitives(n_primitives),
-    m_primitiveMode(primitiveMode),
-    m_program(p),
-    m_vao(vao)
+    m_primitiveMode(primitiveMode)
 { }
 
 Object::~Object() {
@@ -127,16 +135,10 @@ void Object::draw(glm::mat4 const& m) {
     Program::noProgram();
 }
 
-void Object::set_program(Program* prog) {
-    m_program = prog;
-}
-
 IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, int nVertices,
                              Texture const* tex, GLenum indexType, GLenum primitiveMode) :
-    DrawableNode(position, tex),
-    m_program(p),
+    DrawableNode(position, p, vao, tex),
     m_ebo(ebo),
-    m_vao(vao),
     m_nVertices(nVertices),
     m_indexType(indexType),
     m_primitiveMode(primitiveMode)
@@ -165,14 +167,6 @@ void IndexedObject::draw(glm::mat4 const& m) {
     VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);
     VAO::unbind();
     Program::noProgram();
-}
-
-void IndexedObject::set_program(Program* prog) {
-    m_program = prog;
-}
-
-void IndexedObject::set_vao(VAO* vao) {
-    m_vao = vao;
 }
 
 } // namespace Engine

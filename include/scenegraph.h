@@ -87,14 +87,18 @@ class SceneGraph : public Node {
 class DrawableNode : public Node {
     public:
     /* Default constructor */
-    DrawableNode(glm::mat4 const& position, Texture const* tex = nullptr);
+    DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, Texture const* tex = nullptr);
     
     /* Render the node */
     virtual void draw(glm::mat4 const& m) = 0;
     void set_texture(Texture const* tex = nullptr);
+    void set_program(Program* prog);
+    void set_vao(VAO* vao);
 
     protected:
     Texture const* m_tex;
+    Program* m_program;
+    VAO* m_vao;
 };
 
 /* Drawable object with its own geometry, rendered with array rendering. */
@@ -108,14 +112,9 @@ class Object : public DrawableNode {
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
-        void set_program(Program* prog);
-        void set_vao(VAO* vao);
-
     private:
         int m_n_primitives;
         GLenum m_primitiveMode;
-        Program* m_program;
-        VAO* m_vao;
 };
 
 /* Drawable object with its own geometry, rendered with indexed rendering. */
@@ -127,13 +126,8 @@ class IndexedObject : public DrawableNode {
         ~IndexedObject();
         virtual void draw(glm::mat4 const& m);
 
-        void set_program(Program* prog);
-        void set_vao(VAO* vao);
-
     private:
-        Program* m_program;
         const VBO* m_ebo;
-        VAO* m_vao;
         int m_nVertices;
         GLenum m_indexType;
         GLenum m_primitiveMode;
