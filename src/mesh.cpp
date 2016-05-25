@@ -37,7 +37,6 @@ const char* Mesh::name() const { return m_name.c_str(); }
 DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture const* tex,
                                 GLenum primitiveMode) const {
     VAO* vao = new VAO();
-    GLuint normalIndex = static_cast<unsigned int>(p->getAttributeLocation("v_normal"));
     GLuint attrIndex;
     attrIndex = static_cast<unsigned int>(p->getAttributeLocation("v_position"));
     const AttributeArray::Layout* l = &m_attribs.positions.layout;

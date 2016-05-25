@@ -95,6 +95,8 @@ class DrawableNode : public Node {
     void set_program(Program* prog);
     void set_vao(VAO* vao);
 
+    void enable_attribute(std::string const& attr, bool enable = true);
+
     protected:
     Texture const* m_tex;
     Program* m_program;

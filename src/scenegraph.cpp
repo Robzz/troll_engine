@@ -106,6 +106,10 @@ void DrawableNode::set_vao(VAO* vao) {
     m_vao = vao;
 }
 
+void DrawableNode::enable_attribute(std::string const& attr, bool enable) {
+    m_vao->enableVertexAttribArray(m_program->getAttributeLocation(attr), enable);
+}
+
 Object::Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
                Texture const* tex, GLenum primitiveMode) :
     DrawableNode(position, p, vao, tex),
