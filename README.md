@@ -6,7 +6,8 @@ to learn about stuff.
 You probably won't use this in anything serious, but if you're interested in learning
 OpenGL and/or graphics programming, you might find some interesting stuff here.
 
-Mainly developed on Linux. Somewhat tested on windows, but you'll need MSYS2 to build.
+Mainly developed on Linux. Somewhat tested on windows, but you'll need [MSYS2](https://msys2.github.io/)
+to build.
 You wanna build it another way, that's your problem. Mac users, you're on your own.
 
 ## Dependencies
