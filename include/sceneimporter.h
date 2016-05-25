@@ -29,6 +29,8 @@ class SceneImporter {
              *  If not specified, the returned geometry will be suitable for array
              *  rendering. */
             JoinVertices = aiProcess_JoinIdenticalVertices,
+            /** Quick hack that should go away ASAP */
+            RemoveComponent = aiProcess_RemoveComponent
         };
 
         SceneImporter();
