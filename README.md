@@ -38,7 +38,3 @@ Not decided yet, probably BSD.
 * Does the name stand for anything?
 
 Not yet, but I'm sure I'll come up with something clever one day, like a better name.
-
-* Vulkan support?
-
-I'm interested, but that's gonna have to wait.
