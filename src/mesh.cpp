@@ -71,11 +71,11 @@ DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture c
     }
     // TODO : assuming triangles for now
     if(isIndexed()) {
-        return new Object(position, p, vao, m_nVertices / 3, tex, primitiveMode);
-    }
-    else {
         return new IndexedObject(position, p, (*m_attribs.indices).vbo, vao, m_nVertices / 3, tex,
                                  primitiveMode);
+    }
+    else {
+        return new Object(position, p, vao, m_nVertices / 3, tex, primitiveMode);
     }
 }
 
