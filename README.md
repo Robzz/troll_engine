@@ -1,7 +1,7 @@
 # TROLL Engine
 
 A small toy 3D engine based on OpenGL 3.3, programmed in C++11 that I write and use
-to learn about stuff. It's mostly focused on simplicity and ease of use.
+to learn about stuff.
 
 You probably won't use this in anything serious, but if you're interested in learning
 OpenGL and/or graphics programming, you might find some interesting stuff here.
@@ -16,8 +16,7 @@ The build system is based on CMake.
 * GLFW3
 * GLM
 * FreeImage
-* Flex and Bison (used for OBJ parser, I'll get rid of this and use a proper lib
-  soon)
+* Assimp
 * Mercurial (used by the build system to fetch other dependencies not usually bundled
   in distributions)
 * Lua 5.1

@@ -1,6 +1,0 @@
-[submodule "image"]
-	path = image
-	url = ../image
-[submodule "lib/image"]
-	path = lib/image
-	url = /home/robzz/my-repos/image
