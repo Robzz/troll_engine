@@ -87,10 +87,13 @@ void SceneGraph::render(Node* n) {
     m_matrixStack.pop();
 }
 
-DrawableNode::DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, Texture const* tex) :
+DrawableNode::DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, unsigned int nPrimitives,
+                           Texture const* tex, GLenum primitiveMode) :
     Node(position),
     m_tex(tex),
     m_program(prog),
+    m_nPrimitives(),
+    m_primitiveMode(primitiveMode),
     m_vao(vao)
 { }
 
@@ -107,14 +110,15 @@ void DrawableNode::set_vao(VAO* vao) {
 }
 
 void DrawableNode::enable_attribute(std::string const& attr, bool enable) {
-    m_vao->enableVertexAttribArray(m_program->getAttributeLocation(attr), enable);
+    GLint loc = m_program->getAttributeLocation(attr);
+    if(loc == -1)
+        throw std::runtime_error("Attribute not found");
+    m_vao->enableVertexAttribArray(static_cast<unsigned int>(loc), enable);
 }
 
-Object::Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
+Object::Object(glm::mat4 const& position, Program* p, VAO* vao, unsigned int n_primitives,
                Texture const* tex, GLenum primitiveMode) :
-    DrawableNode(position, p, vao, tex),
-    m_n_primitives(n_primitives),
-    m_primitiveMode(primitiveMode)
+    DrawableNode(position, p, vao, n_primitives, tex, primitiveMode)
 { }
 
 Object::~Object() {
@@ -132,20 +136,19 @@ void Object::draw(glm::mat4 const& m) {
         m_tex->bind();
     else
         Engine::Texture::unbind();
-    glDrawArrays(m_primitiveMode, 0, m_n_primitives);
+    glDrawArrays(m_primitiveMode, 0, static_cast<int>(m_nPrimitives));
     if(m_tex)
         Texture::unbind();
     VAO::unbind();
     Program::noProgram();
 }
 
-IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, int nVertices,
+IndexedObject::IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, unsigned int n_indices,
                              Texture const* tex, GLenum indexType, GLenum primitiveMode) :
-    DrawableNode(position, p, vao, tex),
+    DrawableNode(position, p, vao, n_indices/3, tex, primitiveMode),
     m_ebo(ebo),
-    m_nVertices(nVertices),
-    m_indexType(indexType),
-    m_primitiveMode(primitiveMode)
+    m_nIndices(n_indices),
+    m_indexType(indexType)
 { }
 
 IndexedObject::~IndexedObject() {
@@ -165,7 +168,7 @@ void IndexedObject::draw(glm::mat4 const& m) {
         m_tex->bind();
     else
         Engine::Texture::unbind();
-    glDrawElements(m_primitiveMode, m_nVertices, m_indexType, NULL);
+    glDrawElements(m_primitiveMode, static_cast<int>(m_nIndices), m_indexType, NULL);
     if(m_tex)
         Texture::unbind();
     VBO::unbind(GL_ELEMENT_ARRAY_BUFFER);

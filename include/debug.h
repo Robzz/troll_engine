@@ -17,11 +17,6 @@ typedef std::function<void(GLenum source,
                            const GLchar* message,
                            const void* userParam)> glDebugCallback;
 
-void APIENTRY gl_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
-
-void register_gl_debug_callback(glDebugCallback const& cb);
-void clear_gl_debug_callback();
-
 // Some debug pretty-print functions
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m);
 std::ostream& operator<<(std::ostream& s, glm::mat4 const& m);

@@ -1,10 +1,31 @@
-#ifndef MCGYVER_H
-#define MCGYVER_H
+#ifndef TROLL_ENGINE_H
+#define TROLL_ENGINE_H
 
 namespace Engine {
 
-void engine_init(int argc, char** argv);
+class Window;
+
+/**
+  * \class TrollEngine
+  * \brief The TrollEngine class represents an instance of the Engine.
+  */
+class TrollEngine {
+    public:
+        TrollEngine();
+        ~TrollEngine();
+
+        Window* current_window() const;
+
+        TrollEngine(TrollEngine const& other) = delete;
+        TrollEngine(TrollEngine&& other) = delete;
+        TrollEngine& operator=(TrollEngine const& other) = delete;
+        TrollEngine& operator=(TrollEngine&& other) = delete;
+
+    private:
+        static unsigned int s_instanceCount;
+        static void freeimage_error_callback(FREE_IMAGE_FORMAT, const char* message);
+};
 
 }
 
-#endif // MCGYVER_H
+#endif // TROLL_ENGINE_H

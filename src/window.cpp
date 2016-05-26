@@ -13,6 +13,7 @@ namespace Engine {
 
     Window::Window(Window&& w) :
         m_w(w.m_w),
+        m_title(std::move(w.m_title)),
         m_im(std::move(w.m_im)),
         m_render(w.m_render),
         m_resize(w.m_resize),
@@ -28,6 +29,7 @@ namespace Engine {
 
     Window::Window(int width, int height, std::string const& title, bool vsync, bool debug) :
         m_w(),
+        m_title(title),
         m_im(),
         m_render(),
         m_resize(),
@@ -50,6 +52,11 @@ namespace Engine {
             std::cerr << "Cannot create window" << std::endl;
         window_map[m_w] = this;
         makeCurrent();
+
+        //ogl_CheckExtensions();
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(&gl_debug_cb, this);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
 
         glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods) {
                                        Window* win = Window::findWindowFromGlfwHandle(w);
@@ -174,6 +181,12 @@ namespace Engine {
 
     Window::operator bool() const {
         return m_w;
+    }
+
+    void APIENTRY Window::gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                      const GLchar* message, const void* userParam) {
+        const Window* w = reinterpret_cast<const Window*>(userParam);
+        std::cout << message << std::endl;
     }
 
     WindowBuilder::WindowBuilder() :

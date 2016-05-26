@@ -11,6 +11,7 @@ SceneImporter::SceneImporter() :
 SceneImporter::~SceneImporter() { }
 
 void SceneImporter::readFile(std::string const& file, SceneImporter::PostProcess pp) {
+    // TODO : non triangle meshes?
     m_assimp.ReadFile(file, static_cast<unsigned int>(pp) | aiProcess_Triangulate);
 }
 

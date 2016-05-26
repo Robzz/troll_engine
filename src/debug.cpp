@@ -1,18 +1,6 @@
 #include "debug.h"
 #include <iostream>
 
-/*void register_gl_debug_callback(glDebugCallback const& cb) {
-    glDebugMessageCallback(cb.target<GLDEBUGPROC>(), nullptr);
-}*/
-
-void APIENTRY gl_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-    std::cout << message << std::endl;
-}
-
-void clear_gl_debug_callback() {
-    glDebugMessageCallback(nullptr, nullptr);
-}
-
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m) {
     for(int i = 0 ; i != 3 ; ++i) {
         s << "[ ";

@@ -30,7 +30,7 @@ class SceneImporter {
              *  rendering. */
             JoinVertices = aiProcess_JoinIdenticalVertices,
             /** Quick hack that should go away ASAP */
-            RemoveComponent = aiProcess_RemoveComponent
+            RemoveComponents = aiProcess_RemoveComponent
         };
 
         SceneImporter();
@@ -40,6 +40,11 @@ class SceneImporter {
         std::vector<const aiMesh*> meshes() const;
         std::unique_ptr<Mesh> instantiateMesh(aiMesh const& mesh) const;
 
+        /**
+          * \fn dropComponents
+          * \brief  Specify which components to remove if the RemoveComponents postprocessing
+          * flag is set.
+          */
         void dropComponents(int flags);
 
         /* No copy or move */

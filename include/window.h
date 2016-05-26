@@ -14,12 +14,18 @@ namespace Engine {
  * render loop. */
 class Window {
     friend class WindowBuilder;
+    friend class TrollEngine;
     public:
         // Move constructor
         Window(Window&& w);
         // Move assignment operator
         Window& operator=(Window&& w);
+        // No copy or assignment
+        Window(Window const& other) = delete;
+        Window& operator=(Window const& other) = delete;
+
         ~Window();
+
         // Make this window the current window
         void makeCurrent();
         // Swap the front and back buffers
@@ -65,11 +71,10 @@ class Window {
 
     private:
         Window(int width, int height, std::string const& title, bool vsync, bool debug);
-        // No copy or assignment
-        Window(Window const& other);
-        Window& operator=(Window const& other);
-
+        static void APIENTRY gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                         const GLchar* message, const void* userParam);
         GLFWwindow* m_w;
+        std::string m_title;
         InputManager m_im;
         std::function<void()> m_render;
         std::function<void(int, int)> m_resize;

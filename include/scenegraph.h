@@ -27,7 +27,7 @@ namespace Engine {
 /** \class Node
  *  \brief Base class for nodes in a SceneGraph 
            These nodes don't contain geometry themselves, and drawing them
-           doesn't render anything unless they have children. They are used to
+           doesn't render anything unless they have children. Their use is to
            logically organize a scene in the SceneGraph. */
 class Node {
     friend class SceneGraph;
@@ -40,13 +40,14 @@ class Node {
           */
         Node(glm::mat4 const& trans = glm::mat4(1.f), std::string const& name = "", bool enabled = true);
         virtual ~Node();
-        /* Add a child node and return it's id */
+        /* Add a child node and return its id */
         int addChild(Node* n);
         /* Remove a child with a particular id */
         void removeChildById(int id);
         /* Remove all childs with a given name */
         void removeChildsByName(std::string const&);
 
+        // TODO : use transform class here
         glm::mat4 transform() const;
         void set_transform(glm::mat4 const& m);
 
@@ -87,7 +88,8 @@ class SceneGraph : public Node {
 class DrawableNode : public Node {
     public:
     /* Default constructor */
-    DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, Texture const* tex = nullptr);
+    DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, unsigned int nPrimitives,
+                 Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
     
     /* Render the node */
     virtual void draw(glm::mat4 const& m) = 0;
@@ -100,6 +102,8 @@ class DrawableNode : public Node {
     protected:
     Texture const* m_tex;
     Program* m_program;
+    unsigned int m_nPrimitives;
+    GLenum m_primitiveMode;
     VAO* m_vao;
 };
 
@@ -109,20 +113,18 @@ class Object : public DrawableNode {
                                            GLenum primitiveMode) const;
     public:
         // Takes ownership of the VAO
-        Object(glm::mat4 const& position, Program* p, VAO* vao, int n_primitives,
+        Object(glm::mat4 const& position, Program* p, VAO* vao, unsigned int n_primitives,
                Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
     private:
-        int m_n_primitives;
-        GLenum m_primitiveMode;
 };
 
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, int nVertices,
+        IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, unsigned int n_indices,
                       Texture const* tex = nullptr, GLenum indexType = GL_UNSIGNED_SHORT,
                       GLenum primitiveMode = GL_TRIANGLES);
         ~IndexedObject();
@@ -130,9 +132,8 @@ class IndexedObject : public DrawableNode {
 
     private:
         const VBO* m_ebo;
-        int m_nVertices;
+        unsigned int m_nIndices;
         GLenum m_indexType;
-        GLenum m_primitiveMode;
 };
 
 } // namespace Engine
