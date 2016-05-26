@@ -1,3 +1,8 @@
+/**
+  * \file texture.h
+  * \brief Texture class definition
+  * \author R.Chavignat
+  */
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
@@ -6,23 +11,48 @@
 #include <string>
 #include <vector>
 
+/**
+  * \class Texture
+  * \brief Handle to a texture stored on the GPU.
+  */
 class Texture {
     friend class FBO;
 
     public:
-    /* Default constructor */
+    /**
+      * \brief Default constructor
+      * Construct an empty texture
+      */
     Texture();
-    /* Destructor */
+    /**
+      * \brief Destructor
+      */
     virtual ~Texture();
-    /* Move constructor */
+    /**
+      * \brief Move constructor
+      */
     Texture(Texture&& other);
-    /* Move-assignment operator */
+    /**
+      * \brief Move-assignment operator
+      */
     Texture& operator=(Texture&& other);
 
+    /**
+      * \enum Target
+      * \brief Enumerate the different texture binding points.
+      */
     enum Target : GLenum { Tex2D = GL_TEXTURE_2D };
+    /**
+      * \enum Target
+      * \brief Enumerate the different texture filters.
+      */
     enum Filters : GLenum { Magnification = GL_TEXTURE_MAG_FILTER,
                             Minification  = GL_TEXTURE_MIN_FILTER,
                             Both };
+    /**
+      * \enum Filter 
+      * \brief Enumerate the different texture filtering methods.
+      */
     enum Filter : GLenum { Nearest               = GL_NEAREST, 
                            Linear                = GL_LINEAR,
                            BiLinear              = GL_LINEAR_MIPMAP_LINEAR,
@@ -30,15 +60,48 @@ class Texture {
                            LinearMipmap_Nearest  = GL_LINEAR_MIPMAP_NEAREST,
                            NearestMipmap_Linear  = GL_NEAREST_MIPMAP_LINEAR };
 
+    /**
+      * \brief Bind the texture to the specified binding point.
+      */
     void bind(Target target = Tex2D) const;
+    /**
+      * \brief Unbind the texture bound to the specified binding point, if any.
+      */
     static void unbind(Target target = Tex2D);
+    /**
+      * \brief Return a handle to the null texture.
+      */
     static Texture noTexture();
 
+    /**
+      * \brief Create a texture from an image file.
+      */
     static Texture from_image(std::string const& filename);
 
+    /**
+      * \brief Sets the texture filtering options
+      * \param filters Filters to set
+      * \param f Filtering method
+      */
     void filtering(Filters filters, Filter f);
+    /**
+      * \brief Upload texture data to the GPU
+      * \param internalFormat Format in which to store the texture data internally
+      * \param format Format in which the texture data is passed
+      * \param type Texture data type
+      * \param width Texture width
+      * \param height Texture height
+      * \param data Pointer to the texture data
+      */
     void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
 
+    /**
+      * \brief Return texel data from the texture
+      * \param type Pixel type of the returned data
+      * \param format Pixel format of the returned data
+      * \param size Number of bytes of data to fetch
+      * \param level Specify the mipmap image level to fetch data from.
+      */
     template <class T>
     std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0) {
         unsigned char* buf = new unsigned char[size*sizeof(T)];

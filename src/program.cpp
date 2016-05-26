@@ -93,7 +93,7 @@ GLint Program::getAttributeLocation(std::string attribName) const {
     return loc;
 }
 
-GLint Program::getUniformLocation(std::string uniformName) const {
+GLint Program::getUniformLocation(std::string const& uniformName) const {
     GLint loc = GL(glGetUniformLocation(m_id, uniformName.c_str()));
     return loc;
 }

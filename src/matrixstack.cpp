@@ -1,9 +1,9 @@
 #include <matrixstack.h>
 
-MatrixStack::MatrixStack(glm::mat4 const& rootMatrix) :
-    m_current(rootMatrix)
+MatrixStack::MatrixStack() :
+    m_current(glm::mat4(1.f))
 {
-    push(rootMatrix);
+    push(m_current);
 }
 
 MatrixStack::~MatrixStack() {
@@ -17,10 +17,6 @@ size_t MatrixStack::size() const {
 bool MatrixStack::empty() const {
     return size() == 1;
 } 
-
-glm::mat4& MatrixStack::top() {
-    return m_current;
-}
 
 glm::mat4 const& MatrixStack::top() const {
     return m_current;

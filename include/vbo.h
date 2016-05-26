@@ -1,3 +1,8 @@
+/**
+  * \file vbo.h
+  * \brief VBO class definition
+  * \author 
+  */
 #ifndef VBO_H
 #define VBO_H
 
@@ -6,18 +11,38 @@
 
 #include "debug.h"
 
-// Class for vertex buffer objects (VBOs)
+/**
+  * \class VBO
+  * \brief Handle to a GPU Vertex Buffer %Object.
+  */
 class VBO {
     public:
+        /**
+          * \brief Default constructor.
+          * Construct an empty VBO of null size.
+          */
         VBO();
+        /**
+          * \brief Destructor.
+          */
         ~VBO();
 
-        // Bind this VBO to the specified target
+        /**
+          * \brief Bind the VBO to the specified binding point.
+          * \param target OpenGL binding point.
+          */
         void bind(GLenum target = GL_ARRAY_BUFFER) const;
-        // Unbind the buffer bound at the specified target, if any
+        /**
+          * \brief Unbind the buffer bound at the specified target, if any
+          */
         static void unbind(GLenum target = GL_ARRAY_BUFFER);
 
-        // Upload data to the VBO
+        
+        /**
+          * \brief Upload data to the VBO
+          * \param data Data array
+          * \param hint OpenGL buffer usage hint.
+          */
         template <class T>
         void upload_data(std::vector<T> data, GLenum hint = GL_STATIC_DRAW) {
             bind();
