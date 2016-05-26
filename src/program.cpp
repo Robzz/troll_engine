@@ -7,7 +7,7 @@
 
 namespace Engine {
 
-Program* Program::s_current = nullptr;
+const Program* Program::s_current = nullptr;
 
 ProgramHandle::ProgramHandle(GLuint handle) :
     m_handle(handle)
@@ -75,7 +75,6 @@ bool Program::operator !() const {
     return !((*this).operator bool());
 }
 
-
 std::string Program::info_log() const {
     std::ostringstream oss;
     GLint log_length;
@@ -93,7 +92,8 @@ std::string Program::info_log() const {
     return oss.str();
 }
 
-void Program::use() {
+
+void Program::use() const {
     glUseProgram(m_id->value());
     s_current = this;
 }
@@ -113,7 +113,7 @@ UniformBase* Program::getUniform(std::string const& name) {
 }
 
 void Program::uploadUniforms() {
-    Program* previous = s_current;
+    const Program* previous = s_current;
     if(!is_current())
         use();
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
@@ -130,12 +130,12 @@ GLint Program::getAttributeLocation(std::string attribName) const {
     return loc;
 }
 
-GLint Program::getUniformLocation(std::string uniformName) const {
+GLint Program::getUniformLocation(std::string const& uniformName) const {
     GLint loc = glGetUniformLocation(m_id->value(), uniformName.c_str());
     return loc;
 }
 
-Program* Program::current() { return s_current; }
+const Program* Program::current() { return s_current; }
 
 UniformBase::UniformBase(GLint location, std::string const& name) :
     m_location(location),

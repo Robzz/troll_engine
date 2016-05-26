@@ -13,10 +13,6 @@ Image::Image(unsigned int width, unsigned int height, unsigned int bpp) :
 
 }
 
-Image::Image() :
-    m_image(nullptr)
-{ }
-
 Image::Image(std::string const& filename) :
     m_image(nullptr)
 {

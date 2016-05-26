@@ -10,6 +10,8 @@
 #include <memory>
 #include <typeinfo>
 #include <sstream>
+#include <vector>
+#include <type_traits>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -70,72 +72,144 @@ class ShaderManager {
         void compileShader(std::string shaderFile);
 };
 
-/* Base class for uniforms */
+/**
+  * \class UniformBase
+  * \brief Abstract base class for GPU program uniforms.
+  */
 class UniformBase {
     friend class Program;
     public:
-        /* Destructor */
+        /**
+          * \brief Destructor
+          */
         virtual ~UniformBase();
 
-        // Check if the uniform is valid
+        /**
+          * \brief Check if the uniform is valid
+          * \return true if the uniform is valid, false otherwise.
+          */
         operator bool() const;
 
+        /**
+          * \brief Return the uniforms name.
+          */
         std::string const& name() const;
 
     protected:
+        /**
+          * \brief Upload the uniform to the GPU.
+          */
         virtual void upload() = 0;
 
-        /* Default constructor */
+        /**
+          * \brief Default constructor
+          * \param location Uniform location
+          * \param name Uniform name
+          */
         UniformBase(GLint location, std::string const& name);
+
+        /** \brief OpenGL uniform location */
         GLint m_location;
+
+        /** \brief Uniform name */
         std::string m_name;
+
+        /** \brief Was uniform value modified since last GPU upload */
         bool m_clean;
 };
 
-// Class for GPU programs
+/**
+  * \class Program
+  * \brief Class for GPU programs
+  */
 class Program {
     friend class ProgramBuilder;
     public:
+        /**
+          * \brief Move constructor.
+          */
         Program(Program&& other);
         Program& operator=(Program&& other);
 
-        // Check if the program is valid (i.e. successfully linked)
+        /**
+          * \brief Check if the program is valid
+          * \return true if the program is valid, false otherwise.
+          */
         operator bool() const;
-        // Check if the program is invalid
+
+        /**
+          * \brief Check if the program is invalid
+          * \return true if the program is invalid, false otherwise.
+          */
         bool operator !() const;
-        // Return some information about the program.
+
         // TODO : return information about the uniforms too (e.g. found/not found)
+        /**
+          * \brief Return information about the program.
+          */
         std::string info_log() const;
 
-        // Set as the program currently used for rendering
-        void use();
-        // Disable programs for rendering
+        /**
+          * \brief Set as the currently active program.
+          */
+        void use() const;
+
+        /**
+          * \brief Unbind the currently bound program, if any.
+          */
         static void noProgram();
 
-        // Return the OpenGL location of an attribute
+        /**
+          * \brief Return the OpenGL location of an attribute
+          */
         GLint getAttributeLocation(std::string) const;
-        // Return the Uniform object associated with an uniform
+        
+        /**
+          * \brief Return the Uniform object associated with a uniform
+          */
         UniformBase* getUniform(std::string const& name);
-        // Upload uniforms to GPU
+        
+        /**
+          * \brief Upload uniforms to GPU
+          */
         void uploadUniforms();
 
+        /**
+          * \brief Check if the program is currently in use
+          */
         bool is_current() const;
-        static Program* current();
+
+        /**
+          * \brief Return the currently bound program.
+          */
+        static const Program* current();
     
+        /**
+          * \brief Destructor
+          */
         ~Program();
 
     private:
+        /**
+          * \brief Constructor
+          * \param id OpenGL id of the program.
+          * \param uniforms Uniforms used by the program
+          */
         Program(std::shared_ptr<ProgramHandle> h, std::vector<UniformBase*> uniforms);
         
         // Not copyable
         Program(Program const& other);
         Program& operator=(Program const& other);
 
-        GLint getUniformLocation(std::string) const;
+        /**
+          * \brief Return the location of a uniform
+          * \param uni Name of the uniform whose location to query.
+          */
+        GLint getUniformLocation(std::string const& uni) const;
 
         std::shared_ptr<ProgramHandle> m_id;
         std::vector<UniformBase*> m_uniforms;
-        static Program* s_current;
+        static const Program* s_current;
 };
 
 template <class T>
@@ -146,39 +220,69 @@ template <class T>
 class Uniform : public UniformBase {
     friend class ProgramBuilder;
     public:
-        /* Destructor */
+        /**
+          * \brief Destructor
+          */
         virtual ~Uniform();
 
-        /* Modify the uniform value. Does not upload to GPU. */
+        /**
+          * \brief Set the uniform value, do not upload to the GPU.
+          * \param value New value.
+          */
         void set(T const& value);
 
     private:
         T m_value;
 
-        /* Default constructor */
+        /**
+          * \brief Default constructor
+          * \param location OpenGL uniform location
+          * \param name Uniform name
+          */
         Uniform(GLint location, std::string const& name);
 
-        /* Upload uniform to GPU. Program must be in use. */
+        /**
+          * \brief Upload uniform to GPU. Program must be in use.
+          */
         virtual void upload();
 };
 
-// Use this class to build Program objects
+/**
+  * \class ProgramBuilder
+  * \brief Builder class for Program objects
+  */
 class ProgramBuilder {
     public:
     friend class ShaderManager;
+        /**
+          * \brief Constructor
+          */
+        ProgramBuilder();
+
+        /**
+          * \brief Destructor
+          */
         ~ProgramBuilder();
 
-        enum class UniformType { Vec3, Mat3, Mat4, Int, Float };
+        /**
+          * \enum UniformType
+          * \brief Possible types for uniform values
+          */
+        enum UniformType { Vec3, Mat3, Mat4, Int, Float };
 
         /* Attach a shader to the program */
         ProgramBuilder& vertexShader(std::string const& file);
         ProgramBuilder& fragmentShader(std::string const& file);
         ProgramBuilder& geometryShader(std::string const& file);
 
-        /* Register a uniform */
+        /**
+          * \brief Register a uniform
+          */
         ProgramBuilder& uniform(std::string const& name, UniformType t);
 
-        /* Link the program and return the Program object */
+        /**
+          * \brief Link the program and return the Program object
+          */
         Program build();
 
     private:
@@ -197,4 +301,4 @@ class ProgramBuilder {
 
 #undef TYPE
 
-#endif // PROGRAM_H
+#endif

@@ -6,14 +6,27 @@
 
 namespace Engine {
 
+/**
+  * \class Shader
+  * \brief Represents an individual shader.
+  */
 class Shader {
     friend class ProgramBuilder;
     public:
         enum class Type { VertexShader = GL_VERTEX_SHADER, FragmentShader = GL_FRAGMENT_SHADER,
                           GeometryShader = GL_GEOMETRY_SHADER };
         virtual ~Shader();
+        /**
+          * \brief Check if the shader handle is valid.
+          */
         operator bool() const;
+        /**
+          * \brief Check if the shader handle is invalid.
+          */
         bool operator !() const;
+        /**
+          * \brief Return the shader information log.
+          */
         std::string info_log() const;
 
         Shader(Shader const& other) = delete;

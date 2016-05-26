@@ -30,8 +30,6 @@ void Camera<T>::look_at(glm::vec3 const& pos, glm::vec3 const& target, glm::vec3
 template <class T>
 void Camera<T>::translate(glm::vec3 const& v) {
     m_camToWorld.translate(v);
-    std::cout << "Camera vectors :" << std::endl
-              << world_to_camera();
 }
 
 template <class T>
@@ -39,15 +37,6 @@ void Camera<T>::translate_local(Direction dir, float f) {
     m_camToWorld.translate_local(dir, f);
     /*std::cout << "Camera vectors :" << std::endl
               << "Camera pos : " << m_camToWorld.position() << std::endl
-              << "X : " << m_camToWorld.x() << std::endl
-              << "Y : " << m_camToWorld.y() << std::endl
-              << "Z : " << m_camToWorld.z() << std::endl;*/
-}
-
-template <class T>
-void Camera<T>::translate_local(Direction dir, glm::vec3 const& v) {
-    m_camToWorld.translate_local(dir, v);
-    /*std::cout << "Camera vectors :" << std::endl
               << "X : " << m_camToWorld.x() << std::endl
               << "Y : " << m_camToWorld.y() << std::endl
               << "Z : " << m_camToWorld.z() << std::endl;*/

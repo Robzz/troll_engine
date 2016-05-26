@@ -1,9 +1,13 @@
+/**
+  * \file camera.h
+  * \brief Camera class definition
+  * \author R.Chavignat
+  */
 #ifndef CAMERA_H
 #define CAMERA_H
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <iostream>
 #include "transform.h"
 
 namespace Engine {
@@ -11,26 +15,54 @@ namespace Engine {
 template <class T>
 class Camera {
     public:
-    /* Constructors */
+    /**
+      * \brief Default constructor.
+      * Construct a camera located at the origin and looking
+      * on the negative Z direction.
+      */
     Camera();
-    Camera(Camera const& other);
-
-    /* Destructor */
+    /**
+      * \brief Destructor
+      */
     virtual ~Camera();
 
-    /* Assignment operator */
+    /**
+      * \brief Copy constructor
+      */
+    Camera(Camera const& other);
+    /**
+      * \brief Assignment operator
+      */
     Camera& operator=(Camera const& other);
 
-    //void look_at(glm::vec3 const& pos, glm::vec3 const& target, glm::vec3 const& up)
 
+    /**
+      * \brief Translate the camera in a certain direction.
+      */
     void translate(glm::vec3 const& v);
+   /**
+      * \brief Translate the camera in a certain direction in
+      * its local coordinate space.
+      */
     void translate_local(Direction dir, float f);
-    void translate_local(Direction dir, glm::vec3 const& v);
+    /**
+      * \brief Rotate the camera around the specified axis.
+      */
     void rotate(glm::vec3 const& axis, float angle);
+    /**
+      * \brief Rotate the camera around the specified axis
+      * in its local space.
+      */
     void rotate_local(Axis axis, float angle);
 
+    /**
+      * \brief Return the world to camera transformation matrix.
+      */
     glm::mat4 world_to_camera() const;
 
+    /**
+      * \brief Return the world to camera transform.
+      */
     T const& transform() const;
 
     private:

@@ -15,6 +15,20 @@ if(${LUA_EXECUTABLE} STREQUAL LUA_EXECUTABLE-NOTFOUND)
     message(FATAL_ERROR "Lua 5.1 not found")
 endif()
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    option(GENERATE_DOCS "Generate Doxygen documentation" OFF)
+else()
+    set(GENERATE_DOCS OFF)
+endif()
+
+if(GENERATE_DOCS)
+    add_custom_target(doxygen_docs
+                      COMMAND doxygen Doxyfile)
+else()
+    add_custom_target(doxygen_docs)
+endif()
+
 set(troll_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(troll_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -40,7 +54,12 @@ if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    #add_definitions(-DGL_TRACE)
     add_definitions(-DDEBUG)
+else()
+    # Silence some expected warnings
+    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w")
+    set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_SWIZZLE)
 
