@@ -1,6 +1,8 @@
 #ifndef TROLL_ENGINE_H
 #define TROLL_ENGINE_H
 
+#include <FreeImage.h>
+
 namespace Engine {
 
 class Window;

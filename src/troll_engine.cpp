@@ -1,11 +1,12 @@
 #include <iostream>
 #include "gl_core_3_3.h"
 #include <GLFW/glfw3.h>
-#include <FreeImage.h>
 #include "troll_engine.h"
 #include "window.h"
 
 namespace Engine {
+
+unsigned int TrollEngine::s_instanceCount = 0;
 
 TrollEngine::TrollEngine() {
     ++s_instanceCount;
