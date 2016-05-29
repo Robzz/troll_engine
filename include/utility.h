@@ -24,6 +24,11 @@ namespace traits {
         static constexpr bool enable = false;
     };
 
+    template <class E>
+    struct enum_class_value {
+        static constexpr bool enable = false;
+    };
+
     template <class T>
     struct gl_value { };
 }
@@ -32,6 +37,9 @@ template <class E>
 typename std::enable_if<traits::enable_bitmask_operators<E>::enable, E>::type operator|(E e1, E e2);
 template <class E>
 typename std::enable_if<traits::enable_bitmask_operators<E>::enable, E>::type operator&(E e1, E e2);
+
+template <class E>
+typename std::enable_if<traits::enum_class_value<E>::enable, typename std::underlying_type<E>::type>::type value(E e);
 
 #include "utility.inl"
 

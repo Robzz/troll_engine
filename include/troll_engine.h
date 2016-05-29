@@ -1,3 +1,8 @@
+/**
+  * \file troll_engine.h
+  * \brief Defines the TrollEngine class
+  * \author R.Chavignat
+  */
 #ifndef TROLL_ENGINE_H
 #define TROLL_ENGINE_H
 

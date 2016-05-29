@@ -20,3 +20,8 @@ operator&(E e1, E e2) {
     typedef typename std::underlying_type<E>::type underlying;
     return static_cast<E>(static_cast<underlying>(e1) & static_cast<underlying>(e2));
 }
+
+template <class E>
+typename std::enable_if<traits::enum_class_value<E>::enable, typename std::underlying_type<E>::type>::type value(E e) {
+    return static_cast<typename std::underlying_type<E>::type>(e);
+}

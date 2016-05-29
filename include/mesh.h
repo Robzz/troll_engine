@@ -1,3 +1,8 @@
+/**
+  * \file mesh.h
+  * \brief Definitionn of mesh related classes
+  * \author R.Chavignat
+  */
 #ifndef MESH_H
 #define MESH_H
 
@@ -15,31 +20,74 @@ namespace Engine {
 class DrawableNode;
 class Texture;
 
-/* This class contains mesh geometry and attributes. */
+/**
+  * \class Mesh
+  * \brief Contains the geometry and attributes of a mesh.
+  */
 class Mesh {
     public:
-        /* Destructor */
+        /**
+          * \brief Destructor
+          */
         virtual ~Mesh();
 
-        /* Move constructor */
+        /**
+          * \brief Move constructor
+          */
         Mesh(Mesh&& other);
-        /* Move-assignment operator */
+        /**
+          * \brief Move-assignment operator
+          */
         Mesh& operator=(Mesh&& other);
 
+        /**
+          * \brief Return true if the mesh has normals.
+          */
         bool hasNormals() const;
+        /**
+          * \brief Return true if the mesh has vertex colors.
+          */
         bool hasColors() const;
+        /**
+          * \brief Return true if the mesh has texture coordinates.
+          */
         bool hasUVs() const;
+        /**
+          * \brief Return true if the mesh has indices.
+          */
         bool isIndexed() const;
+        /**
+          * \brief Return the name of the mesh.
+          */
         const char* name() const;
 
+        /**
+          * \brief Return an Object that is an instance of the mesh.
+          * TODO : refactor this
+          */
         DrawableNode* instantiate(glm::mat4 const& position, Program* p, Texture const* tex = nullptr,
                                   GLenum primitiveMode = GL_TRIANGLES) const;
 
+        /**
+          * \brief Return the number of vertices in the mesh.
+          */
         unsigned int numVertices() const;
+        /**
+          * \brief Return the number of faces in the mesh.
+          */
         unsigned int numFaces() const;
 
     protected:
         friend class MeshBuilder;
+        /**
+          * \brief Constructor.
+          * \param name %Mesh name
+          * \param attribs %Mesh attribute map
+          * \param resources Array of VBOs containing the resources that are exclusively part of the
+          * Mesh, so they can be free'd on destruction.
+          * \param nVerts Number of vertices in the Mesh.
+          * \param nIndices Number of indices in the Mesh, if indexed.
+          */
         Mesh(std::string const& name, AttributeMap attribs, std::vector<std::unique_ptr<VBO>>&& resources,
              unsigned int nVerts, unsigned int nIndices);
 
@@ -53,22 +101,57 @@ class Mesh {
         Mesh& operator=(Mesh const& other) = delete;
 };
 
+/**
+  * \class MeshBuilder
+  * \brief Mesh factory class.
+  */
 class MeshBuilder {
     public:
-        /* Default constructor */
+        /**
+          * \brief Constructor
+          */
         explicit MeshBuilder(std::string const& meshName = "default");
-        /* Destructor */
+        /**
+          * \brief Destructor
+          */
         virtual ~MeshBuilder();
 
+        /**
+          * \brief Specify the Mesh vertices.
+          */
         MeshBuilder& vertices(std::vector<glm::vec3> const& verts);
+        /**
+          * \brief Specify the Mesh normals.
+          */
         MeshBuilder& normals(std::vector<glm::vec3> const& norms);
+        /**
+          * \brief Specify the Mesh vertex colors.
+          */
         MeshBuilder& colors(std::vector<glm::vec4> const& cols);
+        /**
+          * \brief Specify the Mesh 2D texture coordinates.
+          */
         MeshBuilder& uvs(std::vector<glm::vec2> const& uvs);
+        /**
+          * \brief Specify the Mesh 3D texture coordinates.
+          */
         MeshBuilder& uvs(std::vector<glm::vec3> const& uvs);
+        /**
+          * \brief Specify the Mesh indices.
+          */
         MeshBuilder& faces(std::vector<unsigned char>&& indices);
+        /**
+          * \brief Specify the Mesh indices.
+          */
         MeshBuilder& faces(std::vector<unsigned short>&& indices);
+        /**
+          * \brief Specify the Mesh indices.
+          */
         MeshBuilder& faces(std::vector<unsigned int>&& indices);
 
+        /**
+          * \brief Build the mesh.
+          */
         std::unique_ptr<Mesh> build_mesh();
 
         /* No copy or move */

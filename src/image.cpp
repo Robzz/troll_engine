@@ -1,16 +1,20 @@
 #include "gl_core_3_3.h"
 #include "image.h"
-#include "utility.h"
 #include <stdexcept>
 #include <fstream>
 #include <limits>
 
 namespace Engine {
 
-Image::Image(unsigned int width, unsigned int height, unsigned int bpp) :
-    m_image(FreeImage_Allocate(static_cast<int>(width), static_cast<int>(height), static_cast<int>(bpp)))
+Image::Image(unsigned int width, unsigned int height, Image::Type t, int bpp) :
+    m_image(nullptr)
 {
-
+    if(t == Image::Type::Unknown)
+        throw std::runtime_error("Invalid image type");
+    m_image = FreeImage_AllocateT(static_cast<FREE_IMAGE_TYPE>(t), static_cast<int>(width),
+                                  static_cast<int>(height), static_cast<int>(bpp));
+    if(!m_image)
+        throw std::runtime_error("Cannot create image");
 }
 
 Image::Image(std::string const& filename) :
@@ -43,6 +47,10 @@ Image& Image::operator=(Image const& other) {
     return *this;
 }
 
+bool Image::hasPixels() const {
+    return FreeImage_HasPixels(m_image);
+}
+
 unsigned int Image::width() const {
     return FreeImage_GetWidth(m_image);
 }
@@ -51,10 +59,18 @@ unsigned int Image::height() const {
     return FreeImage_GetHeight(m_image);
 }
 
-Image Image::from_rgb(std::vector<unsigned char> vec, int width, int height, bool flip) {
-    assert(vec.size() == (static_cast<unsigned int>(width * height) * 3u));
-    Image img(FreeImage_ConvertFromRawBits(vec.data(), width, height, width * 3, 24u, 0xFF000000, 0x00FF0000, 0x0000FF00, flip));
-    return img;
+RGBQUAD Image::getPixel(unsigned int x, unsigned int y) const {
+    RGBQUAD r;
+    if(!FreeImage_GetPixelColor(m_image, x, y, &r)) {
+        throw std::runtime_error("Cannot read pixel");
+    }
+    return r;
+}
+
+void Image::setPixel(unsigned int x, unsigned int y, RGBQUAD color) {
+    if(!FreeImage_SetPixelColor(m_image, x, y, &color)) {
+        throw std::runtime_error("Cannot set pixel value");
+    }
 }
 
 Image Image::from_greyscale(std::vector<unsigned short> vec, int width, int height, bool flip) {

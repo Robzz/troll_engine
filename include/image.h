@@ -1,11 +1,13 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "texture.h"
 #include <vector>
 #include <string>
+#include <type_traits>
 #include <glm/glm.hpp>
 #include <FreeImage.h>
+#include "texture.h"
+#include "utility.h"
 #include "texture.h"
 
 namespace Engine {
@@ -17,18 +19,38 @@ namespace Engine {
 class Image {
     public:
     /**
+      * \enum Type
+      * \brief Enumerate image types
+      */
+    enum class Type : typename std::underlying_type<FREE_IMAGE_TYPE>::type {
+        Bitmap  = FIT_BITMAP,
+        Uint16  = FIT_UINT16,
+        Int16   = FIT_INT16,
+        Uint32  = FIT_UINT32,
+        Int32   = FIT_INT32,
+        Float   = FIT_FLOAT,
+        Double  = FIT_DOUBLE,
+        Complex = FIT_COMPLEX,
+        Rgb16   = FIT_RGB16,
+        Rgba16  = FIT_RGBA16,
+        Rgbf    = FIT_RGBF,
+        Rgbaf   = FIT_RGBAF,
+        Unknown = FIT_UNKNOWN
+    };
+
+    /**
       * \brief Construct an empty image of specified dimensions and bit depth.
       * \param width Image width
       * \param height Image height 
       * \param bpp Image Depth, in bits per pixel 
       */
-    Image(unsigned int width, unsigned int height, unsigned int bpp);
+    Image(unsigned int width, unsigned int height, Type t = Type::Bitmap, int bpp = 24);
 
     Image() = delete;
 
     /**
       * \brief Construct an image from a file.
-      * In theory, any format supporteed by the FreeImage library should work.
+      * In theory, any format supported by the FreeImage library should work.
       */
     explicit Image(std::string const& filename);
     /* Destructor */
@@ -45,7 +67,7 @@ class Image {
         BmpRle,
         /** PNG format */
         Png };
-
+    
     /**
       * \brief Construct a copy of an Image.
       */
@@ -54,6 +76,12 @@ class Image {
       * \brief Image assignment operator.
       */
     Image& operator=(Image const& other);
+
+    /**
+      * \brief Return false if the image is empty, i.e. it contains only metadata
+      * and no pixel data.
+      */
+    bool hasPixels() const;
 
     /**
       * \brief Return the width of the image.
@@ -66,13 +94,27 @@ class Image {
     unsigned int height() const;
 
     /**
-      * \brief Create an image from an array of 8-bit RGB values.
-      * \param vec RGB data byte array
+      * \brief Return the color of the specified pixel.
+      */
+    RGBQUAD getPixel(unsigned int x, unsigned int y) const;
+
+    /**
+      * \brief Set the color of the specified pixel.
+      */
+    void setPixel(unsigned int x, unsigned int y, RGBQUAD color);
+
+
+    /**
+      * \brief Create an image from an array RGB values.
+      * \tparam T Type of the pixel components
+      * \param vec RGB data array
       * \param width Image width
       * \param height Image height
       * \param flip Flip the image vertically
       */
-    static Image from_rgb(std::vector<unsigned char> vec, int width, int height, bool flip = false);
+    template <class T>
+    static typename std::enable_if<std::is_arithmetic<T>::value, Image>::type
+        from_rgb(std::vector<T> vec, int width, int height, bool flip = false);
     static Image from_greyscale(std::vector<unsigned short> vec, int width, int height, bool flip = false);
 
     /**
@@ -88,12 +130,28 @@ class Image {
       */
     bool save(std::string const& filename, Format f) const;
 
+    template <class P>
+    class PixelAccess {
+        public:
+            PixelAccess();
+            virtual ~PixelAccess();
+    
+            /* No copy or move */
+            PixelAccess(PixelAccess const& other) = delete;
+            PixelAccess& operator=(PixelAccess const& other) = delete;
+            PixelAccess(PixelAccess&& other) = delete;
+            PixelAccess& operator=(PixelAccess&& other) = delete;
+        private:
+            Image& m_img;
+    };
+
     private:
     explicit Image(FIBITMAP* other);
     FIBITMAP* m_image;
 };
 
-} // namespace Engine
+#include "image.inl"
 
+} // namespace Engine
 
 #endif
