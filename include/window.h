@@ -203,53 +203,17 @@ class Qt5Surface : public RenderSurface, public QOpenGLWidget {
         virtual int width() const override;
         virtual int height() const override;
 
+        bool event(QEvent *event) override;
+        virtual void resizeGL(int w, int h) override;
+
+        void requestUpdate();
+
         virtual void setResizeCallback(std::function<void(int,int)> f) override;
 
     protected:
-        Qt5Surface(int width, int height, std::string const& title, bool vsync, bool debug);
+        Qt5Surface(QWidget* parent, int width, int height, bool vsync, bool debug);
         std::function<void(int,int)> m_resizeFunc;
+        bool m_renderPending;
 };
 #endif
-
-/*
-// This class helps constructing Window objects.
-class RenderSurfaceBuilder {
-    public:
-        enum class RenderSurfaceType {
-#ifdef TROLL_USE_GLFW
-            GlfwWindow,
-#endif
-#ifdef TROLL_USE_QT5
-            Qt5Window,
-            Qt5Surface
-#endif
-        };
-
-        RenderSurfaceBuilder();
-        ~RenderSurfaceBuilder();
-
-        // Set the size of the Window
-        RenderSurfaceBuilder& size(int width, int height);
-        // Set the Window title
-        RenderSurfaceBuilder& title(std::string const& title);
-        // Turn vsync on or off
-        // TODO : GLX/WGL specific... Yeepee
-        //WindowBuilder& vsync(bool v);
-
-        RenderSurfaceBuilder& debug(bool dbg = true);
-
-        RenderSurfaceBuilder& type(RenderSurfaceType t);
-
-        // Construct the Window
-        RenderSurface* build() const;
-
-    private:
-        int m_height;
-        int m_width;
-        std::string m_title;
-        bool m_vsync;
-        bool m_debug;
-        RenderSurfaceType m_type;
-};
-*/
 }

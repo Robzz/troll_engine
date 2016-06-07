@@ -265,9 +265,11 @@ namespace Engine {
         QWindow::close();
     }
 
-    Qt5Surface::Qt5Surface(int width, int height, std::string const& title, bool vsync, bool debug) :
+    Qt5Surface::Qt5Surface(QWidget* parent, int width, int height,
+                           bool vsync, bool debug) :
         RenderSurface::RenderSurface(),
-        QOpenGLWidget()
+        QOpenGLWidget(parent),
+        m_renderPending(false)
     {
         resize(width, height);
 
@@ -279,6 +281,11 @@ namespace Engine {
         fmt.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
         fmt.setOption(QSurfaceFormat::DebugContext, true);
         setFormat(fmt);
+
+        m_resizeFunc = [&] (int w, int h) {
+            viewPort(0, 0, w, h);
+            requestUpdate();
+        };
     }
 
     Qt5Surface::~Qt5Surface() { }
@@ -289,6 +296,30 @@ namespace Engine {
     }
 
     void Qt5Surface::swapBuffers() { }
+
+    bool Qt5Surface::event(QEvent *event) {
+        QResizeEvent* re = nullptr;
+        switch (event->type()) {
+        case QEvent::UpdateRequest:
+            paintGL();
+            m_renderPending = false;
+            break;
+        default:
+            return QOpenGLWidget::event(event);
+        }
+        return true;
+    }
+
+    void Qt5Surface::resizeGL(int w, int h) {
+        m_resizeFunc(w, h);
+    }
+
+    void Qt5Surface::requestUpdate() {
+        if(!m_renderPending) {
+            QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+            m_renderPending = true;
+        }
+    }
 
     int Qt5Surface::width() const {
         return QOpenGLWidget::width();
@@ -302,68 +333,4 @@ namespace Engine {
         m_resizeFunc = f;
     }
 #endif
-/*
-    RenderSurfaceBuilder::RenderSurfaceBuilder() :
-        m_height(720),
-        m_width(1280),
-        m_title("Troll Engine window"),
-        m_vsync(true),
-        m_debug(),
-        m_type(
-        #ifdef TROLL_USE_GLFW
-            RenderSurfaceType::GlfwWindow
-        #else
-            RenderSurfaceType::Qt5Window
-        #endif
-            )
-    { }
-
-    RenderSurfaceBuilder::~RenderSurfaceBuilder() {
-
-    }
-
-    RenderSurfaceBuilder& RenderSurfaceBuilder::size(int width, int height) {
-        m_width = width;
-        m_height = height;
-        return *this;
-    }
-
-    RenderSurfaceBuilder& RenderSurfaceBuilder::title(std::string const& title) {
-        m_title = title;
-        return *this;
-    }
-
-
-    RenderSurfaceBuilder& RenderSurfaceBuilder::vsync(bool v) {
-        m_vsync = v;
-        return *this;
-    }
-
-    RenderSurfaceBuilder& RenderSurfaceBuilder::debug(bool dbg) {
-        m_debug = dbg;
-        return *this;
-    }
-
-    RenderSurfaceBuilder& RenderSurfaceBuilder::type(RenderSurfaceType t) {
-        m_type = t;
-        return *this;
-    }
-
-    RenderSurface* RenderSurfaceBuilder::build() const {
-        switch(m_type) {
-#ifdef TROLL_USE_GLFW
-        case RenderSurfaceType::GlfwWindow:
-            return new GLFWWindow(m_width, m_height, m_title, m_vsync, m_debug);
-#endif
-#ifdef TROLL_USE_QT5
-        case RenderSurfaceType::Qt5Window:
-            return new Qt5Window(m_width, m_height, m_title, m_vsync, m_debug);
-        case RenderSurfaceType::Qt5Surface:
-            return new Qt5Surface(m_width, m_height, m_title, m_vsync, m_debug);
-
-#endif
-        }
-        return UNREACHABLE(nullptr);
-    }
-    */
 }

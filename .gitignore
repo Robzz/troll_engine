@@ -11,8 +11,8 @@ glLoadGen/
 *.tar.gz
 *.a
 examples/solar_system/solar_system
-examples/buddha/buddha
 examples/qt5_window/qt5_window
+examples/qt5_widget/qt5_widget
 **/assets/*
 include/obj_parser.h
 include/stack.hh
@@ -27,3 +27,5 @@ build/
 *.cbp
 *.user
 *_automoc.cpp
+**/moc_*.cpp
+**/ui_*.h

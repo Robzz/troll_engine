@@ -1,16 +1,17 @@
-#include "mainwindow.h"
+#include "glwidget.h"
 
 using namespace Engine;
 
-MainWindow::MainWindow() :
-    Qt5Window(1280, 720, "TrollEngine Qt5 Window", true, true),
+GLWidget::GLWidget(QWidget* parent) :
+    Qt5Surface(parent, 640, 480, true, true),
     m_engine(),
     m_program(),
     m_triangle(),
     m_scene()
-{
-    makeCurrent();
+{ }
 
+void GLWidget::initializeGL() {
+    makeCurrent();
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
     ProgramBuilder pb;
@@ -40,10 +41,16 @@ MainWindow::MainWindow() :
     u->set(glm::vec3(1.f, 0.f, 0.f));
 }
 
-MainWindow::~MainWindow() { }
-
-void MainWindow::render() {
+void GLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_scene.render();
-    swapBuffers();
+}
+
+void GLWidget::setColor(float r, float g, float b) {
+    makeCurrent();
+    m_program.use();
+    auto ub = m_program.getUniform("triangleColor");
+    auto u = dynamic_cast<Uniform<glm::vec3>*>(ub);
+    u->set(glm::vec3(r, g, b));
+    requestUpdate();
 }
