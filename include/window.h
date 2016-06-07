@@ -72,6 +72,8 @@ class GLFWWindow : public Window {
     friend class RenderSurfaceBuilder;
     friend class TrollEngine;
     public:
+        GLFWWindow(int width, int height, std::string const& title, bool vsync, bool debug);
+
         GLFWWindow() = delete;
         // Move constructor
         GLFWWindow(GLFWWindow&& w);
@@ -114,6 +116,12 @@ class GLFWWindow : public Window {
         // Request that the window closes
         virtual void close() override;
 
+        // Process the pending events
+        void pollEvents();
+
+        // Return true if the window was requested to close
+        bool shouldClose() const;
+
         // Enable or disable fps tracking
         void track_fps(bool enable = true);
 
@@ -121,7 +129,6 @@ class GLFWWindow : public Window {
         operator bool() const;
 
     private:
-        GLFWWindow(int width, int height, std::string const& title, bool vsync, bool debug);
         static void APIENTRY gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                          const GLchar* message, const void* userParam);
         GLFWwindow* m_w;

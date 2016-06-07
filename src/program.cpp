@@ -47,7 +47,7 @@ Program::Program(std::shared_ptr<ProgramHandle> id, std::vector<UniformBase*> un
 
 Program::Program(Program&& other) :
     m_id(other.m_id),
-    m_uniforms(other.m_uniforms)
+    m_uniforms(std::move(other.m_uniforms))
 {
     other.m_id = 0;
 }

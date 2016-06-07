@@ -4,8 +4,11 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+
+#ifdef TROLL_USE_QT5
 #include <QCoreApplication>
 #include <QResizeEvent>
+#endif
 
 namespace Engine {
     RenderSurface* RenderSurface::s_currentRenderSurface = nullptr;
@@ -160,6 +163,14 @@ namespace Engine {
 
     void GLFWWindow::close() {
         glfwSetWindowShouldClose(m_w, GL_TRUE);
+    }
+
+    void GLFWWindow::pollEvents() {
+        glfwPollEvents();
+    }
+
+    bool GLFWWindow::shouldClose() const {
+        return glfwWindowShouldClose(m_w);
     }
 
     void GLFWWindow::track_fps(bool enable) {
