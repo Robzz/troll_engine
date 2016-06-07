@@ -1,6 +1,6 @@
 # TROLL Engine
 
-A small toy 3D engine based on OpenGL 3.3, programmed in C++11 that I write and use
+A small toy 3D engine based on OpenGL 3.3, programmed in C++14 that I write and use
 to learn about stuff.
 
 You probably won't use this in anything serious, but if you're interested in learning
@@ -14,7 +14,7 @@ You wanna build it another way, that's your problem. Mac users, you're on your o
 
 The build system is based on CMake.
 
-* GLFW3
+* GLFW3 or Qt5
 * GLM
 * FreeImage
 * Assimp
@@ -29,9 +29,16 @@ Most OpenGL 3.3 compliant hardware should work. The only requirement is the
 
 The OpenGL target spec might change in the future if I ever need OpenGL 4 features.
 
+## Features
+
+At the time, not so many worth mentioning. I'm still building a lot of basics.
+
+* Can be used with GLFW3 or Qt5
+* Should be easily extendable to use with other windowing toolkits.
+
 ## License
 
-Not decided yet, probably BSD.
+Not decided yet, probably BSD or MIT or... something.
 
 ## FAQ
 
