@@ -1,5 +1,12 @@
 #include "gl_core_3_3.h"
+#ifdef TROLL_USE_GLFW
 #include <GLFW/glfw3.h>
+#endif
+#ifdef TROLL_USE_QT5
+#include <QWindow>
+#include <QOpenGLWidget>
+#include <QOpenGLContext>
+#endif
 
 #include <functional>
 #include <string>
@@ -9,37 +16,88 @@
 
 namespace Engine {
 
-/* This class represents a Window. It handles the display buffers, and can be assigned
- * several callback functions to react to input events, resize events, and register the
- * render loop. */
-class Window {
-    friend class WindowBuilder;
+/**
+  * \class RenderSurface
+  * \brief Interface class for render surfaces. It handles the display buffers, and can be
+  * assigned several callback functions to react to input events, resize events, and register the
+  * render function.
+  */
+class RenderSurface {
+    public:
+        /* Destructor */
+        virtual ~RenderSurface();
+
+        /**
+          * \brief Return a pointer to the current RenderSurface, or a null pointer if none.
+          */
+        static RenderSurface* current();
+
+        /**
+          * \brief Make this RenderSurface the current RenderSurface.
+          * This function must be called by derived classes when they are made
+          * current or the current() method will return the wrong RenderSurface.
+          */
+        virtual void makeCurrent() = 0;
+
+        /**
+          * \brief Swap the front and back buffers
+          */
+        virtual void swapBuffers() = 0;
+        // TODO : probably get rid of this if we're leaving the mainloop to the client
+        //virtual void setRenderFunction(std::function<void()> f) = 0;
+
+        virtual int width() const = 0;
+        virtual int height() const = 0;
+
+        void viewPort(int x, int y, int width, int height);
+
+        /**
+         * @brief Set a function to be called when the surface is resized.
+         * @param f Function taking the new surface width and height as parameters.
+         */
+        virtual void setResizeCallback(std::function<void(int,int)> f) = 0;
+
+    private:
+        static RenderSurface* s_currentRenderSurface;
+};
+
+class Window : public RenderSurface {
+    public:
+        virtual ~Window();
+        virtual void close() = 0;
+};
+
+#ifdef TROLL_USE_GLFW
+class GLFWWindow : public Window {
+    friend class RenderSurfaceBuilder;
     friend class TrollEngine;
     public:
+        GLFWWindow() = delete;
         // Move constructor
-        Window(Window&& w);
+        GLFWWindow(GLFWWindow&& w);
         // Move assignment operator
-        Window& operator=(Window&& w);
-        // No copy or assignment
-        Window(Window const& other) = delete;
-        Window& operator=(Window const& other) = delete;
+        GLFWWindow& operator=(GLFWWindow&& w);
 
-        ~Window();
+        /* No copy */
+        GLFWWindow(GLFWWindow const& other) = delete;
+        GLFWWindow& operator=(GLFWWindow const& other) = delete;
+
+        ~GLFWWindow();
 
         // Make this window the current window
-        void makeCurrent();
+        virtual void makeCurrent() override;
         // Swap the front and back buffers
-        void swapBuffers();
+        virtual void swapBuffers() override;
         // Return information about the underlying OpenGL context
         std::string context_info() const;
 
-        int width() const;
-        int height() const;
+        virtual int width() const override;
+        virtual int height() const override;
 
         int get_attribute(int attrib) const;
 
         // Register the render loop.
-        void setRenderCallback(std::function<void()> f);
+        virtual void setResizeCallback(std::function<void(int,int)> f) override;
 
         // Register a callback for a given key
         void registerKeyCallback(int key, std::function<void()>);
@@ -50,18 +108,11 @@ class Window {
         // Register a callback for the mouse
         void registerMouseButtonCallback(MouseButtonCallback f);
 
-        /* Set the window resize callback. It as a function accepting 2 integer arguments,
-         * the new width and height of the window. */
-        void setResizeCallback(std::function<void(int, int)> f);
-
         // Show or hide the mouse cursor
         void showCursor(bool show = true);
 
-        // Start the main loop
-        void mainLoop();
-
         // Request that the window closes
-        void close();
+        virtual void close() override;
 
         // Enable or disable fps tracking
         void track_fps(bool enable = true);
@@ -70,7 +121,7 @@ class Window {
         operator bool() const;
 
     private:
-        Window(int width, int height, std::string const& title, bool vsync, bool debug);
+        GLFWWindow(int width, int height, std::string const& title, bool vsync, bool debug);
         static void APIENTRY gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                          const GLchar* message, const void* userParam);
         GLFWwindow* m_w;
@@ -84,27 +135,113 @@ class Window {
         int m_nFrame;
         float m_fps;
 
-        static std::map<GLFWwindow*, Window*> window_map;
-        static Window* findWindowFromGlfwHandle(GLFWwindow*);
+        static std::map<GLFWwindow*, GLFWWindow*> window_map;
+        static GLFWWindow* findWindowFromGlfwHandle(GLFWwindow*);
+};
+#endif
+#ifdef TROLL_USE_QT5
+class Qt5Window : public Window, public QWindow {
+    friend class RenderSurfaceBuilder;
+    public:
+        /* Default constructor */
+        Qt5Window() = delete;
+        /* Destructor */
+        virtual ~Qt5Window();
+
+        /* No copy or move*/
+        Qt5Window(Qt5Window const& other) = delete;
+        Qt5Window(Qt5Window&& other) = delete;
+        Qt5Window& operator=(Qt5Window const& other) = delete;
+        Qt5Window& operator=(Qt5Window&& other) = delete;
+
+        virtual void makeCurrent() override;
+
+        virtual void swapBuffers() override;
+
+        virtual int width() const override;
+        virtual int height() const override;
+
+        bool event(QEvent *event) override;
+        void exposeEvent(QExposeEvent* expEvent) override;
+
+        void requestUpdate();
+        virtual void render() = 0;
+
+        virtual void setResizeCallback(std::function<void(int,int)> f) override;
+
+        virtual void close() override;
+
+    protected:
+        Qt5Window(int width, int height, std::string const& title, bool vsync, bool debug);
+        QOpenGLContext m_glContext;
+        std::function<void(int,int)> m_resizeFunc;
+        bool m_renderPending;
 };
 
-// This class helps constructing Window objects.
-class WindowBuilder {
+class Qt5Surface : public RenderSurface, public QOpenGLWidget {
+    friend class RenderSurfaceBuilder;
     public:
-        WindowBuilder();
-        ~WindowBuilder();
+        /* Default constructor */
+        Qt5Surface() = delete;
+        /* Destructor */
+        virtual ~Qt5Surface();
+
+        /* No copy or move*/
+        Qt5Surface(Qt5Surface const& other) = delete;
+        Qt5Surface(Qt5Surface&& other) = delete;
+        Qt5Surface& operator=(Qt5Surface const& other) = delete;
+        Qt5Surface& operator=(Qt5Surface&& other) = delete;
+
+        virtual void makeCurrent() override;
+
+        /**
+         * @brief swapBuffers is apparently automatically called by Qt sometime after
+         * paintGL returns, so this method is implemented as a no-op.
+         */
+        virtual void swapBuffers() override;
+
+        virtual int width() const override;
+        virtual int height() const override;
+
+        virtual void setResizeCallback(std::function<void(int,int)> f) override;
+
+    protected:
+        Qt5Surface(int width, int height, std::string const& title, bool vsync, bool debug);
+        std::function<void(int,int)> m_resizeFunc;
+};
+#endif
+
+/*
+// This class helps constructing Window objects.
+class RenderSurfaceBuilder {
+    public:
+        enum class RenderSurfaceType {
+#ifdef TROLL_USE_GLFW
+            GlfwWindow,
+#endif
+#ifdef TROLL_USE_QT5
+            Qt5Window,
+            Qt5Surface
+#endif
+        };
+
+        RenderSurfaceBuilder();
+        ~RenderSurfaceBuilder();
 
         // Set the size of the Window
-        WindowBuilder& size(int width, int height);
+        RenderSurfaceBuilder& size(int width, int height);
         // Set the Window title
-        WindowBuilder& title(std::string const& title);
+        RenderSurfaceBuilder& title(std::string const& title);
         // Turn vsync on or off
-        WindowBuilder& vsync(bool v);
+        // TODO : GLX/WGL specific... Yeepee
+        //WindowBuilder& vsync(bool v);
 
-        WindowBuilder& debug(bool dbg = true);
+        RenderSurfaceBuilder& debug(bool dbg = true);
+
+        RenderSurfaceBuilder& type(RenderSurfaceType t);
 
         // Construct the Window
-        Window build() const;
+        RenderSurface* build() const;
 
     private:
         int m_height;
@@ -112,6 +249,7 @@ class WindowBuilder {
         std::string m_title;
         bool m_vsync;
         bool m_debug;
+        RenderSurfaceType m_type;
 };
-
+*/
 }

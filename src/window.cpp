@@ -1,17 +1,33 @@
 #include "window.h"
+#include "utility.h"
 
 #include <iostream>
 #include <sstream>
 #include <utility>
+#include <QCoreApplication>
+#include <QResizeEvent>
 
 namespace Engine {
-    std::map<GLFWwindow*, Window*> Window::window_map = std::map<GLFWwindow*, Window*>();
+    RenderSurface* RenderSurface::s_currentRenderSurface = nullptr;
 
-    Window* Window::findWindowFromGlfwHandle(GLFWwindow* w) {
-        return Window::window_map.find(w) == Window::window_map.end() ? NULL : Window::window_map[w];
+    RenderSurface::~RenderSurface() { }
+
+    void RenderSurface::makeCurrent() { s_currentRenderSurface = this; }
+    RenderSurface* RenderSurface::current() { return s_currentRenderSurface; }
+    void RenderSurface::viewPort(int x, int y, int width, int height) {
+        glViewport(x, y, width, height);
     }
 
-    Window::Window(Window&& w) :
+    Window::~Window() { }
+
+#ifdef TROLL_USE_GLFW
+    std::map<GLFWwindow*, GLFWWindow*> GLFWWindow::window_map = std::map<GLFWwindow*, GLFWWindow*>();
+
+    GLFWWindow* GLFWWindow::findWindowFromGlfwHandle(GLFWwindow* w) {
+        return GLFWWindow::window_map.find(w) == GLFWWindow::window_map.end() ? NULL : GLFWWindow::window_map[w];
+    }
+
+    GLFWWindow::GLFWWindow(GLFWWindow&& w) :
         m_w(w.m_w),
         m_title(std::move(w.m_title)),
         m_im(std::move(w.m_im)),
@@ -27,7 +43,7 @@ namespace Engine {
         m_im.invertY(false);
     }
 
-    Window::Window(int width, int height, std::string const& title, bool vsync, bool debug) :
+    GLFWWindow::GLFWWindow(int width, int height, std::string const& title, bool vsync, bool debug) :
         m_w(),
         m_title(title),
         m_im(),
@@ -59,7 +75,7 @@ namespace Engine {
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
 
         glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods) {
-                                       Window* win = Window::findWindowFromGlfwHandle(w);
+                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
                                        if(win)
                                            win->m_im.keyCallback(key, scancode, action, mods); });
 
@@ -67,162 +83,287 @@ namespace Engine {
             glfwSwapInterval(1);
     }
 
-    Window::~Window() {
+    GLFWWindow::~GLFWWindow() {
         if(m_w) {
             window_map.erase(m_w);
             glfwDestroyWindow(m_w);
         }
     }
 
-    int Window::get_attribute(int attrib) const {
+    int GLFWWindow::get_attribute(int attrib) const {
         return glfwGetWindowAttrib(m_w, attrib);
     }
 
-    void Window::makeCurrent() {
+    void GLFWWindow::makeCurrent() {
         glfwMakeContextCurrent(m_w);
+        RenderSurface::makeCurrent();
     }
 
-    void Window::swapBuffers() {
+    void GLFWWindow::swapBuffers() {
         glfwSwapBuffers(m_w);
     }
 
-    std::string Window::context_info() const {
+    std::string GLFWWindow::context_info() const {
         std::ostringstream ss;
-        const GLubyte* vendor   = glGetString (GL_VENDOR);
-        const GLubyte* renderer = glGetString (GL_RENDERER);
-        const GLubyte* version  = glGetString (GL_VERSION);
-        const GLubyte* glsl_ver = glGetString (GL_SHADING_LANGUAGE_VERSION);
-        
+        const auto* vendor   = glGetString (GL_VENDOR);
+        const auto* renderer = glGetString (GL_RENDERER);
+        const auto* version  = glGetString (GL_VERSION);
+        const auto* glsl_ver = glGetString (GL_SHADING_LANGUAGE_VERSION);
+
         ss << vendor << " : " << renderer << " (" << version << "), GLSL version " << glsl_ver;
         return ss.str();
     }
 
-    int Window::width() const {
+    int GLFWWindow::width() const {
         return m_width;
     }
 
-    int Window::height() const {
+    int GLFWWindow::height() const {
         return m_height;
     }
 
-    void Window::setRenderCallback(std::function<void()> f) {
-        m_render = f;
-    }
-
-    void Window::registerKeyCallback(int key, std::function<void()> f) {
+    void GLFWWindow::registerKeyCallback(int key, std::function<void()> f) {
         m_im.setKeyCallback(key, f);
     }
 
-    void Window::registerMousePosCallback(MousePositionCallback f) {
+    void GLFWWindow::registerMousePosCallback(MousePositionCallback f) {
         m_im.setMousePosCallback(f);
         glfwSetCursorPosCallback(m_w, [] (GLFWwindow* w, double x, double y) {
-                                       Window* win = Window::findWindowFromGlfwHandle(w);
+                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
                                        if(win)
                                            win->m_im.mousePosCallback(x, y);
                                         });
     }
 
-    void Window::registerMouseButtonCallback(MouseButtonCallback f) {
+    void GLFWWindow::registerMouseButtonCallback(MouseButtonCallback f) {
         m_im.setMouseButtonCallback(f);
         glfwSetMouseButtonCallback(m_w, [] (GLFWwindow* w, int button, int action, int mods) {
-                                       Window* win = Window::findWindowFromGlfwHandle(w);
+                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
                                        if(win)
                                            win->m_im.mouseButtonCallback(button, action, mods);
                                         });
     }
 
-    void Window::setResizeCallback(std::function<void(int, int)> f) {
+    void GLFWWindow::setResizeCallback(std::function<void(int, int)> f) {
         m_resize = f;
         glfwSetWindowSizeCallback(m_w, [] (GLFWwindow* w, int width, int height)
-                                       { Window* win = Window::findWindowFromGlfwHandle(w);
+                                       { GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
                                          if(win) {
                                              win->m_width = width;
                                              win->m_height = height;
                                              win->m_resize(width, height); } });
     }
 
-    void Window::showCursor(bool show) {
+    void GLFWWindow::showCursor(bool show) {
         glfwSetInputMode(m_w, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
-    void Window::mainLoop() {
-        double time = glfwGetTime();
-        while (!glfwWindowShouldClose(m_w))
-        {
-            /* Render here */
-            // TODO : raise exception if no render loop
-            m_render();
-
-            /* Swap front and back buffers */
-            swapBuffers();
-
-            /* Poll and process events */
-            glfwPollEvents();
-            if(m_trackFps) {
-                ++m_nFrame;
-                double t = glfwGetTime();
-                if(t - time > 1) {
-                    m_fps = static_cast<float>(m_nFrame) / (t-time);
-                    m_nFrame = 0;
-                    time = t;
-                    std::cout << "\x1B[1A\x1B[2KFPS : " << m_fps << std::endl;
-                }
-            }
-        }
-    }
-
-    void Window::close() {
+    void GLFWWindow::close() {
         glfwSetWindowShouldClose(m_w, GL_TRUE);
     }
 
-    void Window::track_fps(bool enable) {
+    void GLFWWindow::track_fps(bool enable) {
         m_trackFps = enable;
     }
 
-    Window::operator bool() const {
+    GLFWWindow::operator bool() const {
         return m_w;
     }
 
-    void APIENTRY Window::gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+    void APIENTRY GLFWWindow::gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                       const GLchar* message, const void* userParam) {
-        const Window* w = reinterpret_cast<const Window*>(userParam);
+        const auto* w = reinterpret_cast<const GLFWWindow*>(userParam);
         std::cout << message << std::endl;
     }
+#endif // TROLL_USE_GLFW
 
-    WindowBuilder::WindowBuilder() :
+#ifdef TROLL_USE_QT5
+    Qt5Window::Qt5Window(int width, int height, std::string const& title, bool vsync, bool debug) :
+        Window::Window(),
+        QWindow(),
+        m_glContext(),
+        m_renderPending(false)
+    {
+        resize(width, height);
+        setTitle(QString::fromStdString(title));
+        setSurfaceType(QWindow::OpenGLSurface);
+        create();
+
+        auto fmt = QSurfaceFormat::defaultFormat();
+        fmt.setRenderableType(QSurfaceFormat::RenderableType::OpenGL);
+        fmt.setVersion(3,3);
+        fmt.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
+        fmt.setSwapInterval(vsync ? 1 : 0);
+        fmt.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
+        fmt.setOption(QSurfaceFormat::DebugContext, true);
+        m_glContext.setFormat(fmt);
+        if(!m_glContext.create())
+            throw std::runtime_error("Cannot create OpenGL context");
+        makeCurrent();
+
+        m_resizeFunc = [&] (int w, int h) {
+            viewPort(0, 0, w, h);
+            requestUpdate();
+        };
+    }
+
+    Qt5Window::~Qt5Window() { }
+
+    void Qt5Window::makeCurrent() {
+        if(!m_glContext.makeCurrent(static_cast<QWindow*>(this)))
+            throw std::runtime_error("Cannot make context current");
+        RenderSurface::makeCurrent();
+    }
+
+    void Qt5Window::swapBuffers() {
+        m_glContext.swapBuffers(this);
+    }
+
+    int Qt5Window::width() const {
+        return QWindow::width();
+    }
+
+    int Qt5Window::height() const {
+        return QWindow::height();
+    }
+
+    bool Qt5Window::event(QEvent *event) {
+        QResizeEvent* re = nullptr;
+        switch (event->type()) {
+        case QEvent::UpdateRequest:
+            render();
+            m_renderPending = false;
+            break;
+        case QEvent::Resize:
+            re = dynamic_cast<QResizeEvent*>(event);
+            m_resizeFunc(re->size().width(), re->size().height());
+            break;
+        default:
+            return QWindow::event(event);
+        }
+        return true;
+    }
+
+    void Qt5Window::exposeEvent(QExposeEvent* expEvent) {
+        if(isExposed()) {
+            render();
+        }
+    }
+
+    void Qt5Window::requestUpdate() {
+        if(!m_renderPending) {
+            QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+            m_renderPending = true;
+        }
+    }
+
+    void Qt5Window::setResizeCallback(std::function<void(int,int)> f) {
+        m_resizeFunc = f;
+    }
+
+    void Qt5Window::close() {
+        QWindow::close();
+    }
+
+    Qt5Surface::Qt5Surface(int width, int height, std::string const& title, bool vsync, bool debug) :
+        RenderSurface::RenderSurface(),
+        QOpenGLWidget()
+    {
+        resize(width, height);
+
+        auto fmt = QSurfaceFormat::defaultFormat();
+        fmt.setRenderableType(QSurfaceFormat::RenderableType::OpenGL);
+        fmt.setVersion(3,3);
+        fmt.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
+        fmt.setSwapInterval(vsync ? 1 : 0);
+        fmt.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
+        fmt.setOption(QSurfaceFormat::DebugContext, true);
+        setFormat(fmt);
+    }
+
+    Qt5Surface::~Qt5Surface() { }
+
+    void Qt5Surface::makeCurrent() {
+        QOpenGLWidget::makeCurrent();
+        RenderSurface::makeCurrent();
+    }
+
+    void Qt5Surface::swapBuffers() { }
+
+    int Qt5Surface::width() const {
+        return QOpenGLWidget::width();
+    }
+
+    int Qt5Surface::height() const {
+        return QOpenGLWidget::height();
+    }
+
+    void Qt5Surface::setResizeCallback(std::function<void(int,int)> f) {
+        m_resizeFunc = f;
+    }
+#endif
+/*
+    RenderSurfaceBuilder::RenderSurfaceBuilder() :
         m_height(720),
         m_width(1280),
-        m_title("Window"),
+        m_title("Troll Engine window"),
         m_vsync(true),
-        m_debug()
+        m_debug(),
+        m_type(
+        #ifdef TROLL_USE_GLFW
+            RenderSurfaceType::GlfwWindow
+        #else
+            RenderSurfaceType::Qt5Window
+        #endif
+            )
     { }
 
-    WindowBuilder::~WindowBuilder() {
+    RenderSurfaceBuilder::~RenderSurfaceBuilder() {
 
     }
 
-    WindowBuilder& WindowBuilder::size(int width, int height) {
+    RenderSurfaceBuilder& RenderSurfaceBuilder::size(int width, int height) {
         m_width = width;
         m_height = height;
         return *this;
     }
 
-    WindowBuilder& WindowBuilder::title(std::string const& title) {
+    RenderSurfaceBuilder& RenderSurfaceBuilder::title(std::string const& title) {
         m_title = title;
         return *this;
     }
 
-    WindowBuilder& WindowBuilder::vsync(bool v) {
+
+    RenderSurfaceBuilder& RenderSurfaceBuilder::vsync(bool v) {
         m_vsync = v;
         return *this;
     }
 
-    WindowBuilder& WindowBuilder::debug(bool dbg) {
+    RenderSurfaceBuilder& RenderSurfaceBuilder::debug(bool dbg) {
         m_debug = dbg;
         return *this;
     }
 
-    Window WindowBuilder::build() const {
-        return Window(m_width, m_height, m_title, m_vsync, m_debug);
+    RenderSurfaceBuilder& RenderSurfaceBuilder::type(RenderSurfaceType t) {
+        m_type = t;
+        return *this;
     }
+
+    RenderSurface* RenderSurfaceBuilder::build() const {
+        switch(m_type) {
+#ifdef TROLL_USE_GLFW
+        case RenderSurfaceType::GlfwWindow:
+            return new GLFWWindow(m_width, m_height, m_title, m_vsync, m_debug);
+#endif
+#ifdef TROLL_USE_QT5
+        case RenderSurfaceType::Qt5Window:
+            return new Qt5Window(m_width, m_height, m_title, m_vsync, m_debug);
+        case RenderSurfaceType::Qt5Surface:
+            return new Qt5Surface(m_width, m_height, m_title, m_vsync, m_debug);
+
+#endif
+        }
+        return UNREACHABLE(nullptr);
+    }
+    */
 }

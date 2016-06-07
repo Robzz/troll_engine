@@ -125,11 +125,17 @@ class UniformBase {
 class Program {
     friend class ProgramBuilder;
     public:
+        Program();
+
         /**
           * \brief Move constructor.
           */
         Program(Program&& other);
         Program& operator=(Program&& other);
+
+        // No copy
+        Program(Program const& other) = delete;
+        Program& operator=(Program const& other) = delete;
 
         /**
           * \brief Check if the program is valid
@@ -163,12 +169,12 @@ class Program {
           * \brief Return the OpenGL location of an attribute
           */
         GLint getAttributeLocation(std::string) const;
-        
+
         /**
           * \brief Return the Uniform object associated with a uniform
           */
         UniformBase* getUniform(std::string const& name);
-        
+
         /**
           * \brief Upload uniforms to GPU
           */
@@ -183,7 +189,7 @@ class Program {
           * \brief Return the currently bound program.
           */
         static const Program* current();
-    
+
         /**
           * \brief Destructor
           */
@@ -196,10 +202,6 @@ class Program {
           * \param uniforms Uniforms used by the program
           */
         Program(std::shared_ptr<ProgramHandle> h, std::vector<UniformBase*> uniforms);
-        
-        // Not copyable
-        Program(Program const& other);
-        Program& operator=(Program const& other);
 
         /**
           * \brief Return the location of a uniform
@@ -287,12 +289,11 @@ class ProgramBuilder {
 
     private:
         explicit ProgramBuilder(ShaderManager& manager);
-        ShaderManager& m_manager;
+        ShaderManager* m_manager;
         std::vector<Shader*> m_shaders;
         std::vector<std::pair<std::string, UniformType>> m_uniforms;
 
-        template<Shader::Type T>
-        Shader* compileShader(std::string const&);
+        Shader* compileShader(std::string const&, Shader::Type t);
 };
 
 #include "program.inl"

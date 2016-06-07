@@ -35,6 +35,11 @@ ShaderManager::~ShaderManager() {
 
 ProgramBuilder ShaderManager::buildProgram() { return ProgramBuilder(*this); }
 
+Program::Program() :
+    m_id(0),
+    m_uniforms()
+{ }
+
 Program::Program(std::shared_ptr<ProgramHandle> id, std::vector<UniformBase*> uniforms) :
     m_id(id),
     m_uniforms(uniforms)
@@ -52,7 +57,7 @@ Program& Program::operator=(Program&& other) {
         delete it;
     }
     m_id = other.m_id;
-    m_uniforms = other.m_uniforms;
+    m_uniforms = std::move(other.m_uniforms);
     other.m_id = 0;
     return *this;
 }
@@ -68,7 +73,7 @@ Program::operator bool() const {
     glGetProgramiv(m_id->value(), GL_LINK_STATUS, &link_status);
     return link_status;
     // TODO : find a less ass busting way to check this sh*t (driver optimizations and other crap)
-    //return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
+    return link_status && std::all_of(m_uniforms.begin(), m_uniforms.end(), [](UniformBase* u) { return u->operator bool();});
 }
 
 bool Program::operator !() const {
@@ -82,6 +87,7 @@ std::string Program::info_log() const {
     if(log_length > 0) {
         GLchar* buf = new GLchar[static_cast<size_t>(log_length)];
         glGetProgramInfoLog(m_id->value(), log_length, NULL, buf);
+        oss << buf << std::endl;
         delete[] buf;
     }
     for(auto& it: m_uniforms) {
@@ -155,8 +161,14 @@ std::string const& UniformBase::name() const {
     return m_name;
 }
 
+ProgramBuilder::ProgramBuilder() :
+    m_manager(nullptr),
+    m_shaders(),
+    m_uniforms()
+{ }
+
 ProgramBuilder::ProgramBuilder(ShaderManager& manager) :
-    m_manager(manager),
+    m_manager(&manager),
     m_shaders(),
     m_uniforms()
 { }
@@ -164,17 +176,17 @@ ProgramBuilder::ProgramBuilder(ShaderManager& manager) :
 ProgramBuilder::~ProgramBuilder() { }
 
 ProgramBuilder& ProgramBuilder::vertexShader(std::string const& file) {
-    compileShader<Shader::Type::VertexShader>(file);
+    compileShader(file, Shader::Type::VertexShader);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::fragmentShader(std::string const& file) {
-    compileShader<Shader::Type::FragmentShader>(file);
+    compileShader(file, Shader::Type::FragmentShader);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::geometryShader(std::string const& file) {
-    compileShader<Shader::Type::GeometryShader>(file);
+    compileShader(file, Shader::Type::GeometryShader);
     return *this;
 }
 
@@ -192,15 +204,17 @@ Program ProgramBuilder::build() {
     }
 
     glLinkProgram(h->value());
-    for(auto shader: shaders)
+    for(auto shader: shaders) {
         glDetachShader(h->value(), shader->m_id);
+        delete shader;
+    }
     std::vector<UniformBase*> v;
     #define TYPE(T) std::type_index(typeid(T)).hash_code
     for(auto it = m_uniforms.begin() ; it != m_uniforms.end() ; ++it) {
         UniformType t = (*it).second;
         std::string const& name = (*it).first;
         GLint loc = glGetUniformLocation(h->value(), name.c_str());
-        if(t == UniformType::Vec3) {            
+        if(t == UniformType::Vec3) {
             v.push_back(new Uniform<glm::vec3>(loc, name));
         }
         else if(t == UniformType::Mat3) {
@@ -211,27 +225,63 @@ Program ProgramBuilder::build() {
         }
         else if(t == UniformType::Int) {
             v.push_back(new Uniform<int>(loc, name));
-        } 
+        }
         else if(t == UniformType::Float) {
             v.push_back(new Uniform<float>(loc, name));
-        } 
+        }
         else {
             UNREACHABLE(0);
         }
     }
     #undef TYPE
     Program p(h, v);
+    v.clear();
     if(!p) {
         std::ostringstream ss;
         ss << "Shader program link error." << std::endl
            << "Info:" << std::endl << p.info_log();
         throw std::runtime_error(ss.str());
     }
-    if(m_manager.m_cache)
-        m_manager.m_programCache.insert(std::pair<std::set<Shader*>, std::shared_ptr<ProgramHandle>>(shaders, h));
+    if(m_manager && m_manager->m_cache)
+        m_manager->m_programCache.insert(std::pair<std::set<Shader*>, std::shared_ptr<ProgramHandle>>(shaders, h));
 
     return p;
 }
+
+Shader* ProgramBuilder::compileShader(std::string const& file, Shader::Type t) {
+    Shader* s;
+    // TODO : fix duplication
+    if(m_manager) {
+        auto it = m_manager->m_shaderCache.find(file);
+        if(it != m_manager->m_shaderCache.end()) {
+            s = it->second;
+        }
+        else {
+            s = new Shader(file, t);
+            if(!*s) {
+                std::ostringstream ss;
+                ss << "Shader compilation error in " << file << std::endl
+                   << "Info:" << std::endl << s->info_log();
+                delete s;
+                throw std::runtime_error(ss.str());
+            }
+            m_manager->m_shaderCache.insert(std::pair<std::string, Shader*>(file, s));
+        }
+    }
+    else {
+        s = new Shader(file, t);
+        if(!*s) {
+            std::ostringstream ss;
+            ss << "Shader compilation error in " << file << std::endl
+               << "Info:" << std::endl << s->info_log();
+            delete s;
+            throw std::runtime_error(ss.str());
+        }
+    }
+    m_shaders.push_back(s);
+    return s;
+}
+
 
 template <>
 void upload_uniform<int>(const GLint location, int const& value) {

@@ -32,6 +32,29 @@ endif()
 set(troll_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(troll_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+# Windowing system setup
+option(WINDOW_GLFW "Use the GLFW library" ON)
+option(WINDOW_QT5  "Use the Qt5 Library" OFF)
+if(WINDOW_GLFW AND WINDOW_QT5)
+    message(FATAL_ERROR "You must choose only one window library (GLFW/Qt5).")
+elseif(NOT WINDOW_GLFW AND NOT WINDOW_QT5)
+    message(FATAL_ERROR "You must choose a window library (GLFW/Qt5).")
+endif()
+
+if(WINDOW_GLFW)
+    find_package(PkgConfig REQUIRED)
+    pkg_search_module(GLFW REQUIRED glfw3)
+    set(TROLL_LIBRARIES ${GLFW_STATIC_LIBRARIES})
+    set(TROLL_INCLUDE_DIRS ${GLFW_INCLUDE_DIRS})
+    add_definitions(-DTROLL_USE_GLFW)
+elseif(WINDOW_QT5)
+    find_package(Qt5Gui)
+    find_package(Qt5Widgets)
+    set(CMAKE_AUTOMOC ON)
+    set(TROLL_LIBRARIES Qt5::Gui Qt5::Widgets)
+    add_definitions(-DTROLL_USE_QT5)
+endif()
+
 # Teach the build system how to generate the gl loaders
 add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h)
@@ -44,9 +67,7 @@ add_custom_command(OUTPUT ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir}/gl_core_3_3.cpp\
                                                                  ${troll_include_dir}/gl_core_3_3.h")
 
-find_package(PkgConfig REQUIRED)
 find_package(Boost 1.58 REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
 find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
 if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
@@ -97,31 +118,40 @@ set(TROLL_HEADERS
     ${troll_include_dir}/window.h
     ${troll_include_dir}/shader.h
     ${troll_include_dir}/program.h
+    ${troll_include_dir}/program.inl
     ${troll_include_dir}/debug.h
     ${troll_include_dir}/vbo.h
+    ${troll_include_dir}/vbo.inl
     ${troll_include_dir}/vao.h
     ${troll_include_dir}/matrixstack.h
     ${troll_include_dir}/scenegraph.h
     ${troll_include_dir}/input.h
     ${troll_include_dir}/camera.h
+    ${troll_include_dir}/camera.inl
     ${troll_include_dir}/texture.h
+    ${troll_include_dir}/texture.inl
     ${troll_include_dir}/mesh.h
     ${troll_include_dir}/attribute.h
     ${troll_include_dir}/fbo.h
+    ${troll_include_dir}/fbo.inl
     ${troll_include_dir}/image.h
+    ${troll_include_dir}/image.inl
     ${troll_include_dir}/transform.h
+    ${troll_include_dir}/transform.inl
     ${troll_include_dir}/utility.h
+    ${troll_include_dir}/utility.inl
     ${troll_include_dir}/sceneimporter.h
+    ${troll_include_dir}/sceneimporter.inl
 )
 
+set(TROLL_INCLUDE_DIRS ${TROLL_INCLUDE_DIRS} ${troll_include_dir} ${Boost_INCLUDE_DIRS})
+
 add_library(TrollEngine STATIC ${TROLL_SOURCES} ${TROLL_HEADERS})
-include_directories("${troll_include_dir}"
-                    "${GLFW_INCLUDE_DIRS}"
-                    "${Boost_INCLUDE_DIRS}")
+include_directories(${TROLL_INCLUDE_DIRS})
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(TROLL_LIBRARIES ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY})
+set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY})
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
 add_dependencies(TrollEngine generate_gl_loader)

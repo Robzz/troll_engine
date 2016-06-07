@@ -10,7 +10,7 @@
 
 namespace Engine {
 
-class Window;
+class RenderSurface;
 
 /**
   * \class TrollEngine
@@ -21,7 +21,7 @@ class TrollEngine {
         TrollEngine();
         ~TrollEngine();
 
-        Window* current_window() const;
+        RenderSurface* currentRenderSurface() const;
 
         TrollEngine(TrollEngine const& other) = delete;
         TrollEngine(TrollEngine&& other) = delete;
