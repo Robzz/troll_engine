@@ -46,7 +46,10 @@ class Image {
       */
     Image(unsigned int width, unsigned int height, Type t = Type::Bitmap, int bpp = 24);
 
-    Image() = delete;
+    /**
+      * \brief Construct an Image object that is not bound to any image.
+      */
+    Image();
 
     /**
       * \brief Construct an image from a file.
@@ -103,7 +106,6 @@ class Image {
       */
     void setPixel(unsigned int x, unsigned int y, RGBQUAD color);
 
-
     /**
       * \brief Create an image from an array RGB values.
       * \tparam T Type of the pixel components
@@ -129,21 +131,6 @@ class Image {
       * \param f Image format
       */
     bool save(std::string const& filename, Format f) const;
-
-    template <class P>
-    class PixelAccess {
-        public:
-            PixelAccess();
-            virtual ~PixelAccess();
-    
-            /* No copy or move */
-            PixelAccess(PixelAccess const& other) = delete;
-            PixelAccess& operator=(PixelAccess const& other) = delete;
-            PixelAccess(PixelAccess&& other) = delete;
-            PixelAccess& operator=(PixelAccess&& other) = delete;
-        private:
-            Image& m_img;
-    };
 
     private:
     explicit Image(FIBITMAP* other);

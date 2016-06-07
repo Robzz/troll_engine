@@ -6,6 +6,11 @@
 
 namespace Engine {
 
+Image::Image() :
+    m_image(nullptr)
+{ }
+
+
 Image::Image(unsigned int width, unsigned int height, Image::Type t, int bpp) :
     m_image(nullptr)
 {
