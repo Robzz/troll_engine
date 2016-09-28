@@ -9,9 +9,9 @@ AttributeArray::Layout::Layout() :
     m_normalize(false),
     m_offset(0) { }
 
-AttributeArray::Layout::Layout(int n, AttributeArray::Type t, size_t s, bool norm, std::intptr_t o) :
+AttributeArray::Layout::Layout(int n, AttributeArray::Type type, size_t s, bool norm, std::intptr_t o) :
     m_nComponents(n),
-    m_type(t),
+    m_type(type),
     m_stride(s),
     m_normalize(norm),
     m_offset(o) { }
