@@ -12,6 +12,11 @@
 
 namespace Engine {
 
+/**
+ * \class Camera
+ * \brief Represents a camera
+ * \tparam T Transform type
+ */
 template <class T>
 class Camera {
     public:
