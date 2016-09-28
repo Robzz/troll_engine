@@ -47,6 +47,7 @@ class Image {
       * \brief Construct an empty image of specified dimensions and bit depth.
       * \param width Image width
       * \param height Image height
+      * \param t Type of the Image
       * \param bpp Image Depth, in bits per pixel
       */
     Image(unsigned int width, unsigned int height, Type t = Type::Bitmap, int bpp = 24);
