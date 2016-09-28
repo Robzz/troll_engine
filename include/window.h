@@ -144,6 +144,11 @@ class GLFWWindow : public Window {
 
         static std::map<GLFWwindow*, GLFWWindow*> window_map;
         static GLFWWindow* findWindowFromGlfwHandle(GLFWwindow*);
+
+        static void keyCallback(GLFWwindow* w, int key, int scancode,
+                int action, int mods);
+        static void mousePosCallback(GLFWwindow* w, double x, double y);
+        static void mouseButtonCallback(GLFWwindow* w, int button, int action, int mods);
 };
 #endif
 #ifdef TROLL_USE_QT5

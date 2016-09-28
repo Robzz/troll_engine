@@ -10,6 +10,8 @@ typedef std::function<void(double,double)> MousePositionCallback;
 typedef std::function<void(int,int,int)>   MouseButtonCallback;
 
 class InputManager {
+    friend class GLFWWindow;
+
     public:
     /* Default constructor */
     InputManager();

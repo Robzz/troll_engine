@@ -77,10 +77,7 @@ namespace Engine {
         glDebugMessageCallback(&gl_debug_cb, this);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
 
-        glfwSetKeyCallback(m_w, [] (GLFWwindow* w, int key, int scancode, int action, int mods) {
-                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
-                                       if(win)
-                                           win->m_im.keyCallback(key, scancode, action, mods); });
+        glfwSetKeyCallback(m_w, keyCallback);
 
         if(vsync)
             glfwSwapInterval(1);
@@ -131,20 +128,12 @@ namespace Engine {
 
     void GLFWWindow::registerMousePosCallback(MousePositionCallback f) {
         m_im.setMousePosCallback(f);
-        glfwSetCursorPosCallback(m_w, [] (GLFWwindow* w, double x, double y) {
-                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
-                                       if(win)
-                                           win->m_im.mousePosCallback(x, y);
-                                        });
+        glfwSetCursorPosCallback(m_w, mousePosCallback);
     }
 
     void GLFWWindow::registerMouseButtonCallback(MouseButtonCallback f) {
         m_im.setMouseButtonCallback(f);
-        glfwSetMouseButtonCallback(m_w, [] (GLFWwindow* w, int button, int action, int mods) {
-                                       GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
-                                       if(win)
-                                           win->m_im.mouseButtonCallback(button, action, mods);
-                                        });
+        glfwSetMouseButtonCallback(m_w, mouseButtonCallback);
     }
 
     void GLFWWindow::setResizeCallback(std::function<void(int, int)> f) {
@@ -179,6 +168,24 @@ namespace Engine {
 
     GLFWWindow::operator bool() const {
         return m_w;
+    }
+
+    void GLFWWindow::keyCallback(GLFWwindow* w, int key, int scancode, int action, int mods) {
+        GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
+        if(win)
+            win->m_im.keyCallback(key, scancode, action, mods);
+    }
+
+    void GLFWWindow::mousePosCallback(GLFWwindow* w, double x, double y) {
+        GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
+        if(win)
+            win->m_im.mousePosCallback(x, y);
+    }
+
+    void GLFWWindow::mouseButtonCallback(GLFWwindow* w, int button, int action, int mods) {
+        GLFWWindow* win = GLFWWindow::findWindowFromGlfwHandle(w);
+        if(win)
+            win->m_im.mouseButtonCallback(button, action, mods);
     }
 
     void APIENTRY GLFWWindow::gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
