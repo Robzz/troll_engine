@@ -50,10 +50,10 @@ class Texture {
                             Minification  = GL_TEXTURE_MIN_FILTER,
                             Both };
     /**
-      * \enum Filter 
+      * \enum Filter
       * \brief Enumerate the different texture filtering methods.
       */
-    enum Filter : GLenum { Nearest               = GL_NEAREST, 
+    enum Filter : GLenum { Nearest               = GL_NEAREST,
                            Linear                = GL_LINEAR,
                            BiLinear              = GL_LINEAR_MIPMAP_LINEAR,
                            NearestMipmap_Nearest = GL_NEAREST_MIPMAP_NEAREST,
@@ -86,7 +86,8 @@ class Texture {
       * \param height Texture height
       * \param data Pointer to the texture data
       */
-    void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data);
+    void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height,
+                 const void* data);
 
     /**
       * \brief Return texel data from the texture
