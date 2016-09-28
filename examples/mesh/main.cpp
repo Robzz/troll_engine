@@ -29,10 +29,12 @@ int main(int argc, char** argv) {
     SceneImporter imp;
     imp.readFile("teapot.obj", SceneImporter::PostProcess::JoinVertices);
     std::unique_ptr<Mesh> teapot = imp.instantiateMesh(*imp.meshes()[0]);
+    std::unique_ptr<Mesh> teapot2 = imp.instantiateMesh(*imp.meshes()[1]);
     std::cout << *teapot << std::endl;
 
     SceneGraph scene;
     scene.addChild(teapot->instantiate(glm::mat4(1.f), &program));
+    scene.addChild(teapot2->instantiate(glm::mat4(1.f), &program));
 
     float theta = 0.f, dt = 0.1f;
     glm::mat4 p = glm::perspective(55.f, 16.f / 9.f, 0.1f, 100.f),

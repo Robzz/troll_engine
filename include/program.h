@@ -8,7 +8,6 @@
 
 #include "shader.h"
 #include "gl_core_3_3.h"
-#include "debug.h"
 
 #include <map>
 #include <set>

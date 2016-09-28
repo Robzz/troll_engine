@@ -48,7 +48,7 @@ ostream& operator<<(ostream& s, glm::vec4 const& v) {
 }
 
 ostream& operator<<(ostream& s, Engine::Mesh const& m) {
-    s << m.name() << " (" << m.numVertices() << ")" << endl;
+    s << m.name() << " (" << m.numVertices() << " vertices)" << endl;
     bool hasNormals = m.hasNormals(),
          hasColors = m.hasColors(),
          hasUVs = m.hasUVs(),

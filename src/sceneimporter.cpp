@@ -56,9 +56,8 @@ std::unique_ptr<Mesh> SceneImporter::instantiateMesh(aiMesh const& mesh) const {
         }
     }
     if(hasIndices) {
-        std::function<void(std::vector<unsigned char>&, std::vector<unsigned short>&, std::vector<unsigned int>&, aiFace*)> f =
-                ((index_size) == 1) ? &readIndex<1> :
-                ((index_size) == 2) ? &readIndex<2> : &readIndex<4>;
+        auto f = ((index_size) == 1) ? &readIndex<1> :
+                 ((index_size) == 2) ? &readIndex<2> : &readIndex<4>;
         for(unsigned int i = 0 ; i != mesh.mNumFaces ; ++i) {
             f(index_byte, index_short, index_int, mesh.mFaces + i);
         }
