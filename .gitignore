@@ -34,3 +34,5 @@ tags
 .clang
 cppcheck.txt
 cloc-lang-def
+.lvimrc
+compile_commands.json
