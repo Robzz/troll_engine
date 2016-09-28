@@ -39,12 +39,12 @@ void InputManager::keyCallback(int key_code, int scan_code, int action, int mods
         std::map<int, std::function<void()>>::const_iterator it = m_callbacks.find(key_code);
         if(it != m_callbacks.end()) {
             (*it).second();
-        }        
+        }
     }
 }
 
 void InputManager::mousePosCallback(double x, double y) {
-    m_mousePosCallback(x * m_mouseSensitivity, y * m_mouseSensitivity * -m_invertY); 
+    m_mousePosCallback(x * m_mouseSensitivity, y * m_mouseSensitivity * -m_invertY);
 }
 
 void InputManager::mouseButtonCallback(int button, int action, int mods) {

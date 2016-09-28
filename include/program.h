@@ -1,3 +1,8 @@
+/**
+  * \file include/program.h
+  * \brief Contains the definitions related to shader programs.
+  * \author R.Chavignat
+  */
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
@@ -25,9 +30,16 @@ namespace Engine {
   */
 class ProgramHandle {
     public:
-        /* Default constructor */
+        /**
+         * \brief Constructor
+         *
+         * \param handle OpenGL shader program handle
+         */
         explicit ProgramHandle(GLuint handle);
-        /* Destructor */
+
+        /**
+         * \brief Destructor
+         */
         virtual ~ProgramHandle();
 
         ProgramHandle(ProgramHandle const& other) = delete;
@@ -35,6 +47,11 @@ class ProgramHandle {
         ProgramHandle& operator=(ProgramHandle const& other) = delete;
         ProgramHandle& operator=(ProgramHandle&& other) = delete;
 
+        /**
+         * \brief Returns the OpenGL shader program handle.
+         *
+         * \return The OpenGL shader program handle
+         */
         GLuint value() const;
 
     private:
@@ -52,9 +69,17 @@ class ProgramBuilder;
 class ShaderManager {
     friend class ProgramBuilder;
     public:
-        /* Default constructor */
+        /**
+         * \brief ShaderManager constructor.
+         *
+         * \param cache If set to true, the ShaderManager will cache the
+         * managed shaders to avoid recompilations.
+         */
         explicit ShaderManager(bool cache = true);
-        /* Destructor */
+
+        /**
+         * \brief Destructor.
+         */
         virtual ~ShaderManager();
 
         ShaderManager(ShaderManager const& other) = delete;
@@ -62,6 +87,11 @@ class ShaderManager {
         ShaderManager& operator=(ShaderManager const& other) = delete;
         ShaderManager& operator=(ShaderManager&& other) = delete;
 
+        /**
+         * \brief Returns a ProgramBuilder instance to build a new Program.
+         *
+         * \return A ProgramBuilder instance.
+         */
         ProgramBuilder buildProgram();
 
     private:
@@ -214,10 +244,21 @@ class Program {
         static const Program* s_current;
 };
 
+/**
+ * \brief Upload a uniform to the GPU.
+ *
+ * \tparam T Uniform type
+ * \param location Uniform location
+ * \param value Uniform value
+ */
 template <class T>
 void upload_uniform(const GLint location, T const& value);
 
-// Class for Uniform objects
+/**
+ * \class Uniform
+ * \brief Uniform class.
+ * \tparam T Uniform type
+ */
 template <class T>
 class Uniform : public UniformBase {
     friend class ProgramBuilder;
@@ -272,9 +313,31 @@ class ProgramBuilder {
           */
         enum UniformType { Vec3, Mat3, Mat4, Int, Float };
 
-        /* Attach a shader to the program */
+        /**
+         * @brief Attach a vertex shader to the program
+         *
+         * @param file Path to a GLSL shader code file
+         *
+         * @return Reference to the ProgramBuilder
+         */
         ProgramBuilder& vertexShader(std::string const& file);
+
+        /**
+         * @brief Attach a fragment shader to the program
+         *
+         * @param file Path to a GLSL shader code file
+         *
+         * @return Reference to the ProgramBuilder
+         */
         ProgramBuilder& fragmentShader(std::string const& file);
+
+        /**
+         * @brief Attach a geometry shader to the program
+         *
+         * @param file Path to a GLSL shader code file
+         *
+         * @return Reference to the ProgramBuilder
+         */
         ProgramBuilder& geometryShader(std::string const& file);
 
         /**
