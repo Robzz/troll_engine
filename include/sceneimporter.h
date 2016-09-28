@@ -1,3 +1,8 @@
+/**
+  * \file include/sceneimporter.h
+  * \brief Contains the definition of the SceneImporter class.
+  * \author R.Chavignat
+  */
 #ifndef SCENE_IMPORTER_H
 #define SCENE_IMPORTER_H
 
@@ -15,7 +20,7 @@ namespace Engine {
   * \class SceneImporter
   * \brief This class handles the import of scene geometry from files on the disk or in
   * memory. All meshes will be automatically triangulated in the process.
-  * The SceneImporter can also perform postprocessing on the scene file. 
+  * The SceneImporter can also perform postprocessing on the scene file.
   */
 class SceneImporter {
     public:
@@ -33,11 +38,38 @@ class SceneImporter {
             RemoveComponents = aiProcess_RemoveComponent
         };
 
+        /**
+         * @brief Constructor.
+         */
         SceneImporter();
+
+        /**
+         * @brief Destructor.
+         */
         virtual ~SceneImporter();
 
+        /**
+         * @brief Load a file into the importer.
+         *
+         * @param file Path of the file
+         * @param pp Postprocessing flags
+         */
         void readFile(std::string const& file, PostProcess pp = PostProcess::None);
+
+        /**
+         * @brief Return a list of the meshes in the loaded scene.
+         *
+         * @return List of the meshes in the loaded scene
+         */
         std::vector<const aiMesh*> meshes() const;
+
+        /**
+         * @brief Instantiate a mesh contained in the scene.
+         *
+         * @param mesh aiMesh to instantiate
+         *
+         * @return An instance of the Mesh.
+         */
         std::unique_ptr<Mesh> instantiateMesh(aiMesh const& mesh) const;
 
         /**

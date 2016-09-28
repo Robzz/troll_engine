@@ -4,7 +4,7 @@
 
 namespace Engine {
 
-SceneImporter::SceneImporter() : 
+SceneImporter::SceneImporter() :
     m_assimp()
 { }
 
