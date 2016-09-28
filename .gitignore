@@ -30,3 +30,7 @@ build/
 *_automoc.cpp
 **/moc_*.cpp
 **/ui_*.h
+tags
+.clang
+cppcheck.txt
+cloc-lang-def
