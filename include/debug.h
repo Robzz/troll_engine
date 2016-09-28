@@ -9,6 +9,10 @@
 #include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
 
+namespace Engine {
+    class Mesh;
+} // namespace Engine
+
 typedef std::function<void(GLenum source,
                            GLenum type,
                            GLuint id,
@@ -29,6 +33,7 @@ std::ostream& operator<<(std::ostream& s, std::vector<T> const& v) {
     }
     return s;
 }
+std::ostream& operator<<(std::ostream& s, Engine::Mesh const& m);
 
 /* This macro enables conditional compilation based on debug mode. The inner code will only be
  * executed on debug builds. */

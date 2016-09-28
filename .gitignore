@@ -14,6 +14,7 @@ examples/solar_system/solar_system
 examples/glfw_window/glfw_window
 examples/qt5_window/qt5_window
 examples/qt5_widget/qt5_widget
+examples/mesh/mesh
 **/assets/*
 include/obj_parser.h
 include/stack.hh
