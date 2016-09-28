@@ -75,8 +75,13 @@ class Texture {
 
     void generateMipmap();
 
-    // TODO : should that be const?
+    /**
+     * @brief Select the texture filtering options.
+     * @param filters Filters to modify.
+     * @param f Filtering mode.
+     */
     void filtering(Filters filters, Filter f);
+
     /**
       * \brief Upload texture data to the GPU
       * \param internalFormat Format in which to store the texture data internally
