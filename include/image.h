@@ -1,3 +1,8 @@
+/**
+  * \file include/image.h
+  * \brief Contains the definition of the Image class
+  * \author R.Chavignat
+  */
 #ifndef IMAGE_H
 #define IMAGE_H
 
@@ -41,8 +46,8 @@ class Image {
     /**
       * \brief Construct an empty image of specified dimensions and bit depth.
       * \param width Image width
-      * \param height Image height 
-      * \param bpp Image Depth, in bits per pixel 
+      * \param height Image height
+      * \param bpp Image Depth, in bits per pixel
       */
     Image(unsigned int width, unsigned int height, Type t = Type::Bitmap, int bpp = 24);
 
@@ -70,7 +75,7 @@ class Image {
         BmpRle,
         /** PNG format */
         Png };
-    
+
     /**
       * \brief Construct a copy of an Image.
       */
