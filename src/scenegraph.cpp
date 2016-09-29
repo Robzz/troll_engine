@@ -92,7 +92,7 @@ DrawableNode::DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, u
     Node(position),
     m_tex(tex),
     m_program(prog),
-    m_nPrimitives(),
+    m_nPrimitives(nPrimitives),
     m_primitiveMode(primitiveMode),
     m_vao(vao)
 { }

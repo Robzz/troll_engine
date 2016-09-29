@@ -83,23 +83,23 @@ void SceneImporter::dropComponents(int flags) {
 }
 
 template<>
-void SceneImporter::readIndex<1>(std::vector<unsigned char>& v1, std::vector<unsigned short>& v2,
-                                std::vector<unsigned int>& v3, aiFace* f) {
+void SceneImporter::readIndex<1>(std::vector<unsigned char>& v1, std::vector<unsigned short>&,
+                                std::vector<unsigned int>&, aiFace* f) {
     v1.push_back(f->mIndices[0]);
     v1.push_back(f->mIndices[1]);
     v1.push_back(f->mIndices[2]);
 }
 
 template<>
-void SceneImporter::readIndex<2>(std::vector<unsigned char>& v1, std::vector<unsigned short>& v2,
-                                 std::vector<unsigned int>& v3, aiFace* f) {
+void SceneImporter::readIndex<2>(std::vector<unsigned char>&, std::vector<unsigned short>& v2,
+                                 std::vector<unsigned int>&, aiFace* f) {
     v2.push_back(f->mIndices[0]);
     v2.push_back(f->mIndices[1]);
     v2.push_back(f->mIndices[2]);
 }
 
 template<>
-void SceneImporter::readIndex<4>(std::vector<unsigned char>& v1, std::vector<unsigned short>& v2,
+void SceneImporter::readIndex<4>(std::vector<unsigned char>&, std::vector<unsigned short>&,
                                  std::vector<unsigned int>& v3, aiFace* f) {
     v3.push_back(f->mIndices[0]);
     v3.push_back(f->mIndices[1]);

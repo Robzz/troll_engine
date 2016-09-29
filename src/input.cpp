@@ -34,6 +34,7 @@ void InputManager::setMouseButtonCallback(MouseButtonCallback f) {
     m_mouseButtonCallback = f;
 }
 
+// Handle keyboard layout and key modifiers
 void InputManager::keyCallback(int key_code, int scan_code, int action, int mods) const {
     if(action == GLFW_PRESS) {
         std::map<int, std::function<void()>>::const_iterator it = m_callbacks.find(key_code);

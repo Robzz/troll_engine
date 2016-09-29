@@ -14,7 +14,7 @@ TrollEngine::TrollEngine() {
     if (!glfwInit()) {
         throw std::runtime_error("Cannot initialize GLFW");
     }
-    glfwSetErrorCallback([] (int error, const char* description) { std::cerr << description << std::endl; });
+    glfwSetErrorCallback([] (int, const char* description) { std::cerr << description << std::endl; });
 #endif
     // TODO : a static initialisation method for this would be nice
     FreeImage_SetOutputMessage(&freeimage_error_callback);

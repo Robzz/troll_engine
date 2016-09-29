@@ -230,7 +230,7 @@ class Program {
           * \param id OpenGL id of the program.
           * \param uniforms Uniforms used by the program
           */
-        Program(std::shared_ptr<ProgramHandle> h, std::vector<UniformBase*> uniforms);
+        Program(std::shared_ptr<ProgramHandle> id, std::vector<UniformBase*> uniforms);
 
         /**
           * \brief Return the location of a uniform
