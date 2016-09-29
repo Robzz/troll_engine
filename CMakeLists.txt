@@ -80,7 +80,7 @@ else()
     set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w")
     set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
-add_definitions(-DGLM_SWIZZLE)
+add_definitions(-DGLM_FORCE_SWIZZLE)
 
 option(TROLL_BUILD_EXAMPLES "Build examples" OFF)
 
@@ -156,7 +156,7 @@ add_dependencies(TrollEngine generate_gl_loader)
 
 # Enable C++14 and a proper metric fuckton of extra warnings
 set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 14)
-target_compile_options(TrollEngine PUBLIC -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wno-unused)
+target_compile_options(TrollEngine PUBLIC -Wdocumentation -Wall -Wextra)
 # Silence some expected warnings
 set_source_files_properties(${troll_src_dir}/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-sign-conversion -Wno-missing-declarations")
 set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
