@@ -29,6 +29,8 @@ else()
     add_custom_target(doxygen_docs)
 endif()
 
+option(BUILD_TESTS "Build the test suite" OFF)
+
 set(troll_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(troll_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -58,8 +60,8 @@ add_custom_target(generate_gl_loader
                   DEPENDS glLoadGen ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h)
 add_custom_command(OUTPUT ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h
                    COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glLoadGen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3 -extfile=exts.txt
-                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.c ${troll_src_dir}/gl_core_3_3.cpp
-                   COMMAND mv ${CMAKE_CURRENT_SOURCE_DIR}/gl_core_3_3.h ${troll_include_dir}/gl_core_3_3.h)
+                   COMMAND mv ${CMAKE_BINARY_DIR}/gl_core_3_3.c ${troll_src_dir}/gl_core_3_3.cpp
+                   COMMAND mv ${CMAKE_BINARY_DIR}/gl_core_3_3.h ${troll_include_dir}/gl_core_3_3.h)
 
 # Remove the loader files on clean
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir}/gl_core_3_3.cpp\

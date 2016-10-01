@@ -25,7 +25,7 @@
 namespace Engine {
 
 /** \class Node
- *  \brief Base class for nodes in a SceneGraph 
+ *  \brief Base class for nodes in a SceneGraph
            These nodes don't contain geometry themselves, and drawing them
            doesn't render anything unless they have children. Their use is to
            logically organize a scene in the SceneGraph. */
@@ -90,7 +90,7 @@ class DrawableNode : public Node {
     /* Default constructor */
     DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, unsigned int nPrimitives,
                  Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
-    
+
     /* Render the node */
     virtual void draw(glm::mat4 const& m) = 0;
     void set_texture(Texture const* tex = nullptr);

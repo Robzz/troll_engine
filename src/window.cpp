@@ -188,9 +188,10 @@ namespace Engine {
             win->m_im.mouseButtonCallback(button, action, mods);
     }
 
+    // TODO: proper error message formatting
     void APIENTRY GLFWWindow::gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                       const GLchar* message, const void* userParam) {
-        const auto* w = reinterpret_cast<const GLFWWindow*>(userParam);
+        //const auto* w = reinterpret_cast<const GLFWWindow*>(userParam);
         std::cout << message << std::endl;
     }
 #endif // TROLL_USE_GLFW
