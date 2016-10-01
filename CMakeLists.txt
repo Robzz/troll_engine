@@ -113,6 +113,7 @@ set(TROLL_SOURCES
 
 set(TROLL_HEADERS
     ${troll_include_dir}/gl_core_3_3.h
+    ${troll_include_dir}/gl_traits.h
     ${troll_include_dir}/troll_engine.h
     ${troll_include_dir}/window.h
     ${troll_include_dir}/shader.h
