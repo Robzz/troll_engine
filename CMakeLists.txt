@@ -66,6 +66,7 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir
                                                                  ${troll_include_dir}/gl_core_3_3.h")
 
 find_package(Boost 1.58 REQUIRED)
+find_package(OpenGL)
 find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
 if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
@@ -149,7 +150,7 @@ include_directories(${TROLL_INCLUDE_DIRS})
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY})
+set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY})
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
 add_dependencies(TrollEngine generate_gl_loader)
@@ -163,6 +164,10 @@ set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS 
 
 if(TROLL_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(BUILD_TESTS)
+    add_subdirectory("tests")
 endif()
 
 export(TARGETS TrollEngine FILE troll-exports.cmake)

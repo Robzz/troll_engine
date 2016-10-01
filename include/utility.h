@@ -41,6 +41,61 @@ typename std::enable_if<traits::enable_bitmask_operators<E>::enable, E>::type op
 template <class E>
 typename std::enable_if<traits::enum_class_value<E>::enable, typename std::underlying_type<E>::type>::type value(E e);
 
+/**
+ * @brief Type representing a list of types.
+ *
+ * @tparam T List of types
+ */
+template <class... T>
+struct type_list { };
+
+/**
+ * @brief Meta-function returning the number of types in a type list.
+ *
+ * @tparam T type_list type
+ */
+template <class T>
+struct type_list_length;
+
+#ifndef DOX_SKIP_BLOCK
+template <class H, class... T>
+struct type_list_length<type_list<H, T...>> : std::integral_constant<size_t, 1 + type_list_length<type_list<T...>>::value> { };
+
+template <>
+struct type_list_length<type_list<>> : std::integral_constant<size_t, 0> { };
+#endif // DOX_SKIP_BLOCK
+
+template <class T, unsigned int i>
+struct type_list_get;
+
+#ifndef DOX_SKIP_BLOCK
+template <class H, class... T, unsigned int i>
+struct type_list_get<type_list<H, T...>, i> {
+    static_assert(i < type_list_length<type_list<H, T...>>::value, "type_list access out of bounds");
+    using type = typename type_list_get<type_list<T...>, i-1>::type;
+};
+
+template <class H, class... T>
+struct type_list_get<type_list<H, T...>, 0> {
+    using type = H;
+};
+
+template <unsigned int i>
+struct type_list_get<type_list<>, i>;
+
+#endif // DOX_SKIP_BLOCK
+
+/**
+ * @brief Meta-function returning a no-op function taking the specified
+ * parameter list.
+ *
+ * @tparam T Type list
+ */
+template <class... T>
+struct no_op {
+    static void f(T...) {};
+};
+
 #include "utility.inl"
 
 } // namespace Engine

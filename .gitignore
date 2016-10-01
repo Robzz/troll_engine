@@ -22,7 +22,8 @@ include/gl_core_*.h
 src/gl_core*.cpp
 src/obj_*.cpp
 src/stack.hh
-build/
+tests/testsuite
+build*/
 *.bmp
 *.log
 *.bin
