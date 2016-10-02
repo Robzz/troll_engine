@@ -125,6 +125,8 @@ set(TROLL_HEADERS
     ${troll_include_dir}/vbo.h
     ${troll_include_dir}/vbo.inl
     ${troll_include_dir}/vao.h
+    ${troll_include_dir}/ubo.h
+    ${troll_include_dir}/ubo.inl
     ${troll_include_dir}/matrixstack.h
     ${troll_include_dir}/scenegraph.h
     ${troll_include_dir}/input.h
@@ -143,7 +145,6 @@ set(TROLL_HEADERS
     ${troll_include_dir}/utility.h
     ${troll_include_dir}/utility.inl
     ${troll_include_dir}/sceneimporter.h
-    ${troll_include_dir}/sceneimporter.inl
 )
 
 set(TROLL_INCLUDE_DIRS ${TROLL_INCLUDE_DIRS} ${troll_include_dir} ${Boost_INCLUDE_DIRS})

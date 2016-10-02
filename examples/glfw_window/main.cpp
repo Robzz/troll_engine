@@ -8,7 +8,7 @@
 
 using namespace Engine;
 
-int main(int argc, char** argv) {
+int main(int, char**) {
     TrollEngine engine;
     GLFWWindow win(1280, 720, "TrollEngine GLFW Window", true, true);
     win.setResizeCallback([] (int w, int h) { glViewport(0, 0, w, h); });

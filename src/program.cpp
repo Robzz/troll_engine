@@ -131,14 +131,22 @@ void Program::uploadUniforms() {
 
 bool Program::is_current() const { return this == s_current; }
 
-GLint Program::getAttributeLocation(std::string attribName) const {
+GLint Program::getAttributeLocation(std::string const& attribName) const {
     GLint loc = glGetAttribLocation(m_id->value(), attribName.c_str());
     return loc;
+}
+
+GLuint Program::getUniformBlockIndex(std::string const& name) {
+    return glGetUniformBlockIndex(m_id->value(), name.c_str());
 }
 
 GLint Program::getUniformLocation(std::string const& uniformName) const {
     GLint loc = glGetUniformLocation(m_id->value(), uniformName.c_str());
     return loc;
+}
+
+void Program::uniformBlockBinding(unsigned int index, unsigned int binding) {
+    glUniformBlockBinding(m_id->value(), index, binding);
 }
 
 const Program* Program::current() { return s_current; }

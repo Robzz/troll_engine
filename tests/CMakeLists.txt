@@ -1,6 +1,7 @@
 set(TESTSUITE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_utilities.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ubo.cpp
 )
 
 add_executable(testsuite ${TESTSUITE_SOURCES})

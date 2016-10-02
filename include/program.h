@@ -197,7 +197,11 @@ class Program {
         /**
           * \brief Return the OpenGL location of an attribute
           */
-        GLint getAttributeLocation(std::string) const;
+        GLint getAttributeLocation(std::string const& name) const;
+
+        GLuint getUniformBlockIndex(std::string const&);
+
+        void uniformBlockBinding(unsigned int index, unsigned int binding);
 
         /**
           * \brief Return the Uniform object associated with a uniform

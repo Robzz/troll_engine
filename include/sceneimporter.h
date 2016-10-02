@@ -35,7 +35,15 @@ class SceneImporter {
              *  rendering. */
             JoinVertices = aiProcess_JoinIdenticalVertices,
             /** Quick hack that should go away ASAP */
-            RemoveComponents = aiProcess_RemoveComponent
+            RemoveComponents = aiProcess_RemoveComponent,
+            /** Optimize the scene hierarchy */
+            OptimizeGraph = aiProcess_OptimizeGraph,
+            /** Merge meshes together, if possible */
+            OptimizeMeshes = aiProcess_OptimizeMeshes,
+            /** Generate normals if the mesh has none */
+            GenerateNormals = aiProcess_GenNormals,
+            /** Flip the winding order of faces */
+            FlipWindingOrder = aiProcess_FlipWindingOrder
         };
 
         /**
@@ -109,8 +117,6 @@ namespace traits {
         static bool constexpr enable = true;
     };
 }
-
-#include "sceneimporter.inl"
 
 } // namespace Engine
 

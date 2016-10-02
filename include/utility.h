@@ -5,6 +5,11 @@
 #include <fstream>
 #include <cassert>
 #include <type_traits>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/vec1.hpp>
+#include <boost/mpl/size_t.hpp>
+
 #include "gl_core_3_3.h"
 
 #define UNREACHABLE(t) ( (std::cerr << "Reached unreachable code at __FILE__:__LINE__" << std::endl, std::terminate(), t) )
@@ -59,10 +64,10 @@ struct type_list_length;
 
 #ifndef DOX_SKIP_BLOCK
 template <class H, class... T>
-struct type_list_length<type_list<H, T...>> : std::integral_constant<size_t, 1 + type_list_length<type_list<T...>>::value> { };
+struct type_list_length<type_list<H, T...>> : boost::mpl::size_t<1 + type_list_length<type_list<T...>>::value> { };
 
 template <>
-struct type_list_length<type_list<>> : std::integral_constant<size_t, 0> { };
+struct type_list_length<type_list<>> : boost::mpl::size_t<0> { };
 #endif // DOX_SKIP_BLOCK
 
 template <class T, unsigned int i>
@@ -79,6 +84,12 @@ template <class H, class... T>
 struct type_list_get<type_list<H, T...>, 0> {
     using type = H;
 };
+
+template <intptr_t addr, ptrdiff_t alignment>
+struct align : std::integral_constant<intptr_t,
+    (addr % alignment == 0) ?
+    addr :
+    (addr + alignment - addr % alignment)> { };
 
 template <unsigned int i>
 struct type_list_get<type_list<>, i>;
