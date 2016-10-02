@@ -1,6 +1,8 @@
 #include "scenegraph.h"
 #include "glm/gtc/matrix_inverse.hpp"
 
+using namespace gl;
+
 namespace Engine {
 
 Node::Node(glm::mat4 const& position, std::string const& name, bool enabled) :

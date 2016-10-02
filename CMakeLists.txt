@@ -1,19 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 project(TROLL CXX)
-include(ExternalProject)
-
-ExternalProject_Add(
-    glLoadGen
-    PREFIX glLoadGen
-    HG_REPOSITORY https://bitbucket.org/alfonse/glloadgen
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-find_program(LUA_EXECUTABLE lua5.1)
-if(${LUA_EXECUTABLE} STREQUAL LUA_EXECUTABLE-NOTFOUND)
-    message(FATAL_ERROR "Lua 5.1 not found")
-endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -55,20 +41,9 @@ elseif(WINDOW_QT5)
     add_definitions(-DTROLL_USE_QT5)
 endif()
 
-# Teach the build system how to generate the gl loaders
-add_custom_target(generate_gl_loader
-                  DEPENDS glLoadGen ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h)
-add_custom_command(OUTPUT ${troll_src_dir}/gl_core_3_3.cpp ${troll_include_dir}/gl_core_3_3.h
-                   COMMAND ${LUA_EXECUTABLE} glLoadGen/src/glLoadGen/LoadGen.lua -style=noload_c -spec=gl -version=3.3 -profile=core core_3_3 -extfile=exts.txt
-                   COMMAND mv ${CMAKE_BINARY_DIR}/gl_core_3_3.c ${troll_src_dir}/gl_core_3_3.cpp
-                   COMMAND mv ${CMAKE_BINARY_DIR}/gl_core_3_3.h ${troll_include_dir}/gl_core_3_3.h)
-
-# Remove the loader files on clean
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${troll_src_dir}/gl_core_3_3.cpp\
-                                                                 ${troll_include_dir}/gl_core_3_3.h")
-
 find_package(Boost 1.58 REQUIRED)
 find_package(OpenGL)
+find_package(glbinding REQUIRED)
 find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
 if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
@@ -80,7 +55,6 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
     add_definitions(-DDEBUG)
 else()
     # Silence some expected warnings
-    set_source_files_properties(src/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-w")
     set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_FORCE_SWIZZLE)
@@ -91,7 +65,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Engine sources
 set(TROLL_SOURCES
-    ${troll_src_dir}/gl_core_3_3.cpp
     ${troll_src_dir}/troll_engine.cpp
     ${troll_src_dir}/window.cpp
     ${troll_src_dir}/shader.cpp
@@ -114,7 +87,6 @@ set(TROLL_SOURCES
 )
 
 set(TROLL_HEADERS
-    ${troll_include_dir}/gl_core_3_3.h
     ${troll_include_dir}/gl_traits.h
     ${troll_include_dir}/troll_engine.h
     ${troll_include_dir}/window.h
@@ -154,16 +126,13 @@ include_directories(${TROLL_INCLUDE_DIRS})
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY})
+set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY} glbinding::glbinding)
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
-
-add_dependencies(TrollEngine generate_gl_loader)
 
 # Enable C++14 and a proper metric fuckton of extra warnings
 set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 14)
 target_compile_options(TrollEngine PUBLIC -Wdocumentation -Wall -Wextra)
 # Silence some expected warnings
-set_source_files_properties(${troll_src_dir}/gl_core_3_3.cpp PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-sign-conversion -Wno-missing-declarations")
 set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
 if(TROLL_BUILD_EXAMPLES)

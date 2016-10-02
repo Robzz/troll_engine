@@ -13,7 +13,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/vec1.hpp>
-#include <boost/mpl/size_t.hpp>
 
 #include "vbo.h"
 #include "utility.h"
@@ -224,20 +223,7 @@ struct AttributeMap {
     AttributeMap& operator=(AttributeMap&& other);
 };
 
-#ifndef DOX_SKIP_BLOCK
 namespace traits {
-    template <typename T>
-    struct dimension : boost::mpl::size_t<1> { };
-
-    template <>
-    struct dimension<glm::vec1> : boost::mpl::size_t<1> { } ;
-    template <>
-    struct dimension<glm::vec2> : boost::mpl::size_t<2> { } ;
-    template <>
-    struct dimension<glm::vec3> : boost::mpl::size_t<3> { } ;
-    template <>
-    struct dimension<glm::vec4> : boost::mpl::size_t<4> { } ;
-
     template <typename T>
     struct attribute_type_enumerator { };
     template <>
@@ -320,26 +306,25 @@ namespace traits {
 
     template <>
     struct gl_value<AttributeArray::Type> {
-        static GLenum value(AttributeArray::Type t) {
+        static gl::GLenum value(AttributeArray::Type t) {
             switch(t) {
                 case AttributeArray::Type::Float:
-                    return GL_FLOAT;
+                    return gl::GL_FLOAT;
                 case AttributeArray::Type::Double:
-                    return GL_DOUBLE;
+                    return gl::GL_DOUBLE;
                 case AttributeArray::Type::Uint:
-                    return GL_UNSIGNED_INT;
+                    return gl::GL_UNSIGNED_INT;
                 case AttributeArray::Type::Uchar:
-                    return GL_UNSIGNED_BYTE;
+                    return gl::GL_UNSIGNED_BYTE;
                 case AttributeArray::Type::Ushort:
-                    return GL_UNSIGNED_SHORT;
+                    return gl::GL_UNSIGNED_SHORT;
                 case AttributeArray::Type::Int:
-                    return GL_INT;
+                    return gl::GL_INT;
             }
             UNREACHABLE(0);
         }
     };
 } // namespace traits
-#endif // DOX_SKIP_BLOCK
 
 } // namespace Engine
 

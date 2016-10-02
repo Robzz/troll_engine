@@ -12,7 +12,7 @@
 #define SCENEGRAPH_H
 
 #include <map>
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 #include "glm/glm.hpp"
 
 #include "program.h"
@@ -89,7 +89,7 @@ class DrawableNode : public Node {
     public:
     /* Default constructor */
     DrawableNode(glm::mat4 const& position, Program* prog, VAO* vao, unsigned int nPrimitives,
-                 Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
+                 Texture const* tex = nullptr, gl::GLenum primitiveMode = gl::GL_TRIANGLES);
 
     /* Render the node */
     virtual void draw(glm::mat4 const& m) = 0;
@@ -103,18 +103,18 @@ class DrawableNode : public Node {
     Texture const* m_tex;
     Program* m_program;
     unsigned int m_nPrimitives;
-    GLenum m_primitiveMode;
+    gl::GLenum m_primitiveMode;
     VAO* m_vao;
 };
 
 /* Drawable object with its own geometry, rendered with array rendering. */
 class Object : public DrawableNode {
     friend DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture const* tex,
-                                           GLenum primitiveMode) const;
+                                           gl::GLenum primitiveMode) const;
     public:
         // Takes ownership of the VAO
         Object(glm::mat4 const& position, Program* p, VAO* vao, unsigned int n_primitives,
-               Texture const* tex = nullptr, GLenum primitiveMode = GL_TRIANGLES);
+               Texture const* tex = nullptr, gl::GLenum primitiveMode = gl::GL_TRIANGLES);
         ~Object();
         virtual void draw(glm::mat4 const& m);
 
@@ -124,16 +124,18 @@ class Object : public DrawableNode {
 /* Drawable object with its own geometry, rendered with indexed rendering. */
 class IndexedObject : public DrawableNode {
     public:
-        IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo, VAO* vao, unsigned int n_indices,
-                      Texture const* tex = nullptr, GLenum indexType = GL_UNSIGNED_SHORT,
-                      GLenum primitiveMode = GL_TRIANGLES);
+        IndexedObject(glm::mat4 const& position, Program* p, const VBO* ebo,
+                      VAO* vao, unsigned int n_indices,
+                      Texture const* tex = nullptr,
+                      gl::GLenum indexType = gl::GL_UNSIGNED_SHORT,
+                      gl::GLenum primitiveMode = gl::GL_TRIANGLES);
         ~IndexedObject();
         virtual void draw(glm::mat4 const& m);
 
     private:
         const VBO* m_ebo;
         unsigned int m_nIndices;
-        GLenum m_indexType;
+        gl::GLenum m_indexType;
 };
 
 } // namespace Engine

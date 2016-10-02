@@ -2,23 +2,24 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <glbinding/gl33core/gl.h>
 #include <iostream>
 #include <vector>
 #include <functional>
-#include "gl_core_3_3.h"
-#include <GLFW/glfw3.h>
 #include "glm/glm.hpp"
 
 namespace Engine {
     class Mesh;
 } // namespace Engine
 
-typedef std::function<void(GLenum source,
-                           GLenum type,
-                           GLuint id,
-                           GLenum severity,
-                           GLsizei length,
-                           const GLchar* message,
+typedef std::function<void(gl::GLenum source,
+                           gl::GLenum type,
+                           gl::GLuint id,
+                           gl::GLenum severity,
+                           gl::GLsizei length,
+                           const gl::GLchar* message,
                            const void* userParam)> glDebugCallback;
 
 // Some debug pretty-print functions

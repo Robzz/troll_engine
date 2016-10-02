@@ -1,6 +1,8 @@
 #include "fbo.h"
 #include "debug.h"
 
+using namespace gl;
+
 namespace Engine {
 
 FBO::FBO() :
@@ -26,27 +28,27 @@ FBO& FBO::operator=(FBO&& other) {
     return *this;
 }
 
-void FBO::bind(FBO::Target const& t) {
+void FBO::bind(GLenum const& t) {
     glBindFramebuffer(t, m_id);
 }
 
-void FBO::bind_default(FBO::Target const& t) {
+void FBO::bind_default(GLenum const& t) {
     glBindFramebuffer(t, 0);
 }
 
-void FBO::attach(Target t, Attachment a, Texture& tex, GLint layer) {
+void FBO::attach(GLenum t, GLenum a, Texture& tex, GLint layer) {
     glFramebufferTexture(t, a, tex.m_id, layer);
 }
 
-void FBO::detach(FBO::Target t, FBO::Attachment a) {
+void FBO::detach(GLenum t, GLenum a) {
     glFramebufferTexture(t, a, 0, 0);
 }
 
-bool FBO::is_complete(Target t) {
-    return glCheckFramebufferStatus(t) == Complete;
+bool FBO::is_complete(GLenum t) {
+    return glCheckFramebufferStatus(t) == GL_FRAMEBUFFER_COMPLETE;
 }
 
-GLenum FBO::status(Target t) {
+GLenum FBO::status(GLenum t) {
     return glCheckFramebufferStatus(t);
 }
 

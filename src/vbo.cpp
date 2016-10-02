@@ -1,5 +1,7 @@
 #include "vbo.h"
 
+using namespace gl;
+
 namespace Engine {
 
 VBO::VBO() :

@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 #include "debug.h"
 #include <string>
 #include <vector>
@@ -38,36 +38,13 @@ class Texture {
     Texture& operator=(Texture&& other);
 
     /**
-      * \enum Target
-      * \brief Enumerate the different texture binding points.
-      */
-    enum Target : GLenum { Tex2D = GL_TEXTURE_2D };
-    /**
-      * \enum Filters
-      * \brief Enumerate the different texture filters.
-      */
-    enum Filters : GLenum { Magnification = GL_TEXTURE_MAG_FILTER,
-                            Minification  = GL_TEXTURE_MIN_FILTER,
-                            Both };
-    /**
-      * \enum Filter
-      * \brief Enumerate the different texture filtering methods.
-      */
-    enum Filter : GLenum { Nearest               = GL_NEAREST,
-                           Linear                = GL_LINEAR,
-                           BiLinear              = GL_LINEAR_MIPMAP_LINEAR,
-                           NearestMipmap_Nearest = GL_NEAREST_MIPMAP_NEAREST,
-                           LinearMipmap_Nearest  = GL_LINEAR_MIPMAP_NEAREST,
-                           NearestMipmap_Linear  = GL_NEAREST_MIPMAP_LINEAR };
-
-    /**
       * \brief Bind the texture to the specified binding point.
       */
-    void bind(Target target = Tex2D) const;
+    void bind(gl::GLenum target = gl::GL_TEXTURE_2D) const;
     /**
       * \brief Unbind the texture bound to the specified binding point, if any.
       */
-    static void unbind(Target target = Tex2D);
+    static void unbind(gl::GLenum target = gl::GL_TEXTURE_2D);
     /**
       * \brief Return a handle to the null texture.
       */
@@ -77,10 +54,10 @@ class Texture {
 
     /**
      * @brief Select the texture filtering options.
-     * @param filters Filters to modify.
-     * @param f Filtering mode.
+     * @param minMag Minification of magnification filter
+     * @param filter New filtering mode
      */
-    void filtering(Filters filters, Filter f);
+    void filtering(gl::GLenum minMag, gl::GLenum filter);
 
     /**
       * \brief Upload texture data to the GPU
@@ -91,8 +68,8 @@ class Texture {
       * \param height Texture height
       * \param data Pointer to the texture data
       */
-    void texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height,
-                 const void* data);
+    void texData(gl::GLint internalFormat, gl::GLenum format, gl::GLenum type,
+                 gl::GLint width, gl::GLint height, const void* data);
 
     /**
       * \brief Return texel data from the texture
@@ -102,14 +79,15 @@ class Texture {
       * \param level Specify the mipmap image level to fetch data from.
       */
     template <class T>
-    std::vector<T> get_pixels(GLenum type, GLenum format, size_t size, GLint level = 0) const;
+    std::vector<T> get_pixels(gl::GLenum type, gl::GLenum format, size_t size,
+                              gl::GLint level = 0) const;
 
     private:
-    GLuint m_id;
+    gl::GLuint m_id;
     int m_width;
     int m_height;
 
-    explicit Texture(GLuint id);
+    explicit Texture(gl::GLuint id);
     Texture(Texture const& other);
     void operator=(Texture const& other);
 };

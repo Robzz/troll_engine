@@ -1,5 +1,5 @@
-#include "gl_core_3_3.h"
 #ifdef TROLL_USE_GLFW
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #endif
 #ifdef TROLL_USE_QT5
@@ -8,6 +8,7 @@
 #include <QOpenGLContext>
 #endif
 
+#include <glbinding/gl33core/gl.h>
 #include <functional>
 #include <string>
 #include <map>
@@ -129,8 +130,11 @@ class GLFWWindow : public Window {
         operator bool() const;
 
     private:
-        static void APIENTRY gl_debug_cb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-                                         const GLchar* message, const void* userParam);
+        static void APIENTRY gl_debug_cb(gl::GLenum source, gl::GLenum type,
+                                         gl::GLuint id, gl::GLenum severity,
+                                         gl::GLsizei length,
+                                         const gl::GLchar* message,
+                                         const void* userParam);
         GLFWwindow* m_w;
         std::string m_title;
         InputManager m_im;

@@ -1,3 +1,7 @@
+#ifndef TRANSFORM_H
+#include "transform.h"
+#endif
+
 template <class O>
 TransformBase<O>::TransformBase() :
     m_position(),
@@ -45,12 +49,12 @@ glm::vec3 TransformBase<O>::position() const {
 }
 
 template <class O>
-O TransformBase<O>::orientation() const { 
+O TransformBase<O>::orientation() const {
     return m_orientation;
 }
 
 template <class O>
-void TransformBase<O>::set_position(glm::vec3 const& v) { 
+void TransformBase<O>::set_position(glm::vec3 const& v) {
     m_position = v;
 }
 
@@ -75,7 +79,7 @@ glm::vec3 TransformBase<O>::z() const {
 }
 
 template <class O>
-void TransformBase<O>::translate(glm::vec3 const& v) { 
+void TransformBase<O>::translate(glm::vec3 const& v) {
     m_position += v;
 }
 
@@ -105,7 +109,7 @@ void TransformBase<O>::translate_local(Direction dir, float distance) {
 
 template <class O>
 void TransformBase<O>::translate_local(glm::vec3 const& v) {
-    translate(v.x * x() + 
+    translate(v.x * x() +
               v.y * y() +
               v.z * z());
 }

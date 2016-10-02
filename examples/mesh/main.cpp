@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Engine;
+using namespace gl;
 
 struct Material {
     glm::vec3 Ks;

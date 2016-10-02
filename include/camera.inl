@@ -1,3 +1,7 @@
+#ifndef CAMERA_H
+#include "camera.h"
+#endif
+
 template <class T>
 Camera<T>::Camera() : m_camToWorld() { }
 

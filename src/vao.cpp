@@ -2,6 +2,8 @@
 #include "vbo.h"
 #include "debug.h"
 
+using namespace gl;
+
 namespace Engine {
 
 VAO::VAO() :

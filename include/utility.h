@@ -10,7 +10,7 @@
 #include <glm/gtc/vec1.hpp>
 #include <boost/mpl/size_t.hpp>
 
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 
 #define UNREACHABLE(t) ( (std::cerr << "Reached unreachable code at __FILE__:__LINE__" << std::endl, std::terminate(), t) )
 
@@ -36,6 +36,29 @@ namespace traits {
 
     template <class T>
     struct gl_value { };
+
+    /**
+     * \brief Specifies the dimension of vector types
+     * \tparam T Vector type
+     */
+    template <typename T>
+    struct dimension;
+
+    /** @brief Specialization of \ref dimension for glm::vec1 */
+    template <>
+    struct dimension<glm::vec1> : boost::mpl::size_t<1> { } ;
+
+    /** @brief Specialization of \ref dimension for glm::vec2 */
+    template <>
+    struct dimension<glm::vec2> : boost::mpl::size_t<2> { } ;
+
+    /** @brief Specialization of \ref dimension for glm::vec3 */
+    template <>
+    struct dimension<glm::vec3> : boost::mpl::size_t<3> { } ;
+
+    /** @brief Specialization of \ref dimension for glm::vec4 */
+    template <>
+    struct dimension<glm::vec4> : boost::mpl::size_t<4> { } ;
 }
 
 template <class E>

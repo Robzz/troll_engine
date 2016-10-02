@@ -7,6 +7,7 @@
 #include <iostream>
 
 using namespace Engine;
+using namespace gl;
 
 int main(int, char**) {
     TrollEngine engine;

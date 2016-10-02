@@ -2,6 +2,8 @@
 #include "debug.h"
 #include <vector>
 
+using namespace gl;
+
 namespace Engine {
 
 Texture::Texture() :
@@ -39,11 +41,11 @@ Texture::~Texture() {
         glDeleteTextures(1, &m_id);
 }
 
-void Texture::bind(Target target) const {
+void Texture::bind(GLenum target) const {
     glBindTexture(target, m_id);
 }
 
-void Texture::unbind(Target target) {
+void Texture::unbind(GLenum target) {
     glBindTexture(target, 0);
 }
 
@@ -54,29 +56,20 @@ Texture Texture::noTexture() {
 void Texture::generateMipmap() {
     if(!m_id)
         throw std::runtime_error("Invalid texture");
-    bind(Tex2D);
-    glGenerateMipmap(Tex2D);
+    bind(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Texture::texData(GLint internalFormat, GLenum format, GLenum type, GLint width, GLint height, const void* data) {
-    glBindTexture(Tex2D, m_id);
-    glTexImage2D(Tex2D, 0, internalFormat, width, height, 0, format, type, data);
-    glGenerateMipmap(Tex2D);
-    glBindTexture(Tex2D, 0);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::filtering(Filters filters, Filter f) {
+void Texture::filtering(GLenum minMag, GLenum filter) {
     // TODO : do not assume texture is bound
-    switch(filters) {
-        case Magnification:
-        case Minification:
-            glTexParameteri(Tex2D, filters, f);
-            break;
-        case Both:
-            glTexParameteri(Tex2D, Magnification, f);
-            glTexParameteri(Tex2D, Minification, f);
-            break;
-    }
+    glTexParameteri(GL_TEXTURE_2D, minMag, filter);
 }
 
 } // namespace Engine

@@ -1,7 +1,7 @@
 #ifndef VBO_H
 #define VBO_H
 
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 #include <vector>
 
 #include "debug.h"
@@ -36,13 +36,13 @@ class VBO {
           * \brief Bind the VBO to the specified binding point.
           * \param target OpenGL binding point.
           */
-        void bind(GLenum target = GL_ARRAY_BUFFER) const;
+        void bind(gl::GLenum target = gl::GL_ARRAY_BUFFER) const;
         /**
           * \brief Unbind the buffer bound at the specified target, if any
           */
-        static void unbind(GLenum target = GL_ARRAY_BUFFER);
+        static void unbind(gl::GLenum target = gl::GL_ARRAY_BUFFER);
 
-        void bindBase(GLenum target, unsigned int index);
+        void bindBase(gl::GLenum target, unsigned int index);
 
         /**
           * \brief Upload data to the VBO.
@@ -50,7 +50,7 @@ class VBO {
           * \param hint OpenGL buffer usage hint.
           */
         template <class T>
-        void upload_data(std::vector<T> data, GLenum hint = GL_STATIC_DRAW);
+        void upload_data(std::vector<T> data, gl::GLenum hint = gl::GL_STATIC_DRAW);
 
         /**
          * @brief Update a block of data in the buffer
@@ -64,7 +64,7 @@ class VBO {
         void update_data(T const& data, size_t size, ptrdiff_t offset);
 
     protected:
-        GLuint m_id;
+        gl::GLuint m_id;
 };
 
 #include "vbo.inl"

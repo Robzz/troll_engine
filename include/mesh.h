@@ -66,7 +66,7 @@ class Mesh {
           * TODO : refactor this
           */
         DrawableNode* instantiate(glm::mat4 const& position, Program* p, Texture const* tex = nullptr,
-                                  GLenum primitiveMode = GL_TRIANGLES) const;
+                                  gl::GLenum primitiveMode = gl::GL_TRIANGLES) const;
 
         /**
           * \brief Return the number of vertices in the mesh.

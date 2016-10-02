@@ -1,7 +1,7 @@
 #ifndef VAO_H
 #define VAO_H
 
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 
 namespace Engine {
 
@@ -37,7 +37,7 @@ class VAO {
           * \param index Attribute index
           * \param enable If true, enable the attribute array, disable it otherwise.
           */
-        void enableVertexAttribArray(GLuint index, bool enable = true);
+        void enableVertexAttribArray(gl::GLuint index, bool enable = true);
         /**
           * \brief Specify the type and layout of the attribute data within the VBO.
           * \param array VBO containing the attribute data
@@ -50,10 +50,14 @@ class VAO {
           * \param normalize Specify whether the attribute values should be normalized when passed to
           * the shader program.
           */
-        void vertexAttribPointer(VBO const& array, GLuint index, GLint size, GLsizei stride = 0, const GLvoid* offset = NULL, GLenum type = GL_FLOAT, bool normalize = false);
+        void vertexAttribPointer(VBO const& array, gl::GLuint index,
+                                 gl::GLint size, gl::GLsizei stride = 0,
+                                 const gl::GLvoid* offset = NULL,
+                                 gl::GLenum type = gl::GL_FLOAT,
+                                 bool normalize = false);
 
     private:
-        GLuint m_id;
+        gl::GLuint m_id;
 };
 
 } // namespace Engine

@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <sstream>
 
+using namespace gl;
+
 namespace Engine {
 
 const Program* Program::s_current = nullptr;
@@ -184,17 +186,17 @@ ProgramBuilder::ProgramBuilder(ShaderManager& manager) :
 ProgramBuilder::~ProgramBuilder() { }
 
 ProgramBuilder& ProgramBuilder::vertexShader(std::string const& file) {
-    compileShader(file, Shader::Type::VertexShader);
+    compileShader(file, GL_VERTEX_SHADER);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::fragmentShader(std::string const& file) {
-    compileShader(file, Shader::Type::FragmentShader);
+    compileShader(file, GL_FRAGMENT_SHADER);
     return *this;
 }
 
 ProgramBuilder& ProgramBuilder::geometryShader(std::string const& file) {
-    compileShader(file, Shader::Type::GeometryShader);
+    compileShader(file, GL_GEOMETRY_SHADER);
     return *this;
 }
 
@@ -256,7 +258,7 @@ Program ProgramBuilder::build() {
     return p;
 }
 
-Shader* ProgramBuilder::compileShader(std::string const& file, Shader::Type t) {
+Shader* ProgramBuilder::compileShader(std::string const& file, gl::GLenum t) {
     Shader* s;
     // TODO : fix duplication
     if(m_manager) {

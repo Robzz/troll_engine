@@ -2,7 +2,7 @@
 #define SHADER_H
 
 #include <istream>
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 
 namespace Engine {
 
@@ -13,8 +13,12 @@ namespace Engine {
 class Shader {
     friend class ProgramBuilder;
     public:
-        enum class Type { VertexShader = GL_VERTEX_SHADER, FragmentShader = GL_FRAGMENT_SHADER,
-                          GeometryShader = GL_GEOMETRY_SHADER };
+        //enum class Type {
+            //VertexShader = gl::GL_VERTEX_SHADER,
+            //FragmentShader = gl::GL_FRAGMENT_SHADER,
+            //GeometryShader = gl::GL_GEOMETRY_SHADER
+        //};
+
         virtual ~Shader();
 
         /**
@@ -38,8 +42,8 @@ class Shader {
         Shader& operator=(Shader&& other) = delete;
 
     protected:
-        Shader(std::string const& file, Type t);
-        GLuint m_id;
+        Shader(std::string const& file, gl::GLenum t);
+        gl::GLuint m_id;
 };
 
 } // namespace Engine

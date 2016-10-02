@@ -1,3 +1,7 @@
+#ifndef PROGRAM_H
+#include "program.h"
+#endif
+
 template <class T>
 Uniform<T>::~Uniform() { }
 
@@ -8,7 +12,7 @@ void Uniform<T>::set(T const& value) {
 }
 
 template <class T>
-Uniform<T>::Uniform(GLint location, std::string const& name) :
+Uniform<T>::Uniform(gl::GLint location, std::string const& name) :
     UniformBase(location, name),
     m_value()
 { }

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 #include <GLFW/glfw3.h>
 #include "troll_engine.h"
 #include "window.h"

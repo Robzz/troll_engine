@@ -2,6 +2,8 @@
 #include "debug.h"
 #include "scenegraph.h"
 
+using namespace gl;
+
 namespace Engine {
 
 Mesh::Mesh(std::string const& name, AttributeMap attribs, std::vector<std::unique_ptr<VBO>>&& resources,

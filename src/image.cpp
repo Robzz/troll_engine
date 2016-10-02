@@ -1,8 +1,10 @@
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 #include "image.h"
 #include <stdexcept>
 #include <fstream>
 #include <limits>
+
+using namespace gl;
 
 namespace Engine {
 
@@ -100,7 +102,7 @@ Texture* Image::to_texture() const {
     switch(FreeImage_GetBPP(m_image)) {
         case 24:
             buf = reinterpret_cast<unsigned char*>(FreeImage_GetBits(m_image));
-            tex->texData(GL_RGB, GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(width()), static_cast<int>(height()), buf);
+            tex->texData(static_cast<int>(GL_RGB), GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(width()), static_cast<int>(height()), buf);
             break;
         default:
             throw std::runtime_error("Image bpp is not 24 bits");
@@ -128,7 +130,7 @@ Texture* Image::to_depth_texture() const {
     glGetIntegerv(GL_UNPACK_SWAP_BYTES, &swap_bytes);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
     //glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
-    tex->texData(GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(width()), static_cast<int>(height()), v.data());
+    tex->texData(static_cast<int>(GL_DEPTH_COMPONENT16), GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(width()), static_cast<int>(height()), v.data());
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     glPixelStorei(GL_UNPACK_SWAP_BYTES, swap_bytes);
     return tex;

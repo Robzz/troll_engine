@@ -1,7 +1,7 @@
 /**
   * \file include/ubo.h
   * \brief Contains the definition of the UBO class
-  * \author R.Chavignatt
+  * \author R.Chavignat
   */
 #ifndef UBO_H
 #define UBO_H
@@ -143,7 +143,7 @@ namespace Engine {
              *
              * @param hint Buffer usage hint
              */
-            void upload_std140(GLenum hint = GL_DYNAMIC_DRAW);
+            void upload_std140(gl::GLenum hint = gl::GL_DYNAMIC_DRAW);
 
             /*
              * @brief Upload an array of uniform blocks to the GPU.

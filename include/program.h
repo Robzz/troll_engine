@@ -7,7 +7,7 @@
 #define PROGRAM_H
 
 #include "shader.h"
-#include "gl_core_3_3.h"
+#include <glbinding/gl33core/gl.h>
 
 #include <map>
 #include <set>
@@ -34,7 +34,7 @@ class ProgramHandle {
          *
          * \param handle OpenGL shader program handle
          */
-        explicit ProgramHandle(GLuint handle);
+        explicit ProgramHandle(gl::GLuint handle);
 
         /**
          * \brief Destructor
@@ -51,10 +51,10 @@ class ProgramHandle {
          *
          * \return The OpenGL shader program handle
          */
-        GLuint value() const;
+        gl::GLuint value() const;
 
     private:
-        GLuint m_handle;
+        gl::GLuint m_handle;
 };
 
 class Program;
@@ -135,10 +135,10 @@ class UniformBase {
           * \param location Uniform location
           * \param name Uniform name
           */
-        UniformBase(GLint location, std::string const& name);
+        UniformBase(gl::GLint location, std::string const& name);
 
         /** \brief OpenGL uniform location */
-        GLint m_location;
+        gl::GLint m_location;
 
         /** \brief Uniform name */
         std::string m_name;
@@ -197,9 +197,9 @@ class Program {
         /**
           * \brief Return the OpenGL location of an attribute
           */
-        GLint getAttributeLocation(std::string const& name) const;
+        gl::GLint getAttributeLocation(std::string const& name) const;
 
-        GLuint getUniformBlockIndex(std::string const&);
+        gl::GLuint getUniformBlockIndex(std::string const&);
 
         void uniformBlockBinding(unsigned int index, unsigned int binding);
 
@@ -240,7 +240,7 @@ class Program {
           * \brief Return the location of a uniform
           * \param uni Name of the uniform whose location to query.
           */
-        GLint getUniformLocation(std::string const& uni) const;
+        gl::GLint getUniformLocation(std::string const& uni) const;
 
         std::shared_ptr<ProgramHandle> m_id;
         std::vector<UniformBase*> m_uniforms;
@@ -255,7 +255,7 @@ class Program {
  * \param value Uniform value
  */
 template <class T>
-void upload_uniform(const GLint location, T const& value);
+void upload_uniform(const gl::GLint location, T const& value);
 
 /**
  * \class Uniform
@@ -285,7 +285,7 @@ class Uniform : public UniformBase {
           * \param location OpenGL uniform location
           * \param name Uniform name
           */
-        Uniform(GLint location, std::string const& name);
+        Uniform(gl::GLint location, std::string const& name);
 
         /**
           * \brief Upload uniform to GPU. Program must be in use.
@@ -359,7 +359,7 @@ class ProgramBuilder {
         std::vector<Shader*> m_shaders;
         std::vector<std::pair<std::string, UniformType>> m_uniforms;
 
-        Shader* compileShader(std::string const&, Shader::Type t);
+        Shader* compileShader(std::string const&, gl::GLenum t);
 };
 
 #include "program.inl"

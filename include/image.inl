@@ -1,3 +1,7 @@
+#ifndef IMAGE_H
+#include "image.h"
+#endif
+
 template <class T>
 typename std::enable_if<std::is_arithmetic<T>::value, Image>::type
 Image::from_rgb(std::vector<T> vec, int width, int height, bool flip) {

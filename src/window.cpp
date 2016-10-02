@@ -1,6 +1,7 @@
 #include "window.h"
 #include "utility.h"
 
+#include <glbinding/Binding.h>
 #include <iostream>
 #include <sstream>
 #include <utility>
@@ -9,6 +10,8 @@
 #include <QCoreApplication>
 #include <QResizeEvent>
 #endif
+
+using namespace gl;
 
 namespace Engine {
     RenderSurface* RenderSurface::s_currentRenderSurface = nullptr;
@@ -63,7 +66,7 @@ namespace Engine {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug ? GL_TRUE : GL_FALSE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug);
 
         // Create the window and make the context current
         m_w = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
@@ -71,6 +74,7 @@ namespace Engine {
             std::cerr << "Cannot create window" << std::endl;
         window_map[m_w] = this;
         makeCurrent();
+        glbinding::Binding::initialize();
 
         //ogl_CheckExtensions();
         glEnable(GL_DEBUG_OUTPUT);
@@ -151,7 +155,7 @@ namespace Engine {
     }
 
     void GLFWWindow::close() {
-        glfwSetWindowShouldClose(m_w, GL_TRUE);
+        glfwSetWindowShouldClose(m_w, true);
     }
 
     void GLFWWindow::pollEvents() {

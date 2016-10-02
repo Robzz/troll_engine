@@ -5,13 +5,15 @@
 
 #include "debug.h"
 
+using namespace gl;
+
 namespace Engine {
 
-Shader::Shader(std::string const& file, Shader::Type t) :
+Shader::Shader(std::string const& file, gl::GLenum t) :
     m_id()
 {
     // Read source and compile
-    m_id = glCreateShader(static_cast<GLuint>(t));
+    m_id = glCreateShader(t);
     std::ifstream in_file(file);
     std::stringstream ss;
     ss << in_file.rdbuf();
@@ -27,7 +29,7 @@ Shader::~Shader() {
 }
 
 Shader::operator bool() const {
-    GLint compile_status = 0;
+    GLboolean compile_status = 0;
     glGetShaderiv(m_id, GL_COMPILE_STATUS, &compile_status);
     return compile_status == GL_TRUE;
 }

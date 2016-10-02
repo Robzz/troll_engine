@@ -1,3 +1,7 @@
+#ifndef UBO_H
+#include "ubo.h"
+#endif
+
 template <class U>
 UBO<U>::UBO() :
     VBO(traits::block_size<U>::value),
@@ -8,7 +12,7 @@ template <class U>
 UBO<U>::~UBO() { }
 
 template <class U>
-void UBO<U>::upload_std140(GLenum hint) {
+void UBO<U>::upload_std140(gl::GLenum hint) {
     traits::uploadUBOStd140Impl<U, 0>::f(data, *this);
 }
 
