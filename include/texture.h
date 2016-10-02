@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "image.h"
+
 namespace Engine {
 
 // TODO : solve "ownership" issues (i.e. what Texture object owns the texture?)
@@ -36,6 +38,9 @@ class Texture {
       * \brief Move-assignment operator
       */
     Texture& operator=(Texture&& other);
+
+    static Texture fromImage(Image const& img);
+    static Texture depthTextureFromImage(Image const& img);
 
     /**
       * \brief Bind the texture to the specified binding point.

@@ -43,14 +43,12 @@ elseif(WINDOW_QT5)
     add_definitions(-DTROLL_USE_QT5)
 endif()
 
+add_subdirectory("image")
+
 find_package(Boost 1.58 REQUIRED)
 find_package(OpenGL)
 find_package(glbinding REQUIRED)
-find_library(FREEIMAGE_LIBRARY freeimage)
 find_library(ASSIMP_LIBRARY assimp)
-if(${FREEIMAGE_LIBRARY} STREQUAL FREEIMAGE_LIBRARY-NOTFOUND)
-    message(FATAL_ERROR "libfreeimage not found.")
-endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     #add_definitions(-DGL_TRACE)
@@ -80,7 +78,6 @@ set(TROLL_SOURCES
     ${troll_src_dir}/mesh.cpp
     ${troll_src_dir}/attribute.cpp
     ${troll_src_dir}/fbo.cpp
-    ${troll_src_dir}/image.cpp
     ${troll_src_dir}/transform.cpp
     ${troll_src_dir}/utility.cpp
     ${troll_src_dir}/sceneimporter.cpp
@@ -110,8 +107,6 @@ set(TROLL_HEADERS
     ${troll_include_dir}/attribute.h
     ${troll_include_dir}/fbo.h
     ${troll_include_dir}/fbo.inl
-    ${troll_include_dir}/image.h
-    ${troll_include_dir}/image.inl
     ${troll_include_dir}/transform.h
     ${troll_include_dir}/transform.inl
     ${troll_include_dir}/utility.h
@@ -122,20 +117,21 @@ set(TROLL_HEADERS
 set(TROLL_INCLUDE_DIRS ${TROLL_INCLUDE_DIRS} ${troll_include_dir} ${Boost_INCLUDE_DIRS})
 
 add_library(TrollEngine STATIC ${TROLL_SOURCES} ${TROLL_HEADERS})
-include_directories(${TROLL_INCLUDE_DIRS})
+include_directories(${TROLL_INCLUDE_DIRS} "image")
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREEIMAGE_LIBRARY} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY} glbinding::glbinding)
+set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY} glbinding::glbinding image)
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
-# Enable C++14 and a proper metric fuckton of extra warnings
+# Enable C++14 and some extra warnings
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    set(cxx_extra_flags -Wdocumentation)
+endif()
 set_property(TARGET TrollEngine PROPERTY CXX_STANDARD 14)
-target_compile_options(TrollEngine PUBLIC -Wdocumentation -Wall -Wextra)
+target_compile_options(TrollEngine PUBLIC ${cxx_extra_flags} -Wall -Wextra)
 # Silence some expected warnings
 set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
-
-export(TARGETS TrollEngine FILE troll-exports.cmake)
 
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
