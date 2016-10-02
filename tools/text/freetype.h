@@ -5,6 +5,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include "image.h"
+
 class FreeType;
 
 void check_error(bool e);
@@ -18,17 +20,35 @@ class Face {
         long numFaces() const;
         long numGlyphs() const;
 
-        int glyphIndex(char c) const;
-        void loadGlyph(int glyphIndex);
-
         void setCharSize(unsigned int width, unsigned int height, int resolution);
         void setCharSize(unsigned int pixelSize);
+
+        /**
+         * @brief Return an 8-bit greyscale bitmap of the specified character.
+         *
+         * @param c Character
+         *
+         * @return Bitmap representing c
+         */
+        Image getCharBitmap(char c);
+
+        /**
+         * @brief Return a binary greyscale bitmap of the specified character.
+         *
+         * @param c Character
+         *
+         * @return Bitmap representing c
+         */
+        Image getCharBitmapBinary(char c);
 
     private:
         FT_Face m_face;
 
         /* Default constructor */
         Face();
+
+        int glyphIndex(char c) const;
+        void loadGlyph(int glyphIndex);
 };
 
 class FreeType {
