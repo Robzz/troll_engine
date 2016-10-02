@@ -15,14 +15,16 @@ else()
     add_custom_target(doxygen_docs)
 endif()
 
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_TESTS "Build the test suite" OFF)
+option(BUILD_TOOLS "Build the tools" ON)
+option(WINDOW_GLFW "Use the GLFW library" ON)
+option(WINDOW_QT5  "Use the Qt5 Library" OFF)
 
 set(troll_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(troll_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Windowing system setup
-option(WINDOW_GLFW "Use the GLFW library" ON)
-option(WINDOW_QT5  "Use the Qt5 Library" OFF)
 if(WINDOW_GLFW AND WINDOW_QT5)
     message(FATAL_ERROR "You must choose only one window library (GLFW/Qt5).")
 elseif(NOT WINDOW_GLFW AND NOT WINDOW_QT5)
@@ -58,8 +60,6 @@ else()
     set_source_files_properties(src/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 endif()
 add_definitions(-DGLM_FORCE_SWIZZLE)
-
-option(TROLL_BUILD_EXAMPLES "Build examples" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -135,7 +135,9 @@ target_compile_options(TrollEngine PUBLIC -Wdocumentation -Wall -Wextra)
 # Silence some expected warnings
 set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
-if(TROLL_BUILD_EXAMPLES)
+export(TARGETS TrollEngine FILE troll-exports.cmake)
+
+if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
@@ -143,7 +145,9 @@ if(BUILD_TESTS)
     add_subdirectory("tests")
 endif()
 
-export(TARGETS TrollEngine FILE troll-exports.cmake)
+if(BUILD_TOOLS)
+    add_subdirectory("tools")
+endif()
 
 # Archive target
 set(ARCHIVE_FILES
