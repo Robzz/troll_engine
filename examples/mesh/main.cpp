@@ -89,7 +89,7 @@ int main(int, char**) {
     uboMat.bindBase(GL_UNIFORM_BUFFER, 0);
     uboLight.bindBase(GL_UNIFORM_BUFFER, 1);
 
-    auto tex = Image("metal.jpg").to_texture();
+    auto tex = Texture::fromRGBImage(RGBImage::load("metal.jpg"));
 
     SceneImporter imp;
     imp.readFile("teapot.obj", SceneImporter::PostProcess::JoinVertices | SceneImporter::PostProcess::GenerateNormals | SceneImporter::PostProcess::FlipWindingOrder);
@@ -99,8 +99,8 @@ int main(int, char**) {
     SceneGraph scene;
     auto teapotNode = teapot->instantiate(glm::mat4(1.f), &program);
     auto topNode = top->instantiate(glm::mat4(1.f), &program);
-    teapotNode->set_texture(tex);
-    topNode->set_texture(tex);
+    teapotNode->set_texture(&tex);
+    topNode->set_texture(&tex);
     scene.addChild(teapotNode);
     scene.addChild(topNode);
 

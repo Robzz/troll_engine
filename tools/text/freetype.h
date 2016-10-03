@@ -30,7 +30,7 @@ class Face {
          *
          * @return Bitmap representing c
          */
-        Image getCharBitmap(char c);
+        GreyscaleImage getCharBitmap(char c);
 
         /**
          * @brief Return a binary greyscale bitmap of the specified character.
@@ -39,7 +39,7 @@ class Face {
          *
          * @return Bitmap representing c
          */
-        Image getCharBitmapBinary(char c);
+        GreyscaleImage getCharBitmapBinary(char c);
 
     private:
         FT_Face m_face;

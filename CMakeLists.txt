@@ -134,7 +134,7 @@ target_compile_options(TrollEngine PUBLIC ${cxx_extra_flags} -Wall -Wextra)
 set_source_files_properties(${troll_src_dir}/debug.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
 
 if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
+    add_subdirectory("examples")
 endif()
 
 if(BUILD_TESTS)

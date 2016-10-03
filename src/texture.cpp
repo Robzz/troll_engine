@@ -42,44 +42,29 @@ Texture::~Texture() {
         glDeleteTextures(1, &m_id);
 }
 
-Texture Texture::fromImage(Image const& img) {
+Texture Texture::fromRGBImage(RGBImage const& img) {
     Texture t;
-    const unsigned char* buf = nullptr;
-    switch(img.bpp()) {
-        case 24:
-            buf = img.getBits();
-            t.texData(static_cast<int>(GL_RGB), GL_BGR, GL_UNSIGNED_BYTE, static_cast<int>(img.width()), static_cast<int>(img.height()), buf);
-            break;
-        default:
-            throw runtime_error("Image bpp is not 24 bits");
-            break;
-    }
+    const RGBTriple* buf = nullptr;
+    buf = img.getBits();
+    t.texData(static_cast<int>(GL_RGB), GL_BGR, GL_UNSIGNED_BYTE,
+              img.width(), img.height(), buf);
     t.generateMipmap();
 
     return t;
 }
 
-Texture Texture::depthTextureFromImage(Image const& img) {
+Texture Texture::depthTextureFromImage(GreyscaleImage const& img) {
     Texture t;
-    if(img.bpp() != 16 || img.type() != Image::Type::Uint16) {
-        throw runtime_error("Incompatible bit depth (must be 16bit greyscale)");
-    }
     vector<float> v;
-    for(int i = 0 ; i != static_cast<int>(img.height()) ; ++i) {
-        auto scanline = reinterpret_cast<const unsigned short*>(img.getScanLine(i));
-        for(unsigned int j = 0 ; j != img.width() ; ++j) {
-            float f = static_cast<float>(scanline[j]) / numeric_limits<unsigned short>::max();
+    for(int i = 0 ; i != img.height() ; ++i) {
+        const byte* scanline = img.getScanline(i);
+        for(int j = 0 ; j != img.width() ; ++j) {
+            float f = static_cast<float>(scanline[j]) / 255;
             v.push_back(f);
         }
     }
-    GLint alignment, swap_bytes;
-    glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
-    glGetIntegerv(GL_UNPACK_SWAP_BYTES, &swap_bytes);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
-    //glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
-    t.texData(static_cast<int>(GL_DEPTH_COMPONENT16), GL_DEPTH_COMPONENT, GL_FLOAT, static_cast<int>(img.width()), static_cast<int>(img.height()), v.data());
-    glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-    glPixelStorei(GL_UNPACK_SWAP_BYTES, swap_bytes);
+    t.texData(static_cast<int>(GL_DEPTH_COMPONENT), GL_DEPTH_COMPONENT, GL_FLOAT,
+              img.width(), img.height(), v.data());
 
     return t;
 }

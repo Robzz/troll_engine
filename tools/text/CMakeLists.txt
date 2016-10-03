@@ -6,7 +6,7 @@ set(TOOL_TEXT_SOURCES
 set(TOOL_TEXT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/freetype.h)
 
 add_executable(text ${TOOL_TEXT_SOURCES} ${TOOL_TEXT_HEADERS})
-include_directories(${FREETYPE_INCLUDE_DIRS})
+target_include_directories(text PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(text ${FREETYPE_LIBRARIES} image)
 
 set_property(TARGET text PROPERTY CXX_STANDARD 14)

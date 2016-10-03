@@ -39,8 +39,8 @@ class Texture {
       */
     Texture& operator=(Texture&& other);
 
-    static Texture fromImage(Image const& img);
-    static Texture depthTextureFromImage(Image const& img);
+    static Texture fromRGBImage(RGBImage const& img);
+    static Texture depthTextureFromImage(GreyscaleImage const& img);
 
     /**
       * \brief Bind the texture to the specified binding point.
