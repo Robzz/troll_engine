@@ -11,7 +11,9 @@ void check_error(bool e) {
 }
 
 Face::Face() :
-    m_face() { }
+    m_face(),
+    loaded_glyph(0)
+{ }
 
 Face::~Face() { }
 
@@ -27,8 +29,11 @@ int Face::glyphIndex(char c) const {
     return FT_Get_Char_Index(m_face, c);
 }
 
-void Face::loadGlyph(int glyphIndex) {
-    check_error(FT_Load_Glyph(m_face, glyphIndex, 0));
+void Face::loadGlyph(char c) {
+    if(loaded_glyph != c) {
+        check_error(FT_Load_Glyph(m_face, glyphIndex(c), 0));
+        loaded_glyph = c;
+    }
 }
 
 void Face::setCharSize(unsigned int width, unsigned int height, int resolution) {
@@ -40,7 +45,7 @@ void Face::setCharSize(unsigned int pixelSize) {
 }
 
 GreyscaleImage Face::getCharBitmap(char c) {
-    loadGlyph(glyphIndex(c));
+    loadGlyph(c);
     check_error(FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL));
     FT_Bitmap bitmap = m_face->glyph->bitmap;
     int w = bitmap.width, h = bitmap.rows;
@@ -57,18 +62,18 @@ GreyscaleImage Face::getCharBitmap(char c) {
     return img;
 }
 
-GreyscaleImage Face::getCharBitmapBinary(char c) {
-    loadGlyph(glyphIndex(c));
+BinaryImage Face::getCharBitmapBinary(char c) {
+    loadGlyph(c);
     check_error(FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_MONO));
     FT_Bitmap bitmap = m_face->glyph->bitmap;
     int w = bitmap.width, h = bitmap.rows;
-    GreyscaleImage img(w, h);
+    BinaryImage img(w, h);
 
     byte* ptr = m_face->glyph->bitmap.buffer;
     for(int y = 0 ; y != h ; ++y) {
         for(int x = 0 ; x != w ; ++x) {
             byte i = 128 >> (x % 8);
-            byte pixel = (ptr[x/8 + m_face->glyph->bitmap.pitch * y] & i) ? 255 : 0;
+            bool pixel = ptr[x/8 + m_face->glyph->bitmap.pitch * y] & i;
             img.setPixel(x, h - 1 - y, pixel);
         }
     }

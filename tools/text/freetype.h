@@ -39,16 +39,17 @@ class Face {
          *
          * @return Bitmap representing c
          */
-        GreyscaleImage getCharBitmapBinary(char c);
+        BinaryImage getCharBitmapBinary(char c);
 
     private:
         FT_Face m_face;
+        char loaded_glyph;
 
         /* Default constructor */
         Face();
 
         int glyphIndex(char c) const;
-        void loadGlyph(int glyphIndex);
+        void loadGlyph(char c);
 };
 
 class FreeType {
