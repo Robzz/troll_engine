@@ -29,6 +29,15 @@ ostream& operator<<(ostream& s, glm::mat4 const& m) {
     return s;
 }
 
+ostream& operator<<(ostream& s, glm::vec2 const& v) {
+    s << "[ ";
+    for(int j = 0 ; j != 2 ; ++j) {
+        s << v[j] << ' ';
+    }
+    s << ']';
+    return s;
+}
+
 ostream& operator<<(ostream& s, glm::vec3 const& v) {
     s << "[ ";
     for(int j = 0 ; j != 3 ; ++j) {

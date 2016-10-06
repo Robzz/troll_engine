@@ -25,6 +25,7 @@ typedef std::function<void(gl::GLenum source,
 // Some debug pretty-print functions
 std::ostream& operator<<(std::ostream& s, glm::mat3 const& m);
 std::ostream& operator<<(std::ostream& s, glm::mat4 const& m);
+std::ostream& operator<<(std::ostream& s, glm::vec2 const& v);
 std::ostream& operator<<(std::ostream& s, glm::vec3 const& v);
 std::ostream& operator<<(std::ostream& s, glm::vec4 const& v);
 template<class T>

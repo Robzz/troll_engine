@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "image.h"
 #include "debug.h"
 #include <vector>
 
@@ -42,11 +43,22 @@ Texture::~Texture() {
         glDeleteTextures(1, &m_id);
 }
 
-Texture Texture::fromRGBImage(RGBImage const& img) {
+Texture Texture::fromImage(RGBImage const& img) {
     Texture t;
     const RGBTriple* buf = nullptr;
     buf = img.getBits();
     t.texData(static_cast<int>(GL_RGB), GL_BGR, GL_UNSIGNED_BYTE,
+              img.width(), img.height(), buf);
+    t.generateMipmap();
+
+    return t;
+}
+
+Texture Texture::fromImage(GreyscaleImage const& img) {
+    Texture t;
+    const byte* buf = nullptr;
+    buf = img.getBits();
+    t.texData(static_cast<int>(GL_RED), GL_RED, GL_UNSIGNED_BYTE,
               img.width(), img.height(), buf);
     t.generateMipmap();
 

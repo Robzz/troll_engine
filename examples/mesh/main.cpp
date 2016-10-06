@@ -89,7 +89,7 @@ int main(int, char**) {
     uboMat.bindBase(GL_UNIFORM_BUFFER, 0);
     uboLight.bindBase(GL_UNIFORM_BUFFER, 1);
 
-    auto tex = Texture::fromRGBImage(RGBImage::load("metal.jpg"));
+    auto tex = Texture::fromImage(RGBImage::load("metal.jpg"));
 
     SceneImporter imp;
     imp.readFile("teapot.obj", SceneImporter::PostProcess::JoinVertices | SceneImporter::PostProcess::GenerateNormals | SceneImporter::PostProcess::FlipWindingOrder);
@@ -105,9 +105,9 @@ int main(int, char**) {
     scene.addChild(topNode);
 
     float theta = 0.f, dt = 0.1f;
-    glm::mat4 p = glm::perspective(55.f, 16.f / 9.f, 0.1f, 100.f),
-              t = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.25f, -1.f)),
-              s = glm::scale(glm::mat4(1.f), glm::vec3(1.f/100, -1.f/100, 1.f/100)),
+    glm::mat4 p = glm::perspective(glm::radians(55.f), 16.f / 9.f, 0.1f, 100.f),
+              t = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -.5f, -2.f)),
+              s = glm::scale(glm::mat4(1.f), glm::vec3(1.f/100, 1.f/100, 1.f/100)),
               r = glm::rotate(glm::mat4(1.f), 0.f, glm::vec3(0.f, 1.f, 0.f)),
               m = t * r * s;
     glm::mat3 nt = glm::inverseTranspose(glm::mat3(m));

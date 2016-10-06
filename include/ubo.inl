@@ -12,7 +12,7 @@ template <class U>
 UBO<U>::~UBO() { }
 
 template <class U>
-void UBO<U>::upload_std140(gl::GLenum hint) {
+void UBO<U>::upload_std140(gl::GLenum) {
     traits::uploadUBOStd140Impl<U, 0>::f(data, *this);
 }
 

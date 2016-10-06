@@ -8,6 +8,8 @@
 #ifndef GL_TRAITS_H
 #define GL_TRAITS_H
 
+#include <glm/glm.hpp>
+
 namespace Engine {
     namespace traits {
         /**
@@ -21,6 +23,11 @@ namespace Engine {
         template <class T>
         struct glsl_alignment<T&> {
             static constexpr size_t value = glsl_alignment<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value;
+        };
+
+        template <>
+        struct glsl_alignment<bool> {
+            static constexpr size_t value = 4;
         };
 
         template <>

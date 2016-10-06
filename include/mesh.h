@@ -77,6 +77,17 @@ class Mesh {
           */
         unsigned int numFaces() const;
 
+        // TODO: move these out of here
+        /**
+         * @brief Return a unit quad centered on the origin.
+         */
+        static std::unique_ptr<Mesh> quad();
+
+        /**
+         * @brief Return a strip of quads
+         */
+        static std::unique_ptr<Mesh> quadStrip(std::vector<glm::vec2> const& uvs);
+
     protected:
         friend class MeshBuilder;
         /**

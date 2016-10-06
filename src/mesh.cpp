@@ -3,6 +3,7 @@
 #include "scenegraph.h"
 
 using namespace gl;
+using namespace std;
 
 namespace Engine {
 
@@ -83,6 +84,52 @@ DrawableNode* Mesh::instantiate(glm::mat4 const& position, Program* p, Texture c
 
 unsigned int Mesh::numVertices() const { return m_nVertices; }
 unsigned int Mesh::numFaces() const { return m_nIndices; }
+
+std::unique_ptr<Mesh> Mesh::quad() {
+    MeshBuilder mb("Quad");
+    mb.vertices({glm::vec3(-0.5f, 0.5f, 0.f), glm::vec3(0.5f, 0.5f, 0.f),
+                 glm::vec3(0.5f, -0.5f, 0.f), glm::vec3(-0.5f, -0.5f, 0.f)});
+    mb.normals({glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 1.f),
+                glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)});
+    mb.uvs({glm::vec2(0.f, 1.f), glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f),
+            glm::vec2(0.f, 0.f)});
+    mb.faces(std::vector<unsigned char>({0, 2, 1, 0, 3, 2}));
+    return mb.build_mesh();
+}
+
+std::unique_ptr<Mesh> Mesh::quadStrip(vector<glm::vec2> const& uvs) {
+    if(uvs.size() % 4) {
+        throw runtime_error("Wrong number of UV coordinates");
+    }
+    int nQuads = uvs.size() / 4;
+    vector<glm::vec3> vertices, normals;
+    vector<unsigned int> indices;
+    vertices.reserve(4*nQuads);
+    normals.reserve(4*nQuads);
+    indices.reserve(6*nQuads);
+    for(int i = 0 ; i != nQuads ; ++i) {
+        float fi = i;
+        unsigned int indicesBufLen = i * 4;
+        vertices.insert(vertices.end(),
+                        {glm::vec3(fi      , 1.f, 0.f), glm::vec3(fi + 1.f, 1.f, 0.f),
+                         glm::vec3(fi + 1.f, 0.f, 0.f), glm::vec3(fi      , 0.f, 0.f)}
+        );
+        normals.insert(normals.end(),
+                       {glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 1.f),
+                        glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 1.f)}
+        );
+        indices.insert(indices.end(),
+                       {indicesBufLen + 0, indicesBufLen + 2, indicesBufLen + 1,
+                        indicesBufLen + 0, indicesBufLen + 3, indicesBufLen + 2}
+        );
+    }
+    MeshBuilder mb("QuadStrip");
+    mb.vertices(vertices);
+    mb.normals(normals);
+    mb.uvs(uvs);
+    mb.faces(std::move(indices));
+    return mb.build_mesh();
+}
 
 MeshBuilder::MeshBuilder(std::string const& name) :
     m_meshName(name),

@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "image.h"
+class RGBImage;
+class GreyscaleImage;
 
 namespace Engine {
 
@@ -39,7 +40,8 @@ class Texture {
       */
     Texture& operator=(Texture&& other);
 
-    static Texture fromRGBImage(RGBImage const& img);
+    static Texture fromImage(RGBImage const& img);
+    static Texture fromImage(GreyscaleImage const& img);
     static Texture depthTextureFromImage(GreyscaleImage const& img);
 
     /**
