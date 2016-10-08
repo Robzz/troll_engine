@@ -11,97 +11,18 @@ byte mapFloat01ToByte(float f) {
     return static_cast<int>(f * 255);
 }
 
-GreyscaleImage deadReckoning3x3(BinaryImage const& source) {
-    std::vector<std::vector<ImageCoords>> p(source.width());
-    GreyscaleImage out(source.width(), source.height());
-
-    // Initialization
-    for(int x = 0 ; x != source.height() ; ++x) {
-        p[x].reserve(source.height());
-        for(int y = 0 ; y != source.width() ; ++y) {
-            if((y != (source.height() - 1) && source.getPixel(x, y) != source.getPixel(x, y + 1)) ||
-               (x != 0 && source.getPixel(x, y) != source.getPixel(x - 1, y)) ||
-               (x != (source.width() - 1) && source.getPixel(x, y) != source.getPixel(x + 1, y)) ||
-               (y != 0 && source.getPixel(x, y) != source.getPixel(x, y - 1))) {
-                p[x][y] = {x, y};
-                out.setPixel(x, y, 0);
-            }
-            else {
-                p[x][y] = {-1, -1};
-                out.setPixel(x, y, 255);
-            }
+void remapDistanceFieldRange(GreyscaleImage& img, int spread) {
+    for(int y = 0 ; y != img.width() ; ++y) {
+        for(int x = 0 ; x != img.height() ; ++x) {
+            byte b = img.getPixel(x, y);
+            float bf = b;
+            bf = (bf - 128.f) / spread;
+            bf = clamp<float>(-1.f, 1.f, bf);
+            bf = (bf + 1.f) * (255.f / 2.f);
+            b = bf;
+            img.setPixel(x, y, b);
         }
     }
-
-    float d1 = 1.f, d2 = sqrt(2.f);
-    // Forward pass
-    for(int y = 1 ; y != source.height() ; ++y) {
-        for(int x = 1 ; x != source.width() - 1 ; ++x) {
-            int i1, i2;
-            if(out.getPixel(x-1, y-1) + d2 < out.getPixel(x, y)) {
-                p[x][y] = p[x-1][y-1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x, y-1) + d1 < out.getPixel(x, y)) {
-                p[x][y] = p[x][y-1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x+1, y-1) + d2 < out.getPixel(x, y)) {
-                p[x][y] = p[x+1][y-1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x-1, y) + d1 < out.getPixel(x, y)) {
-                p[x][y] = p[x-1][y];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-        }
-    }
-
-    // Backward pass
-    for(int y = source.height()- 2 ; y >= 0 ; --y) {
-        for(int x = source.width() - 2 ; x != 0 ; --x) {
-            int i1, i2;
-            if(out.getPixel(x+1, y+1) + d2 < out.getPixel(x, y)) {
-                p[x][y] = p[x+1][y+1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x, y+1) + d1 < out.getPixel(x, y)) {
-                p[x][y] = p[x][y+1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x-1, y+1) + d2 < out.getPixel(x, y)) {
-                p[x][y] = p[x-1][y+1];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-            if(out.getPixel(x+1, y) + d1 < out.getPixel(x, y)) {
-                p[x][y] = p[x+1][y];
-                i1 = x - p[x][y].x, i2 = y - p[x][y].y;
-                out.setPixel(x, y, sqrt(i1*i1 + i2*i2));
-            }
-        }
-    }
-
-    const float spread = 10.f;
-    // Final pass
-    for(int y = 0 ; y != out.height() ; ++y) {
-        for(int x = 0 ; x != out.width() ; ++x) {
-            float d = out.getPixel(x, y);
-            d = min(max(0.f, d / spread), 1.f);
-            if(source.getPixel(x, y))
-                out.setPixel(x, y, mapFloat01ToByte(0.5f + d / 2));
-            else
-                out.setPixel(x, y, mapFloat01ToByte(0.5f - d / 2));
-        }
-    }
-
-    return out;
 }
 
 int main(int argc, char** argv) {
@@ -117,7 +38,8 @@ int main(int argc, char** argv) {
         int dx = resolution - glyph.width(), dy = resolution - glyph.height();
         glyphTile.blit({dx / 2, dy / 2}, {0, 0, glyph.width(), glyph.height()}, glyph);
 
-        auto glyphDistMap = deadReckoning3x3(glyphTile);
+        auto glyphDistMap = glyphTile.deadReckoning3x3();
+        remapDistanceFieldRange(glyphDistMap, 10);
 
         int i = c - 32,
             n = texture_resolution / resolution,
