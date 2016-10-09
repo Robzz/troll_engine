@@ -46,8 +46,9 @@ endif()
 add_subdirectory("image")
 
 find_package(Boost 1.58 REQUIRED)
-find_package(OpenGL)
+find_package(OpenGL REQUIRED)
 find_package(glbinding REQUIRED)
+find_package(yaml-cpp REQUIRED)
 find_library(ASSIMP_LIBRARY assimp)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -121,7 +122,7 @@ include_directories(${TROLL_INCLUDE_DIRS} "image")
 
 set_target_properties(TrollEngine PROPERTIES OUTPUT_NAME troll)
 
-set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY} glbinding::glbinding image)
+set(TROLL_LIBRARIES ${TROLL_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${Boost_LIBRARIES} ${ASSIMP_LIBRARY} ${OPENGL_gl_LIBRARY} ${YAML_CPP_LIBRARIES} glbinding::glbinding image)
 target_link_libraries(TrollEngine ${TROLL_LIBRARIES})
 
 # Enable C++14 and some extra warnings
