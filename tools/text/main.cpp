@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cmath>
+#include <yaml-cpp/yaml.h>
+#include <fstream>
 #include "freetype.h"
+#include "bsptree2d.h"
 
 using namespace std;
 
@@ -25,13 +28,16 @@ void remapDistanceFieldRange(GreyscaleImage& img, int spread) {
     }
 }
 
-int main(int argc, char** argv) {
+int main(int, char**) {
     FreeType ft;
     Face f = ft.loadFace("/usr/share/fonts/truetype/msttcorefonts/arial.ttf");
-    f.setCharSize(300);
+    f.setCharSize(resolution);
 
     auto fontMap = BinaryImage(texture_resolution, texture_resolution);
     auto distMap = GreyscaleImage(texture_resolution, texture_resolution);
+    BspTree2D bsp({0, 0, texture_resolution, texture_resolution});
+    YAML::Emitter out;
+    out << YAML::BeginMap;
     for(char c = 33 ; c != 127 ; ++c) {
         auto glyph = f.getCharBitmapBinary(c);
         BinaryImage glyphTile(resolution, resolution);
@@ -40,15 +46,31 @@ int main(int argc, char** argv) {
 
         auto glyphDistMap = glyphTile.deadReckoning3x3();
         remapDistanceFieldRange(glyphDistMap, 10);
-
-        int i = c - 32,
-            n = texture_resolution / resolution,
-            x = i % n, y = i / n;
-        fontMap.blit({x * resolution, y * resolution}, {0, 0, resolution, resolution}, glyphTile);
-        distMap.blit({x * resolution, y * resolution}, {0, 0, resolution, resolution}, glyphDistMap);
-
-        cout << "Done character " << c << " (" << static_cast<int>(c) << ")" << endl;
+        auto aabb = glyphDistMap.getAABB(0);
+        try {
+            auto& n = bsp.root()->fit(aabb.width, aabb.height);
+            n.setChar(c);
+            auto r = n.getRect();
+            fontMap.blit({r.x, r.y}, {aabb.x, aabb.y, aabb.width, aabb.height}, glyphTile);
+            distMap.blit({r.x, r.y}, {aabb.x, aabb.y, aabb.width, aabb.height}, glyphDistMap);
+            cout << "Fit character " << c << " at " << r << endl;
+            out << YAML::Key << to_string(static_cast<int>(c))
+                << YAML::Value << YAML::BeginSeq
+                    << r.x
+                    << r.y
+                    << r.width
+                    << r.height
+                << YAML::EndSeq;
+        }
+        catch(runtime_error& e) {
+            cout << "Couldn't fit character " << c << endl;
+            cout << "Error: " << e.what() << endl;
+        }
     }
+    out << YAML::EndMap;
+    ofstream outFile("font.yaml", ios_base::out | ios_base::trunc);
+    outFile << out.c_str();
+    outFile.close();
     fontMap.save("font.bmp", ImageFormat::Bmp);
     distMap.save("distanceField.png", ImageFormat::Png);
 }

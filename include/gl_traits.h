@@ -20,6 +20,7 @@ namespace Engine {
         template <class T>
         struct glsl_alignment;
 
+        #ifndef DOX_SKIP_BLOCK
         template <class T>
         struct glsl_alignment<T&> {
             static constexpr size_t value = glsl_alignment<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value;
@@ -39,7 +40,7 @@ namespace Engine {
         struct glsl_alignment<glm::vec3> {
             static constexpr size_t value = 16;
         };
-
+        #endif // DOX_SKIP_BLOCK
     } // namespace traits
 } // namespace Engine
 

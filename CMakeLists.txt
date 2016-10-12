@@ -48,7 +48,7 @@ add_subdirectory("image")
 find_package(Boost 1.58 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glbinding REQUIRED)
-find_package(yaml-cpp REQUIRED)
+find_package(yaml-cpp 0.5.2 REQUIRED)
 find_library(ASSIMP_LIBRARY assimp)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)

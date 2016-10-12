@@ -24,6 +24,15 @@ template <class T>
 void dump_binary(std::vector<T> const& vec, std::string const& filename);
 
 namespace traits {
+    /**
+     * @brief Enable the bitmask operators (| and &) for the specified type.
+     *
+     * Specialize this template with the enable value set to true to enable
+     * the | and & operators for the given type. This is particurlarly useful
+     * for enum class types intended to be used as bitflags.
+     *
+     * @tparam E Bitflag type
+     */
     template <class E>
     struct enable_bitmask_operators {
         static constexpr bool enable = false;
@@ -78,7 +87,7 @@ template <class... T>
 struct type_list { };
 
 /**
- * @brief Meta-function returning the number of types in a type list.
+ * @brief Meta-function returning the number of types in a type_list.
  *
  * @tparam T type_list type
  */
@@ -93,6 +102,12 @@ template <>
 struct type_list_length<type_list<>> : boost::mpl::size_t<0> { };
 #endif // DOX_SKIP_BLOCK
 
+/**
+ * @brief Meta-function returning the i-th type in a type_list.
+ *
+ * @tparam T type_list instance
+ * @tparam i Index
+ */
 template <class T, unsigned int i>
 struct type_list_get;
 
@@ -108,12 +123,14 @@ struct type_list_get<type_list<H, T...>, 0> {
     using type = H;
 };
 
+// TODO: shouldn't this be a constexpr function?
 template <intptr_t addr, ptrdiff_t alignment>
 struct align : std::integral_constant<intptr_t,
     (addr % alignment == 0) ?
     addr :
     (addr + alignment - addr % alignment)> { };
 
+// TODO: huh? Shouldn't I delete this? This looks fairly useless.
 template <unsigned int i>
 struct type_list_get<type_list<>, i>;
 

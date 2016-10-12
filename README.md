@@ -21,7 +21,7 @@ The build system is based on CMake.
 * GLFW3 or Qt5 (Qt5 development on hold)
 * GLM >= 0.9.8
 * [My small image toolkit](https://github.com/robzz/image)
-* yaml-cpp
+* yaml-cpp >= 0.5.3
 
 Optional dependencies
 
